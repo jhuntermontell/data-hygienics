@@ -58,7 +58,7 @@ export default function ContactSection() {
             </h2>
             <p className="text-zinc-500 leading-relaxed text-lg">
               Whether you need a tool built, a strategy session, or just want to
-              ask a question — reach out. I&apos;m happy to hear from you.
+              ask a question, reach out. We&apos;d love to hear from you.
             </p>
           </motion.div>
 
@@ -90,7 +90,7 @@ export default function ContactSection() {
                   Message received.
                 </h3>
                 <p className="text-zinc-500 text-sm">
-                  I&apos;ll get back to you within 24 hours.
+                  We&apos;ll get back to you within 24 hours.
                 </p>
               </div>
             ) : (
@@ -124,7 +124,7 @@ export default function ContactSection() {
                   <Textarea
                     id="message"
                     name="message"
-                    placeholder="Tell me what you're working on..."
+                    placeholder="Tell us what you're working on..."
                     value={formData.message}
                     onChange={handleChange}
                     required

@@ -13,14 +13,14 @@ const services = [
     icon: Lightbulb,
     title: "Consulting & Strategy",
     description:
-      "Not sure where to start with AI or your data? I'll help you cut through the noise and build a real plan.",
+      "Not sure where to start with AI or your data? We'll help you cut through the noise and build a real plan.",
     highlighted: true,
   },
   {
     icon: Code2,
     title: "Custom Software",
     description:
-      "Need something built? I scope, design, and ship software that solves actual problems.",
+      "Need something built? We scope, design, and ship software that solves actual problems.",
   },
 ]
 
@@ -50,7 +50,7 @@ export default function WhatIDo() {
             Services
           </span>
           <h2 className="text-4xl md:text-5xl font-black text-white mt-3 leading-tight tracking-tight">
-            How I Can Help.
+            How We Can Help.
           </h2>
         </motion.div>
 

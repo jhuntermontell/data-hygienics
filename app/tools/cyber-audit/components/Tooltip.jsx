@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Info } from "lucide-react"
-import Link from "next/link"
 import { resolveControlSlug } from "@/lib/cyber-audit/control-slugs"
 
 export default function Tooltip({ tooltip }) {
@@ -50,13 +49,15 @@ export default function Tooltip({ tooltip }) {
               </div>
             )}
             {controlSlug && (
-              <Link
+              <a
                 href={`/controls/${controlSlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center text-blue-400 text-[11px] font-semibold hover:text-blue-300 transition-colors"
                 onClick={() => setOpen(false)}
               >
                 Learn more →
-              </Link>
+              </a>
             )}
           </div>
           <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-zinc-900 border-r border-b border-zinc-700 rotate-45 -mt-1" />

@@ -52,14 +52,14 @@ export default function About() {
               Who&apos;s Behind This
             </span>
             <h2 className="text-4xl md:text-5xl font-black text-white mt-3 mb-6 leading-tight tracking-tight">
-              Hi, I&apos;m
+              Meet
               <br />
-              Hunter.
+              the Team.
             </h2>
             <p className="text-zinc-400 text-lg leading-relaxed mb-4">
-              I&apos;m a technologist who keeps up with everything so you don&apos;t have
-              to. I don&apos;t claim to be the world&apos;s best engineer or data
-              scientist. I claim to know enough about all of it to build things
+              We&apos;re technologists who keep up with everything so you don&apos;t have
+              to. We don&apos;t claim to be the world&apos;s best engineers or data
+              scientists. We know enough about all of it to build things
               that actually work for your business.
             </p>
             <p className="text-zinc-500 leading-relaxed mb-10">

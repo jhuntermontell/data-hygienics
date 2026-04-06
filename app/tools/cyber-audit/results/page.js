@@ -23,6 +23,7 @@ import {
   RotateCcw,
   Building2,
   AlertTriangle,
+  FileText,
 } from "lucide-react"
 
 const PdfReport = dynamic(() => import("../components/PdfReport"), {
@@ -55,8 +56,9 @@ export default function ResultsPage() {
   const [assessment, setAssessment] = useState(null)
   const [answers, setAnswers] = useState({})
   const [userEmail, setUserEmail] = useState("")
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [showPdf, setShowPdf] = useState(false)
+  const [showPdf, setShowPdf] = useState(null) // null | "insurance" | "remediation"
 
   useEffect(() => {
     async function load() {
@@ -65,6 +67,14 @@ export default function ResultsPage() {
       } = await supabase.auth.getUser()
       if (!user) return router.push("/tools/cyber-audit/login")
       setUserEmail(user.email)
+
+      // Load profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+      setProfile(profileData)
 
       const { data: assessments } = await supabase
         .from("assessments")
@@ -114,7 +124,9 @@ export default function ResultsPage() {
     industry,
     assessment.employee_count
   )
-  const sectionScores = calculateSectionScores(answers, sections)
+  const sectionScores = assessment.section_scores
+    ? JSON.parse(assessment.section_scores)
+    : calculateSectionScores(answers, sections)
   const gaps = getGaps(answers, sections)
   const summary = getSummary(score, assessment.has_insurance)
 
@@ -166,7 +178,7 @@ export default function ResultsPage() {
             <div>
               <p className="text-orange-300 text-sm font-semibold mb-1">No Cyber Insurance Detected</p>
               <p className="text-orange-300/70 text-xs leading-relaxed">
-                Your business does not currently have cyber insurance. This report can be used to support your application. We strongly recommend obtaining coverage — the average cost of a data breach for small businesses exceeds $120,000.
+                Your business does not currently have cyber insurance. This report can be used to support your application. We strongly recommend obtaining coverage. The average cost of a data breach for small businesses exceeds $120,000.
               </p>
             </div>
           </motion.div>
@@ -222,10 +234,16 @@ export default function ResultsPage() {
           transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-wrap gap-3"
         >
-          <Button onClick={() => setShowPdf(true)}>
+          <Button onClick={() => setShowPdf("insurance")}>
             <span className="flex items-center gap-2">
               <Download className="w-4 h-4" />
-              Download PDF Report
+              Insurance Report
+            </span>
+          </Button>
+          <Button variant="outline" onClick={() => setShowPdf("remediation")}>
+            <span className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Remediation Report
             </span>
           </Button>
           <Button
@@ -250,17 +268,20 @@ export default function ResultsPage() {
 
         {showPdf && (
           <PdfReport
+            reportType={showPdf}
             score={score}
             grade={grade}
             label={label}
             sectionScores={sectionScores}
             gaps={gaps}
+            fullName={profile?.full_name}
+            companyName={profile?.company_name}
             email={userEmail}
             date={assessment.completed_at}
             industry={industry}
             employeeCount={assessment.employee_count}
             hasInsurance={assessment.has_insurance}
-            onClose={() => setShowPdf(false)}
+            onClose={() => setShowPdf(null)}
           />
         )}
       </div>

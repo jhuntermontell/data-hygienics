@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata = {
-  title: "Data Hygienics — AI-Ready Tools for Small Business",
+  title: "Data Hygienics - AI-Ready Tools for Small Business",
   description:
     "Practical tools, real strategy, and custom software helping small businesses step into the AI era.",
 }

@@ -35,10 +35,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="w-2 h-2 rounded-full bg-blue-500 group-hover:scale-125 transition-transform duration-300" />
-          <span className="font-black text-white text-lg tracking-tight">
-            Data<span className="text-blue-400">Hygienics</span>
-          </span>
+          <img src="/logo.svg" alt="Data Hygienics" className="h-9 w-auto text-white" style={{ color: "white" }} />
         </Link>
 
         {/* Desktop links */}
@@ -54,12 +51,12 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop CTA — blue-bordered ghost */}
+        {/* Desktop CTA - blue-bordered ghost */}
         <Link
           href="/#contact"
           className="hidden md:inline-flex items-center border border-blue-500 text-blue-400 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-blue-500/10 transition-all duration-200 hover:-translate-y-0.5"
         >
-          Work With Me
+          Work With Us
         </Link>
 
         {/* Mobile toggle */}
@@ -98,7 +95,7 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="mt-2 inline-flex items-center justify-center border border-blue-500 text-blue-400 text-sm font-bold px-5 py-3 rounded-xl hover:bg-blue-500/10 transition-colors"
               >
-                Work With Me
+                Work With Us
               </Link>
             </div>
           </motion.div>

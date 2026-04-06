@@ -33,7 +33,7 @@ export default function Hero() {
           }}
         />
 
-        {/* Blue radial bloom — center */}
+        {/* Blue radial bloom - center */}
         <motion.div
           className="absolute rounded-full"
           style={{
@@ -50,7 +50,7 @@ export default function Hero() {
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Secondary blue orb — bottom right */}
+        {/* Secondary blue orb - bottom right */}
         <motion.div
           className="absolute rounded-full"
           style={{
@@ -103,7 +103,7 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.65 }}
           className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
         >
-          I build the tools and strategies that help real businesses step into
+          We build the tools and strategies that help real businesses step into
           the age of AI. Practically, affordably, and without the overwhelm.
         </motion.p>
 
@@ -124,7 +124,7 @@ export default function Hero() {
             href="#contact"
             className="inline-flex items-center border border-zinc-700 text-white font-bold text-base px-8 py-4 rounded-xl hover:bg-zinc-900 hover:border-zinc-500 transition-all duration-200 hover:-translate-y-0.5"
           >
-            Work With Me →
+            Work With Us →
           </a>
         </motion.div>
       </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry } from "@/lib/questions"
-import { calculateTotalScore } from "@/lib/cyber-audit/scoring"
+import { calculateTotalScore, calculateSectionScores } from "@/lib/cyber-audit/scoring"
 import Navbar from "@/app/components/Navbar"
 import ProgressBar from "../components/ProgressBar"
 import QuestionRenderer from "../components/QuestionRenderer"
@@ -45,13 +45,13 @@ export default function AssessmentPage() {
       let activeAssessment = assessments?.[0]
 
       if (!activeAssessment) {
-        // No assessment yet — show intake modal
+        // No assessment yet - show intake modal
         setShowIntake(true)
         setLoading(false)
         return
       }
 
-      // Assessment exists — check if it has industry set
+      // Assessment exists - check if it has industry set
       if (!activeAssessment.industry) {
         setAssessmentId(activeAssessment.id)
         setShowIntake(true)
@@ -154,7 +154,7 @@ export default function AssessmentPage() {
       saveTimeouts.current[questionKey] = setTimeout(async () => {
         const sectionKey = sections?.find((s) =>
           s.questions.some((q) => q.key === questionKey)
-        )?.key
+        )?.id
 
         await supabase.from("responses").upsert(
           {
@@ -209,12 +209,14 @@ export default function AssessmentPage() {
   const handleComplete = async () => {
     setCompleting(true)
     const score = calculateTotalScore(answers, sections)
+    const sectionScores = calculateSectionScores(answers, sections)
 
     await supabase
       .from("assessments")
       .update({
         status: "completed",
         score,
+        section_scores: JSON.stringify(sectionScores),
         completed_at: new Date().toISOString(),
       })
       .eq("id", assessmentId)
@@ -233,7 +235,7 @@ export default function AssessmentPage() {
             Cyber Audit
           </span>
           {industry && (
-            <span className="text-zinc-600 text-xs">— {industry}</span>
+            <span className="text-zinc-600 text-xs">- {industry}</span>
           )}
         </div>
 
@@ -241,6 +243,7 @@ export default function AssessmentPage() {
           currentStep={currentStep}
           completedSections={completedSections}
           sections={sections}
+          onNavigate={setCurrentStep}
         />
 
         {/* Section content */}

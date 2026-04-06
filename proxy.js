@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse } from "next/server"
 
+const PROTECTED_ROUTES = [
+  "/tools/cyber-audit/dashboard",
+  "/tools/cyber-audit/assessment",
+  "/tools/cyber-audit/results",
+]
+
 export async function proxy(request) {
   let supabaseResponse = NextResponse.next({ request })
 
@@ -25,11 +31,14 @@ export async function proxy(request) {
     }
   )
 
+  // Refresh the session on every request to keep cookies alive
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
+  // Only redirect to login for protected routes
+  const pathname = request.nextUrl.pathname
+  if (!user && PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     const url = request.nextUrl.clone()
     url.pathname = "/tools/cyber-audit/login"
     return NextResponse.redirect(url)
@@ -40,8 +49,6 @@ export async function proxy(request) {
 
 export const config = {
   matcher: [
-    "/tools/cyber-audit/dashboard",
-    "/tools/cyber-audit/assessment",
-    "/tools/cyber-audit/results",
+    "/((?!_next/static|_next/image|favicon.ico|logo.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 }

@@ -8,6 +8,9 @@ import {
   View,
   StyleSheet,
   pdf,
+  Svg,
+  Path,
+  Circle,
 } from "@react-pdf/renderer"
 import { RECOMMENDATIONS } from "@/lib/cyber-audit/recommendations"
 
@@ -18,21 +21,39 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#1a1a1a",
   },
+  logoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  logoText: {
+    marginLeft: 8,
+  },
+  logoTitle: {
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    color: "#3b82f6",
+  },
+  logoSubtitle: {
+    fontSize: 10,
+    color: "#64748b",
+  },
   header: {
     borderBottom: "2px solid #3b82f6",
     paddingBottom: 16,
     marginBottom: 24,
   },
-  brand: {
-    fontSize: 20,
-    fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
+  companyName: {
+    fontSize: 22,
     fontFamily: "Helvetica-Bold",
     color: "#1a1a1a",
+    marginBottom: 4,
+    marginTop: 12,
+  },
+  reportTitle: {
+    fontSize: 14,
+    fontFamily: "Helvetica-Bold",
+    color: "#3b82f6",
     marginBottom: 8,
   },
   meta: {
@@ -137,6 +158,12 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     marginTop: 3,
   },
+  effortBadge: {
+    fontSize: 8,
+    fontFamily: "Helvetica-Bold",
+    color: "#475569",
+    marginTop: 4,
+  },
   footer: {
     position: "absolute",
     bottom: 30,
@@ -160,6 +187,24 @@ const styles = StyleSheet.create({
     color: "#9a3412",
     lineHeight: 1.5,
   },
+  remediationBox: {
+    backgroundColor: "#f0fdf4",
+    border: "1px solid #bbf7d0",
+    borderRadius: 4,
+    padding: 8,
+    marginTop: 6,
+  },
+  remediationTitle: {
+    fontSize: 9,
+    fontFamily: "Helvetica-Bold",
+    color: "#166534",
+    marginBottom: 3,
+  },
+  remediationStep: {
+    fontSize: 8,
+    color: "#15803d",
+    lineHeight: 1.5,
+  },
 })
 
 function getBarColor(pct) {
@@ -168,17 +213,52 @@ function getBarColor(pct) {
   return "#f87171"
 }
 
+function getEffortEstimate(rec) {
+  if (!rec) return "Medium"
+  const priority = rec.priority || "medium"
+  if (priority === "high") return "High"
+  if (priority === "low") return "Low"
+  return "Medium"
+}
+
+function LogoSvg() {
+  return (
+    <Svg viewBox="0 0 40 40" width={28} height={28}>
+      <Path
+        d="M20 4L6 10v10c0 9.55 5.97 18.48 14 21 8.03-2.52 14-11.45 14-21V10L20 4z"
+        fill="#3b82f6"
+        opacity={0.15}
+        stroke="#3b82f6"
+        strokeWidth={1.5}
+      />
+      <Path
+        d="M14 20l4 4 8-8"
+        stroke="#3b82f6"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Circle cx={14} cy={14} r={1} fill="#3b82f6" opacity={0.4} />
+      <Circle cx={20} cy={12} r={1} fill="#3b82f6" opacity={0.4} />
+      <Circle cx={26} cy={14} r={1} fill="#3b82f6" opacity={0.4} />
+    </Svg>
+  )
+}
+
 function ReportDocument({
   score,
   grade,
   label,
   sectionScores,
   gaps,
+  fullName,
+  companyName,
   email,
   date,
   industry,
   employeeCount,
   hasInsurance,
+  reportType,
 }) {
   const formattedDate = new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
@@ -193,14 +273,28 @@ function ReportDocument({
     return (priorityOrder[recA?.priority] ?? 3) - (priorityOrder[recB?.priority] ?? 3)
   })
 
+  const isInsurance = reportType === "insurance"
+  const titleText = isInsurance
+    ? "Cybersecurity Assessment Report"
+    : "Internal Remediation Report"
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.brand}>Data Hygienics</Text>
-          <Text style={styles.subtitle}>Cybersecurity Assessment Report</Text>
+          <View style={styles.logoRow}>
+            <LogoSvg />
+            <View style={styles.logoText}>
+              <Text style={styles.logoTitle}>Data Hygienics</Text>
+              <Text style={styles.logoSubtitle}>Cybersecurity Consulting</Text>
+            </View>
+          </View>
+          {companyName && (
+            <Text style={styles.companyName}>{companyName}</Text>
+          )}
+          <Text style={styles.reportTitle}>{titleText}</Text>
           <Text style={styles.meta}>
-            {email} | {formattedDate}
+            {fullName || email} | {formattedDate}
           </Text>
           {industry && (
             <Text style={styles.meta}>
@@ -254,10 +348,11 @@ function ReportDocument({
         ))}
 
         <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
-          Identified Gaps & Recommendations
+          {isInsurance ? "Identified Gaps" : "Identified Gaps & Remediation Plan"}
         </Text>
         {sortedGaps.map((gap) => {
           const rec = RECOMMENDATIONS[gap.questionKey]
+          const effort = getEffortEstimate(rec)
           return (
             <View
               key={gap.questionKey}
@@ -266,6 +361,7 @@ function ReportDocument({
                 rec?.priority === "medium" && styles.gapItemMedium,
                 rec?.priority === "low" && styles.gapItemLow,
               ]}
+              wrap={false}
             >
               <Text style={styles.gapTitle}>
                 [{(rec?.priority || "medium").toUpperCase()}] {rec?.title || gap.questionText}
@@ -275,9 +371,20 @@ function ReportDocument({
                 {gap.nistFunction ? ` | NIST: ${gap.nistFunction}` : ""}
                 {gap.cisControl ? ` | CIS: ${gap.cisControl}` : ""}
               </Text>
-              <Text style={styles.gapAction}>
-                {rec?.action || "Review and address this security gap."}
-              </Text>
+
+              {!isInsurance && (
+                <>
+                  <View style={styles.remediationBox}>
+                    <Text style={styles.remediationTitle}>Remediation Steps</Text>
+                    <Text style={styles.remediationStep}>
+                      {rec?.action || "Review and address this security gap. Consult with your IT team or a security professional to implement appropriate controls."}
+                    </Text>
+                  </View>
+                  <Text style={styles.effortBadge}>
+                    Estimated Effort: {effort}
+                  </Text>
+                </>
+              )}
             </View>
           )
         })}
@@ -290,19 +397,22 @@ function ReportDocument({
   )
 }
 
-export default function PdfReport(props) {
+export default function PdfReport({ reportType = "insurance", onClose, ...props }) {
   useEffect(() => {
     async function generate() {
-      const blob = await pdf(<ReportDocument {...props} />).toBlob()
+      const blob = await pdf(
+        <ReportDocument {...props} reportType={reportType} />
+      ).toBlob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `cyber-audit-report-${new Date().toISOString().slice(0, 10)}.pdf`
+      const prefix = reportType === "insurance" ? "insurance-report" : "remediation-report"
+      a.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      props.onClose?.()
+      onClose?.()
     }
     generate()
   }, [])

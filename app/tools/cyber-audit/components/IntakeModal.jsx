@@ -17,6 +17,7 @@ const STEPS = [
       "Financial Services",
       "Retail / E-commerce",
       "Government / Defense Contractor",
+      "Nonprofit / Church / Parish",
       "Other / General Business",
     ],
   },
@@ -25,7 +26,7 @@ const STEPS = [
     icon: Users,
     title: "How many employees does your organization have?",
     description: "This helps us calibrate expectations for your security maturity.",
-    options: ["1–10", "11–50", "51–250", "250+"],
+    options: ["1-10", "11-50", "51-250", "250+"],
   },
   {
     key: "has_insurance",

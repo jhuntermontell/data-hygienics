@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry } from "@/lib/questions"
+import { CONTROLS } from "@/lib/controls"
 import Navbar from "@/app/components/Navbar"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import {
   Shield,
   ArrowRight,
@@ -15,15 +17,52 @@ import {
   CheckCircle2,
   BarChart3,
   Building2,
+  BookOpen,
+  ExternalLink,
+  Newspaper,
 } from "lucide-react"
+
+const INDUSTRY_HEADERS = {
+  Healthcare: "Healthcare Security Center",
+  Legal: "Legal Cybersecurity Hub",
+  "Financial Services": "Financial Security Center",
+  "Retail / E-commerce": "Retail Security Hub",
+  "Government / Defense Contractor": "Government Security Center",
+  "Nonprofit / Church / Parish": "Nonprofit Security Hub",
+  "Other / General Business": "Your Security Hub",
+}
+
+const INDUSTRY_CONTROLS = {
+  Healthcare: ["multi-factor-authentication", "data-encryption", "access-control-policy", "data-backup", "incident-response-plan", "phishing-training", "vendor-agreements", "security-training"],
+  Legal: ["data-encryption", "multi-factor-authentication", "access-control-policy", "email-filtering", "data-retention", "vendor-risk-management", "incident-response-plan", "security-training"],
+  "Financial Services": ["multi-factor-authentication", "data-encryption", "network-monitoring", "firewall-management", "incident-response-plan", "vendor-risk-management", "patch-management", "security-training"],
+  "Retail / E-commerce": ["data-encryption", "multi-factor-authentication", "firewall-management", "patch-management", "endpoint-protection", "phishing-training", "network-segmentation", "incident-response-plan"],
+  "Government / Defense Contractor": ["multi-factor-authentication", "access-control-policy", "data-encryption", "network-monitoring", "incident-response-plan", "security-training", "vendor-risk-management", "patch-management"],
+  "Nonprofit / Church / Parish": ["multi-factor-authentication", "password-management", "data-backup", "phishing-training", "data-encryption", "vendor-risk-management", "security-training", "access-control-policy"],
+}
+
+function getFirstName(profile, user) {
+  if (profile?.full_name) {
+    return profile.full_name.split(" ")[0]
+  }
+  if (user?.user_metadata?.full_name) {
+    return user.user_metadata.full_name.split(" ")[0]
+  }
+  const email = user?.email || ""
+  const local = email.split("@")[0] || ""
+  const name = local.replace(/[._-]/g, " ").split(" ")[0]
+  return name.charAt(0).toUpperCase() + name.slice(1)
+}
 
 export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClient()
   const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [assessment, setAssessment] = useState(null)
   const [responseCount, setResponseCount] = useState(0)
   const [totalQuestions, setTotalQuestions] = useState(0)
+  const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -34,6 +73,14 @@ export default function DashboardPage() {
       setUser(user)
 
       if (user) {
+        // Load profile
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single()
+        setProfile(profileData)
+
         const { data: assessments } = await supabase
           .from("assessments")
           .select("*")
@@ -45,7 +92,6 @@ export default function DashboardPage() {
           const latest = assessments[0]
           setAssessment(latest)
 
-          // Calculate total questions for this industry
           if (latest.industry) {
             const sections = getQuestionsForIndustry(latest.industry)
             const total = sections.reduce((sum, s) => sum + s.questions.length, 0)
@@ -60,6 +106,16 @@ export default function DashboardPage() {
             setResponseCount(count || 0)
           }
         }
+        // Load news for industry
+        if (assessments?.[0]?.industry) {
+          const { data: newsData } = await supabase
+            .from("news_cache")
+            .select("*")
+            .eq("industry", assessments[0].industry)
+            .order("cached_at", { ascending: false })
+            .limit(5)
+          setNews(newsData || [])
+        }
       }
       setLoading(false)
     }
@@ -67,7 +123,6 @@ export default function DashboardPage() {
   }, [])
 
   const startAssessment = () => {
-    // Assessment creation now happens in the assessment page via intake modal
     router.push("/tools/cyber-audit/assessment")
   }
 
@@ -83,6 +138,14 @@ export default function DashboardPage() {
       </div>
     )
   }
+
+  const industry = assessment?.industry
+  const firstName = getFirstName(profile, user)
+  const headerTitle = INDUSTRY_HEADERS[industry] || "Your Security Hub"
+  const relevantControlSlugs = INDUSTRY_CONTROLS[industry] || INDUSTRY_CONTROLS["Other / General Business"] || []
+  const relevantControls = relevantControlSlugs
+    .map((slug) => CONTROLS.find((c) => c.slug === slug))
+    .filter(Boolean)
 
   const progress = assessment && totalQuestions > 0
     ? Math.round((responseCount / totalQuestions) * 100)
@@ -106,8 +169,18 @@ export default function DashboardPage() {
                 Cyber Audit
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-zinc-500 text-sm mt-1">{user?.email}</p>
+            <h1 className="text-3xl font-bold text-white">
+              Welcome back, {firstName}
+            </h1>
+            {industry && (
+              <div className="flex items-center gap-2 mt-2">
+                <Building2 className="w-4 h-4 text-zinc-500" />
+                <span className="text-zinc-400 text-sm">{headerTitle}</span>
+              </div>
+            )}
+            {!industry && (
+              <p className="text-zinc-500 text-sm mt-1">{user?.email}</p>
+            )}
           </div>
           <button
             onClick={handleSignOut}
@@ -123,7 +196,7 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8"
+          className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
         >
           {!assessment && (
             <>
@@ -159,15 +232,9 @@ export default function DashboardPage() {
                   Assessment In Progress
                 </h2>
               </div>
-              {assessment.industry && (
-                <div className="flex items-center gap-2 mb-3">
-                  <Building2 className="w-3.5 h-3.5 text-zinc-500" />
-                  <span className="text-zinc-500 text-xs font-medium">{assessment.industry}</span>
-                </div>
-              )}
               <p className="text-zinc-400 mb-4">
                 {totalQuestions > 0
-                  ? `You've answered ${responseCount} of ${totalQuestions} questions. Pick up where you left off.`
+                  ? `You have answered ${responseCount} of ${totalQuestions} questions. Pick up where you left off.`
                   : "Pick up where you left off."}
               </p>
               {totalQuestions > 0 && (
@@ -201,12 +268,6 @@ export default function DashboardPage() {
                   Assessment Complete
                 </h2>
               </div>
-              {assessment.industry && (
-                <div className="flex items-center gap-2 mb-3">
-                  <Building2 className="w-3.5 h-3.5 text-zinc-500" />
-                  <span className="text-zinc-500 text-xs font-medium">{assessment.industry}</span>
-                </div>
-              )}
               <p className="text-zinc-400 mb-2">
                 Your score:{" "}
                 <span className="text-white font-bold text-lg">
@@ -233,6 +294,100 @@ export default function DashboardPage() {
             </>
           )}
         </motion.div>
+
+        {/* Your Controls Library - only show if industry is known */}
+        {industry && relevantControls.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-blue-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">Your Controls Library</h2>
+                <p className="text-zinc-500 text-xs">Key controls for {industry}</p>
+              </div>
+            </div>
+            <div className="grid gap-3">
+              {relevantControls.map((control) => (
+                <Link
+                  key={control.slug}
+                  href={`/controls/${control.slug}`}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-zinc-800/40 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/60 transition-all group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Shield className="w-4 h-4 text-blue-400/60" />
+                    <span className="text-sm text-zinc-300 group-hover:text-white transition-colors">
+                      {control.name}
+                    </span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/controls"
+              className="inline-flex items-center gap-1.5 text-blue-400 text-xs font-semibold mt-4 hover:text-blue-300 transition-colors"
+            >
+              View all controls <ArrowRight className="w-3 h-3" />
+            </Link>
+          </motion.div>
+        )}
+
+        {/* Trending News */}
+        {industry && news.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                <Newspaper className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">
+                  Trending in {industry} Cybersecurity
+                </h2>
+                <p className="text-zinc-500 text-xs">Latest news and developments</p>
+              </div>
+            </div>
+            <div className="grid gap-4">
+              {news.map((item) => (
+                <div
+                  key={item.id}
+                  className="border-b border-zinc-800/50 pb-4 last:border-0 last:pb-0"
+                >
+                  <h3 className="text-sm font-semibold text-zinc-200 mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">
+                    {item.summary}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Prompt to start assessment if no industry */}
+        {!industry && !assessment && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-2xl border border-zinc-800/50 bg-zinc-900/30 p-6 text-center"
+          >
+            <p className="text-zinc-500 text-sm">
+              Complete an assessment to unlock personalized controls and recommendations for your industry.
+            </p>
+          </motion.div>
+        )}
       </div>
     </div>
   )

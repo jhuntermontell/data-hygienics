@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, ArrowRight, CheckCircle } from "lucide-react"
+import { Mail, Lock, ArrowRight, CheckCircle, User, Building2 } from "lucide-react"
 import Link from "next/link"
 
 export default function AuthForm({ mode = "login" }) {
@@ -15,6 +15,8 @@ export default function AuthForm({ mode = "login" }) {
   const supabase = createClient()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [fullName, setFullName] = useState("")
+  const [companyName, setCompanyName] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
@@ -28,14 +30,25 @@ export default function AuthForm({ mode = "login" }) {
 
     try {
       if (isRegister) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: { full_name: fullName, company_name: companyName },
           },
         })
         if (error) throw error
+
+        // Save profile to profiles table
+        if (data.user) {
+          await supabase.from("profiles").upsert({
+            id: data.user.id,
+            full_name: fullName,
+            company_name: companyName,
+          })
+        }
+
         setEmailSent(true)
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -99,6 +112,40 @@ export default function AuthForm({ mode = "login" }) {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {isRegister && (
+          <>
+            <div>
+              <Label htmlFor="fullName">Full Name</Label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Jane Smith"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="companyName">Company Name</Label>
+              <div className="relative">
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <Input
+                  id="companyName"
+                  type="text"
+                  placeholder="Acme Corp"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  required
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </>
+        )}
         <div>
           <Label htmlFor="email">Email</Label>
           <div className="relative">

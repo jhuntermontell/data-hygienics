@@ -202,7 +202,7 @@ export default function CyberAuditLanding() {
             className="space-y-4"
           >
             {[
-              "Overall security score with letter grade (A–F)",
+              "Overall security score with letter grade (A-F)",
               "Section-by-section breakdown across 8 security areas",
               "Prioritized list of gaps with plain English recommendations",
               "Downloadable PDF report for insurance and compliance",

@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
   if (!control) return {}
 
   return {
-    title: `${control.name} — Security Controls | Data Hygienics`,
+    title: `${control.name} - Security Controls | Data Hygienics`,
     description: `Learn about ${control.name}: what it means, why insurers care, and how to implement it. Mapped to ${control.nistCategory} and CIS Control ${control.cisControl}.`,
   }
 }

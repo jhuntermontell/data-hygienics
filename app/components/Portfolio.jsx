@@ -103,7 +103,7 @@ export default function Portfolio() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-center text-zinc-600 text-sm"
         >
-          More coming soon —{" "}
+          More coming soon.{" "}
           <a href="#contact" className="text-blue-400/70 hover:text-blue-400 transition-colors">
             reach out to discuss your project
           </a>

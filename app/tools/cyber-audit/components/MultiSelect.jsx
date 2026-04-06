@@ -12,7 +12,7 @@ export default function MultiSelect({ options, value, onChange }) {
     : []
 
   const toggle = (label) => {
-    // "None" is exclusive — deselect everything else
+    // "None" is exclusive - deselect everything else
     if (label === "None") {
       onChange(JSON.stringify(["None"]))
       return
@@ -22,7 +22,7 @@ export default function MultiSelect({ options, value, onChange }) {
       ? selected.filter((s) => s !== label)
       : [...selected.filter((s) => s !== "None"), label]
 
-    // "All Systems" / "All of the above" is exclusive — deselect others
+    // "All Systems" / "All of the above" is exclusive - deselect others
     const allOption = options.find(
       (o) =>
         o.label.startsWith("All ") ||

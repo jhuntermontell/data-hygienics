@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { Check } from "lucide-react"
 
-export default function ProgressBar({ currentStep, completedSections, sections }) {
+export default function ProgressBar({ currentStep, completedSections, sections, onNavigate }) {
   const totalSections = sections.length
 
   return (
@@ -30,7 +30,7 @@ export default function ProgressBar({ currentStep, completedSections, sections }
         </div>
       </div>
 
-      {/* Desktop: step indicators — scrollable if many sections */}
+      {/* Desktop: step indicators - scrollable if many sections */}
       <div className="hidden md:flex items-center gap-1 overflow-x-auto pb-2">
         {sections.map((section, i) => {
           const isComplete = completedSections.has(i)
@@ -38,21 +38,24 @@ export default function ProgressBar({ currentStep, completedSections, sections }
           const isPast = i < currentStep
 
           return (
-            <div key={section.key} className="flex items-center gap-1 shrink-0" style={{ flex: `1 1 ${100 / totalSections}%` }}>
+            <div key={section.id || section.key} className="flex items-center gap-1 shrink-0" style={{ flex: `1 1 ${100 / totalSections}%` }}>
               <div className="flex flex-col items-center flex-1">
-                <div
+                <button
+                  type="button"
+                  onClick={() => (isComplete || isPast) && onNavigate?.(i)}
+                  disabled={!isComplete && !isPast}
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
                     isComplete
-                      ? "bg-blue-500 text-white"
+                      ? "bg-blue-500 text-white cursor-pointer hover:bg-blue-400"
                       : isCurrent
                       ? "bg-blue-500/20 border-2 border-blue-500 text-blue-400"
                       : isPast
-                      ? "bg-zinc-700 text-zinc-400"
-                      : "bg-zinc-800 text-zinc-600"
+                      ? "bg-zinc-700 text-zinc-400 cursor-pointer hover:bg-zinc-600"
+                      : "bg-zinc-800 text-zinc-600 cursor-default"
                   }`}
                 >
                   {isComplete ? <Check className="w-3 h-3" /> : i + 1}
-                </div>
+                </button>
                 <span
                   className={`text-[9px] mt-1.5 text-center leading-tight max-w-16 ${
                     isCurrent
