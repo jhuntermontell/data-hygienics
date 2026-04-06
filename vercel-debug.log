@@ -1,0 +1,78 @@
+> [debug] [2026-04-06T19:50:45.264Z] Vercel CLI 50.40.0
+> [debug] [2026-04-06T19:50:45.266Z] Agent/TTY/nonInteractive: isAgent=false agentName=none stdin.isTTY=true --non-interactive=false explicitFalse=false => nonInteractive=false
+> [debug] [2026-04-06T19:50:45.266Z] user supplied a possible target for deployment or an extension
+> [debug] [2026-04-06T19:50:45.268Z] failed to find extension command with name "vercel---prod"
+> [debug] [2026-04-06T19:50:45.279Z] Setting target to production
+> [debug] [2026-04-06T19:50:45.282Z] Spinner invoked (Retrieving project…) with a 1000ms delay
+> [debug] [2026-04-06T19:50:45.282Z] Valid access token, skipping token refresh.
+> [debug] [2026-04-06T19:50:45.287Z] #1 → GET https://api.vercel.com/teams/team_jebSGNhc8VzOj4AQDDS5zkFU?teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+> [debug] [2026-04-06T19:50:45.288Z] #2 → GET https://api.vercel.com/v9/projects/prj_cR1Gk7wQ43rkf2dQkan7Mvzr75rk?teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+> [debug] [2026-04-06T19:50:45.640Z] #1 ← 200 OK: sfo1::pmmlr-1775505045564-ebb20c05b3ab [353ms]
+> [debug] [2026-04-06T19:50:45.708Z] #2 ← 200 OK: sfo1::6v8sv-1775505045559-3041b8b7e413 [420ms]
+> [debug] [2026-04-06T19:50:45.754Z] Spinner invoked (Deploying hunters-projects-2f318da3/data-hygienics) with a 0ms delay
+[client-debug] 2026-04-06T19:50:45.754Z Creating deployment...
+[client-debug] 2026-04-06T19:50:45.754Z Provided 'path' is a directory.
+[client-debug] 2026-04-06T19:50:45.755Z Found 26 rules in .vercelignore
+[client-debug] 2026-04-06T19:50:45.755Z Building file tree...
+[client-debug] 2026-04-06T19:50:45.757Z Found 77 files in the specified directory
+[client-debug] 2026-04-06T19:50:45.762Z Yielding a 'hashes-calculated' event with 77 hashes
+> [debug] [2026-04-06T19:50:45.763Z] #3 → GET https://api.vercel.com/v9/projects/data-hygienics?teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+> [debug] [2026-04-06T19:50:46.015Z] #3 ← 200 OK: sfo1::cg494-1775505045873-2b70a6a7ccdb [252ms]
+[client-debug] 2026-04-06T19:50:46.018Z Using provided API URL: https://api.vercel.com
+[client-debug] 2026-04-06T19:50:46.018Z Using provided user agent: vercel 50.40.0 node-v24.13.1 darwin (arm64)
+[client-debug] 2026-04-06T19:50:46.018Z Setting platform version to harcoded value 2
+[client-debug] 2026-04-06T19:50:46.018Z Creating the deployment and starting upload...
+[client-debug] 2026-04-06T19:50:46.018Z Determining necessary files for upload...
+[client-debug] 2026-04-06T19:50:46.019Z Creating deployment
+[client-debug] 2026-04-06T19:50:46.021Z Sending deployment creation API request
+[client-debug] 2026-04-06T19:50:47.777Z Deployment response: {"error":{"code":"missing_files","message":"Missing files","missing":["1b8f9d9cf3301cafde25e16a7f610f9c40c219c2"]}}
+[client-debug] 2026-04-06T19:50:47.778Z Error: Deployment request status is 400
+[client-debug] 2026-04-06T19:50:47.778Z 1 files are required to upload
+[client-debug] 2026-04-06T19:50:47.778Z Yielding a 'file-count' event
+> [debug] [2026-04-06T19:50:47.778Z] Total files 77, 1 changed
+> [debug] [2026-04-06T19:50:47.779Z] Spinner invoked (Uploading [--------------------] (0.0B/1.6KB)) with a 0ms delay
+[client-debug] 2026-04-06T19:50:47.779Z Building an upload list...
+[client-debug] 2026-04-06T19:50:47.780Z Starting upload
+[client-debug] 2026-04-06T19:50:47.781Z POST https://api.vercel.com/v2/files?teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+> [debug] [2026-04-06T19:50:47.782Z] Spinner invoked (Uploading [====================] (1.6KB/1.6KB)) with a 0ms delay
+[client-debug] 2026-04-06T19:50:48.024Z DONE in 243ms: POST https://api.vercel.com/v2/files?teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+[client-debug] 2026-04-06T19:50:48.024Z File 1b8f9d9cf3301cafde25e16a7f610f9c40c219c2 (/Users/jhmontell/code/data-hygienics/vercel-debug.log) uploaded
+[client-debug] 2026-04-06T19:50:48.024Z Yielding a 'file-uploaded' event
+> [debug] [2026-04-06T19:50:48.024Z] Uploaded: /Users/jhmontell/code/data-hygienics/vercel-debug.log (1.6KB)
+[client-debug] 2026-04-06T19:50:48.024Z All files uploaded
+[client-debug] 2026-04-06T19:50:48.024Z Yielding a 'all-files-uploaded' event
+[client-debug] 2026-04-06T19:50:48.024Z Starting deployment creation
+[client-debug] 2026-04-06T19:50:48.024Z Creating deployment
+[client-debug] 2026-04-06T19:50:48.025Z Sending deployment creation API request
+[client-debug] 2026-04-06T19:50:49.185Z Deployment response: {"alias":["data-hygienics-hunters-projects-2f318da3.vercel.app","data-hygienics-jhuntermontell-hunters-projects-2f318da3.vercel.app"],"aliasAssigned":false,"automaticAliases":["data-hygienics-hunters-projects-2f318da3.vercel.app","data-hygienics-jhuntermontell-hunters-projects-2f318da3.vercel.app"],"bootedAt":1775505048512,"buildingAt":1775505048512,"buildSkipped":false,"createdAt":1775505048512,"creator":{"uid":"VlqeaLw5UEHtV97jMJZJUtmE","username":"jhuntermontell"},"id":"dpl_5iY4xp3nGcwmoPHtHdNJ5qW9VboE","name":"data-hygienics","meta":{"githubCommitAuthorName":"Hunter Montell","githubCommitAuthorEmail":"hmontell@outlook.com","githubCommitMessage":"fix: rename middleware to proxy for Next.js 16 Vercel compatibility","githubCommitOrg":"jhuntermontell","githubCommitRef":"main","githubCommitRepo":"data-hygienics","githubCommitSha":"555a458415acc4ff6587ed0b91ccc8b8cc3a3271","githubDeployment":"1","githubOrg":"jhuntermontell","githubRepo":"data-hygienics","gitDirty":"1"},"originCacheRegion":"iad1","project":{"id":"prj_cR1Gk7wQ43rkf2dQkan7Mvzr75rk","name":"data-hygienics","framework":"nextjs"},"public":false,"readyState":"INITIALIZING","regions":["iad1"],"source":"cli","status":"INITIALIZING","target":"production","team":{"id":"team_jebSGNhc8VzOj4AQDDS5zkFU","name":"Hunter's projects","slug":"hunters-projects-2f318da3"},"type":"LAMBDAS","url":"data-hygienics-4g42zysur-hunters-projects-2f318da3.vercel.app","version":2,"previewCommentsEnabled":true,"oidcTokenClaims":{"sub":"owner:hunters-projects-2f318da3:project:data-hygienics:environment:production","iss":"https://oidc.vercel.com/hunters-projects-2f318da3","scope":"owner:hunters-projects-2f318da3:project:data-hygienics:environment:production","aud":"https://vercel.com/hunters-projects-2f318da3","owner":"hunters-projects-2f318da3","owner_id":"team_jebSGNhc8VzOj4AQDDS5zkFU","project":"data-hygienics","project_id":"prj_cR1Gk7wQ43rkf2dQkan7Mvzr75rk","environment":"production","plan":"hobby"},"lambdas":[{"id":"bld_nefx2qrm5","createdAt":1775505048777,"entrypoint":".","readyState":"READY","readyStateAt":1775505048777,"output":[]}],"aliasAssignedAt":null,"build":{"env":[]},"builds":[],"createdIn":"sfo1","env":[],"functions":null,"inspectorUrl":"https://vercel.com/hunters-projects-2f318da3/data-hygienics/5iY4xp3nGcwmoPHtHdNJ5qW9VboE","isInConcurrentBuildsQueue":false,"isInSystemBuildsQueue":true,"ownerId":"team_jebSGNhc8VzOj4AQDDS5zkFU","plan":"hobby","projectId":"prj_cR1Gk7wQ43rkf2dQkan7Mvzr75rk","projectSettings":{"buildCommand":null,"devCommand":null,"framework":"nextjs","commandForIgnoringBuildStep":null,"installCommand":null,"outputDirectory":null,"speedInsights":{"id":"Zx8BdOJm3gdTXgE0fb9sO524YAm","hasData":false},"webAnalytics":{"id":"94vHfSnebRloHyYhhIdpr23eu"},"nodeVersion":"24.x"},"routes":null,"config":{"version":1,"secureComputePrimaryRegion":null,"secureComputeFallbackRegion":null,"functionTimeout":10,"functionType":"standard","functionMemoryType":"standard_legacy","isUsingActiveCPU":false,"resourceConfig":{"buildQueue":{"configuration":"SKIP_NAMESPACE_QUEUE"}}}}
+[client-debug] 2026-04-06T19:50:49.185Z Deployment created
+[client-debug] 2026-04-06T19:50:49.186Z Yielding a 'created' event
+Inspect: https://vercel.com/hunters-projects-2f318da3/data-hygienics/5iY4xp3nGcwmoPHtHdNJ5qW9VboE [3s]
+Production: https://data-hygienics-4g42zysur-hunters-projects-2f318da3.vercel.app [3s]
+https://data-hygienics-4g42zysur-hunters-projects-2f318da3.vercel.app> [debug] [2026-04-06T19:50:49.188Z] Spinner invoked (Building...) with a 0ms delay
+> [debug] [2026-04-06T19:50:49.189Z] #4 → GET https://api.vercel.com/v2/user
+[client-debug] 2026-04-06T19:50:49.189Z Waiting for deployment to be ready...
+[client-debug] 2026-04-06T19:50:49.189Z Waiting for builds and the deployment to complete...
+> [debug] [2026-04-06T19:50:49.365Z] #4 ← 200 OK: sfo1::pbhld-1775505049252-a05a1324a6f6 [176ms]
+> [debug] [2026-04-06T19:50:49.370Z] #5 → GET https://api.vercel.com/v3/now/deployments/dpl_5iY4xp3nGcwmoPHtHdNJ5qW9VboE/events?direction=forward&follow=1&format=lines&teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+[client-debug] 2026-04-06T19:50:51.173Z Deployment state changed to BUILDING
+[client-debug] 2026-04-06T19:50:51.173Z Yielding a 'building' event
+> [debug] [2026-04-06T19:50:51.173Z] Spinner invoked (Building...) with a 0ms delay
+> [debug] [2026-04-06T19:51:08.610Z] #5 ← 200 OK: sfo1::w76qf-1775505049437-1929d79b6ebb [19.24s]
+[client-debug] 2026-04-06T19:51:32.057Z Yielding a 'error' event
+> [debug] [2026-04-06T19:51:32.063Z] Error: Error: Command "npm run build" exited with 1
+Error: Command "npm run build" exited with 1
+    at Now.handleDeploymentError (file:///Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/vercel/dist/chunks/chunk-O6MDSC64.js:4711:14)
+    at processDeployment (file:///Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/vercel/dist/chunks/chunk-O6MDSC64.js:4478:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async Now.create (file:///Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/vercel/dist/chunks/chunk-O6MDSC64.js:4608:24)
+    at async createDeploy (file:///Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/vercel/dist/commands/deploy/index.js:174:12)
+    at async handleDefaultDeploy (file:///Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/vercel/dist/commands/deploy/index.js:1492:18)
+    at async _Span.trace (/Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/@vercel/build-utils/dist/index.js:23773:14)
+    at async main (file:///Users/jhmontell/.npm/_npx/69f9afb961c37556/node_modules/vercel/dist/index.js:24182:18)
+> [debug] [2026-04-06T19:51:32.064Z] #6 → GET https://api.vercel.com/v13/deployments/data-hygienics-4g42zysur-hunters-projects-2f318da3.vercel.app?teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+> [debug] [2026-04-06T19:51:32.479Z] #6 ← 200 OK: sfo1::gjbd8-1775505092124-b13ecb261f4c [415ms]
+> [debug] [2026-04-06T19:51:32.481Z] #7 → GET https://api.vercel.com/v2/user
+> [debug] [2026-04-06T19:51:32.622Z] #7 ← 200 OK: sfo1::9swx8-1775505092543-192394abe984 [141ms]
+> [debug] [2026-04-06T19:51:32.625Z] #8 → GET https://api.vercel.com/v3/now/deployments/dpl_5iY4xp3nGcwmoPHtHdNJ5qW9VboE/events?direction=forward&follow=1&format=lines&teamId=team_jebSGNhc8VzOj4AQDDS5zkFU
+> [debug] [2026-04-06T19:51:51.879Z] #8 ← 200 OK: sfo1::pkbbg-1775505092687-5b2845beb241 [19.25s]
