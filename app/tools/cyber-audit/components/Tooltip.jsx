@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Info } from "lucide-react"
 import Link from "next/link"
+import { resolveControlSlug } from "@/lib/cyber-audit/control-slugs"
 
 export default function Tooltip({ tooltip }) {
   const [open, setOpen] = useState(false)
@@ -12,7 +13,7 @@ export default function Tooltip({ tooltip }) {
   const isString = typeof tooltip === "string"
   const explanation = isString ? tooltip : tooltip.explanation
   const insurerNote = isString ? null : tooltip.insurerNote
-  const controlSlug = isString ? null : tooltip.controlSlug
+  const controlSlug = isString ? null : resolveControlSlug(tooltip.controlSlug)
 
   // Close on outside click
   useEffect(() => {
