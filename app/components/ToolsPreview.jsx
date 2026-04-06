@@ -1,11 +1,20 @@
 "use client"
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Lock, Sparkles, FileText, Database } from "lucide-react"
+import { Lock, Sparkles, FileText, Database, Shield } from "lucide-react"
+import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 const tools = [
+  {
+    icon: Shield,
+    name: "Cyber Security Audit",
+    description: "Assess your business security posture and get a prioritized action plan.",
+    gradient: "from-green-500/10 via-green-500/[0.03] to-transparent",
+    iconColor: "text-green-400/50",
+    href: "/tools/cyber-audit",
+  },
   {
     icon: Sparkles,
     name: "AI Review Responder",
@@ -86,37 +95,48 @@ export default function ToolsPreview() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.15 }}
-          className="grid md:grid-cols-3 gap-5 mb-16"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-16"
         >
           {tools.map((tool) => {
             const Icon = tool.icon
+            const Wrapper = tool.href ? Link : "div"
+            const wrapperProps = tool.href ? { href: tool.href } : {}
+
             return (
               <motion.div
                 key={tool.name}
                 variants={item}
                 className="relative rounded-2xl border border-zinc-800 overflow-hidden group"
               >
-                {/* Gradient preview area */}
-                <div
-                  className={`h-44 bg-gradient-to-br ${tool.gradient} flex items-center justify-center border-b border-zinc-800`}
-                >
-                  <Icon className={`w-10 h-10 ${tool.iconColor}`} />
-                </div>
-
-                <div className="p-6 bg-[#0d0d0d]">
-                  <div className="flex items-center justify-between mb-2.5">
-                    <h3 className="text-base font-bold text-white leading-tight">
-                      {tool.name}
-                    </h3>
-                    <span className="inline-flex items-center gap-1.5 ml-3 shrink-0 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
-                      <Lock className="w-2.5 h-2.5" />
-                      Soon
-                    </span>
+                <Wrapper {...wrapperProps} className={tool.href ? "block" : undefined}>
+                  {/* Gradient preview area */}
+                  <div
+                    className={`h-44 bg-gradient-to-br ${tool.gradient} flex items-center justify-center border-b border-zinc-800`}
+                  >
+                    <Icon className={`w-10 h-10 ${tool.iconColor}`} />
                   </div>
-                  <p className="text-zinc-600 text-sm leading-relaxed">
-                    {tool.description}
-                  </p>
-                </div>
+
+                  <div className="p-6 bg-[#0d0d0d]">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <h3 className="text-base font-bold text-white leading-tight">
+                        {tool.name}
+                      </h3>
+                      {tool.href ? (
+                        <span className="inline-flex items-center gap-1.5 ml-3 shrink-0 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
+                          Try It
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 ml-3 shrink-0 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
+                          <Lock className="w-2.5 h-2.5" />
+                          Soon
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-zinc-600 text-sm leading-relaxed">
+                      {tool.description}
+                    </p>
+                  </div>
+                </Wrapper>
 
                 {/* Hover tint */}
                 <div className="absolute inset-0 bg-blue-500/[0.015] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
