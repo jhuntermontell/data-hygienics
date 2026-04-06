@@ -6,11 +6,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
-const infoItems = [
-  { label: "Strategy sessions", value: "Free 30-min call" },
-  { label: "Response time", value: "Within 24 hours" },
-  { label: "Based in", value: "Available remote" },
-]
+// TODO: Replace YOUR_FORM_ID with your Formspree form ID
+const FORMSPREE_URL = "https://formspree.io/f/YOUR_FORM_ID"
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" })
@@ -23,9 +20,8 @@ export default function ContactSection() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setStatus("sending")
-
     try {
-      const res = await fetch("https://formspree.io/f/mdkeovqy", {
+      const res = await fetch(FORMSPREE_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -52,33 +48,18 @@ export default function ContactSection() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="text-lime-400 text-xs font-semibold tracking-widest uppercase">
+            <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
               Get In Touch
             </span>
             <h2 className="text-4xl md:text-5xl font-black text-white mt-3 mb-6 leading-tight tracking-tight">
-              Let&apos;s build
+              Let&apos;s Work
               <br />
-              something.
+              Together.
             </h2>
-            <p className="text-zinc-500 leading-relaxed mb-10">
-              Have a project in mind? Curious about AI tools for your business?
-              Or just want to say hi — I&apos;m genuinely happy to hear from you.
+            <p className="text-zinc-500 leading-relaxed text-lg">
+              Whether you need a tool built, a strategy session, or just want to
+              ask a question — reach out. I&apos;m happy to hear from you.
             </p>
-
-            <div className="space-y-4">
-              {infoItems.map(({ label, value }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 py-3 border-b border-zinc-800/60"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-lime-400 shrink-0" />
-                  <span className="text-zinc-500 text-sm">{label}</span>
-                  <span className="text-zinc-200 text-sm font-medium ml-auto">
-                    {value}
-                  </span>
-                </div>
-              ))}
-            </div>
           </motion.div>
 
           {/* Right: form */}
@@ -89,10 +70,10 @@ export default function ContactSection() {
             transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           >
             {status === "success" ? (
-              <div className="rounded-2xl border border-lime-400/15 bg-lime-400/[0.04] p-12 text-center">
-                <div className="w-14 h-14 rounded-full bg-lime-400/10 border border-lime-400/20 flex items-center justify-center mx-auto mb-5">
+              <div className="rounded-2xl border border-blue-500/15 bg-blue-500/[0.04] p-12 text-center">
+                <div className="w-14 h-14 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-5">
                   <svg
-                    className="w-6 h-6 text-lime-400"
+                    className="w-6 h-6 text-blue-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -160,7 +141,7 @@ export default function ContactSection() {
                 </Button>
                 {status === "error" && (
                   <p className="text-red-400 text-sm text-center">
-                    Something went wrong — please try again.
+                    Uh oh. Something went wrong. Let&apos;s try that again.
                   </p>
                 )}
               </form>

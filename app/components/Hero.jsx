@@ -1,80 +1,99 @@
 "use client"
-import { motion } from "framer-motion"
+import { useRef } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
 
 export default function Hero() {
+  const sectionRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  })
+
+  // Parallax: gradient drifts upward at 30% scroll speed
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0])
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
-      {/* Background layers */}
-      <div className="absolute inset-0">
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]"
+    >
+      {/* Parallax background layers */}
+      <motion.div
+        style={{ y: bgY, opacity: bgOpacity }}
+        className="absolute inset-0 pointer-events-none"
+      >
         {/* Subtle grid */}
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)",
+              "linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px)",
             backgroundSize: "64px 64px",
           }}
         />
 
-        {/* Lime orb — top left */}
+        {/* Blue radial bloom — center */}
         <motion.div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            width: 800,
-            height: 800,
-            top: "-10%",
-            left: "-20%",
+            width: 900,
+            height: 700,
+            top: "50%",
+            left: "50%",
+            x: "-50%",
+            y: "-60%",
             background:
-              "radial-gradient(circle, rgba(163,230,53,0.07) 0%, transparent 65%)",
+              "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(59,130,246,0.14) 0%, transparent 70%)",
           }}
-          animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ scale: [1, 1.08, 1], opacity: [0.8, 1, 0.8] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Blue orb — bottom right */}
+        {/* Secondary blue orb — bottom right */}
         <motion.div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute rounded-full"
           style={{
-            width: 600,
-            height: 600,
-            bottom: "-15%",
-            right: "-10%",
+            width: 500,
+            height: 500,
+            bottom: "-5%",
+            right: "-5%",
             background:
-              "radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 65%)",
+              "radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 65%)",
           }}
-          animate={{ scale: [1.1, 1, 1.1], opacity: [0.5, 0.85, 0.5] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
+      </motion.div>
 
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
-      </div>
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center pt-16">
-        {/* Eyebrow badge */}
+        {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="flex justify-center mb-8"
         >
-          <span className="inline-flex items-center gap-2.5 bg-lime-400/10 text-lime-400 text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full border border-lime-400/15">
-            <span className="w-1.5 h-1.5 bg-lime-400 rounded-full animate-pulse" />
-            AI tools for the real economy
+          <span className="inline-flex items-center gap-2.5 bg-blue-500/10 text-blue-400 text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full border border-blue-500/20">
+            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+            Tools &amp; strategy for small business
           </span>
         </motion.div>
 
         {/* Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 32 }}
+          initial={{ opacity: 0, y: 36 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.85, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl sm:text-7xl md:text-[96px] font-black leading-[0.88] tracking-[-0.03em] text-white mb-8"
+          transition={{ duration: 0.9, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="text-6xl sm:text-7xl md:text-[100px] font-black leading-[0.86] tracking-[-0.03em] text-white mb-8"
         >
-          Your business,
+          Small Business.
           <br />
-          <span className="text-lime-400">AI-ready.</span>
+          <span className="text-blue-400">Big Era.</span>
         </motion.h1>
 
         {/* Sub */}
@@ -84,8 +103,8 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.65 }}
           className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
         >
-          Practical tools, real strategy, and custom software — everything small
-          businesses need to step into the AI era without the noise.
+          I build the tools and strategies that help real businesses step into
+          the age of AI. Practically, affordably, and without the overwhelm.
         </motion.p>
 
         {/* CTAs */}
@@ -97,7 +116,7 @@ export default function Hero() {
         >
           <a
             href="#tools"
-            className="inline-flex items-center bg-lime-400 text-black font-bold text-base px-8 py-4 rounded-xl hover:bg-lime-300 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(163,230,53,0.25)]"
+            className="inline-flex items-center bg-blue-500 text-white font-bold text-base px-8 py-4 rounded-xl hover:bg-blue-400 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(59,130,246,0.35)]"
           >
             Explore the Tools
           </a>
@@ -108,27 +127,6 @@ export default function Hero() {
             Work With Me →
           </a>
         </motion.div>
-
-        {/* Stats row */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.1 }}
-          className="flex flex-wrap justify-center gap-12 mt-24 pt-10 border-t border-white/[0.05]"
-        >
-          {[
-            { value: "3+", label: "Free Tools" },
-            { value: "AI-native", label: "Approach" },
-            { value: "Zero", label: "Corporate fluff" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl font-black text-white">{stat.value}</div>
-              <div className="text-xs text-zinc-600 font-semibold tracking-widest uppercase mt-1">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </motion.div>
       </div>
 
       {/* Scroll indicator */}
@@ -138,7 +136,9 @@ export default function Hero() {
         transition={{ delay: 1.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-zinc-700"
       >
-        <span className="text-[10px] font-semibold tracking-widest uppercase">Scroll</span>
+        <span className="text-[10px] font-semibold tracking-widest uppercase">
+          Scroll
+        </span>
         <motion.div
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}

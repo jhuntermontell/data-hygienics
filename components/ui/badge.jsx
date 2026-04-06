@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 const variantClasses = {
   default: "bg-zinc-800 text-zinc-300 border-zinc-700",
-  accent: "bg-lime-400/10 text-lime-400 border-lime-400/20",
+  accent: "bg-blue-500/10 text-blue-400 border-blue-500/20",
   outline: "bg-transparent text-zinc-500 border-zinc-700",
 }
 

@@ -9,26 +9,23 @@ const tools = [
   {
     icon: Sparkles,
     name: "AI Review Responder",
-    description:
-      "Instantly generate thoughtful, on-brand responses to customer reviews — good and bad.",
-    gradient: "from-lime-400/10 via-lime-400/[0.03] to-transparent",
-    iconColor: "text-lime-400/40",
+    description: "Turn customer reviews into professional, on-brand replies in seconds.",
+    gradient: "from-blue-500/10 via-blue-500/[0.03] to-transparent",
+    iconColor: "text-blue-400/50",
   },
   {
     icon: FileText,
     name: "Proposal Generator",
-    description:
-      "Answer a few questions. Get a polished, professional proposal in seconds.",
-    gradient: "from-blue-500/10 via-blue-500/[0.03] to-transparent",
-    iconColor: "text-blue-400/40",
+    description: "Describe your offer and get a clean, client-ready proposal.",
+    gradient: "from-violet-500/10 via-violet-500/[0.03] to-transparent",
+    iconColor: "text-violet-400/50",
   },
   {
     icon: Database,
     name: "Data Cleanup Tool",
-    description:
-      "Upload messy spreadsheets. Get clean, structured data back — no formulas required.",
-    gradient: "from-purple-500/10 via-purple-500/[0.03] to-transparent",
-    iconColor: "text-purple-400/40",
+    description: "Upload a messy spreadsheet and get it back clean and structured.",
+    gradient: "from-cyan-500/10 via-cyan-500/[0.03] to-transparent",
+    iconColor: "text-cyan-400/50",
   },
 ]
 
@@ -60,22 +57,28 @@ export default function ToolsPreview() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16"
+          className="mb-4"
         >
-          <div>
-            <span className="text-lime-400 text-xs font-semibold tracking-widest uppercase">
-              Tools Hub
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black text-white mt-3 leading-tight tracking-tight">
-              Built to save you
-              <br />
-              hours every week.
-            </h2>
-          </div>
-          <p className="text-zinc-600 text-sm max-w-xs md:text-right">
-            Tools are launching soon. Join the list to get early access.
-          </p>
+          <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+            Tools Hub
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-white mt-3 leading-tight tracking-tight">
+            Tools for the Modern
+            <br />
+            Small Business.
+          </h2>
         </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-zinc-500 text-base max-w-xl mb-16"
+        >
+          Free. Practical. Built for people who are running a business, not a
+          tech team.
+        </motion.p>
 
         {/* Tool cards */}
         <motion.div
@@ -100,18 +103,15 @@ export default function ToolsPreview() {
                   <Icon className={`w-10 h-10 ${tool.iconColor}`} />
                 </div>
 
-                {/* Card content */}
                 <div className="p-6 bg-[#0d0d0d]">
                   <div className="flex items-center justify-between mb-2.5">
                     <h3 className="text-base font-bold text-white leading-tight">
                       {tool.name}
                     </h3>
-                    <div className="flex items-center gap-1.5 ml-3 shrink-0">
-                      <Lock className="w-3 h-3 text-zinc-600" />
-                      <span className="text-xs text-zinc-600 font-medium">
-                        Coming soon
-                      </span>
-                    </div>
+                    <span className="inline-flex items-center gap-1.5 ml-3 shrink-0 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full">
+                      <Lock className="w-2.5 h-2.5" />
+                      Soon
+                    </span>
                   </div>
                   <p className="text-zinc-600 text-sm leading-relaxed">
                     {tool.description}
@@ -119,26 +119,27 @@ export default function ToolsPreview() {
                 </div>
 
                 {/* Hover tint */}
-                <div className="absolute inset-0 bg-lime-400/[0.015] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                <div className="absolute inset-0 bg-blue-500/[0.015] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
               </motion.div>
             )
           })}
         </motion.div>
 
-        {/* Waitlist */}
+        {/* Email capture */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.5 }}
           transition={{ duration: 0.6 }}
-          className="max-w-md mx-auto"
+          className="max-w-md mx-auto text-center"
         >
+          <p className="text-zinc-500 text-sm mb-4 font-medium">
+            Get notified when tools launch
+          </p>
           {submitted ? (
-            <div className="text-center py-4">
-              <p className="text-lime-400 font-semibold">
-                ✓ You&apos;re on the list — we&apos;ll be in touch!
-              </p>
-            </div>
+            <p className="text-blue-400 font-semibold py-2">
+              ✓ {/* TODO: Add your name */} You&apos;re on the list! We&apos;ll be in touch.
+            </p>
           ) : (
             <form onSubmit={handleSubmit} className="flex gap-3">
               <Input
@@ -150,7 +151,7 @@ export default function ToolsPreview() {
                 className="flex-1"
               />
               <Button type="submit" className="whitespace-nowrap">
-                Get Notified
+                Notify Me
               </Button>
             </form>
           )}

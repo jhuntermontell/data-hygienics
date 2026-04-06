@@ -34,10 +34,10 @@ export default function Navbar() {
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="w-2 h-2 rounded-full bg-lime-400 group-hover:scale-125 transition-transform duration-300" />
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <span className="w-2 h-2 rounded-full bg-blue-500 group-hover:scale-125 transition-transform duration-300" />
           <span className="font-black text-white text-lg tracking-tight">
-            Data<span className="text-lime-400">Hygienics</span>
+            Data<span className="text-blue-400">Hygienics</span>
           </span>
         </Link>
 
@@ -54,10 +54,10 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop CTA */}
+        {/* Desktop CTA — blue-bordered ghost */}
         <Link
           href="/#contact"
-          className="hidden md:inline-flex items-center bg-lime-400 text-black text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-lime-300 transition-all duration-200 hover:-translate-y-0.5"
+          className="hidden md:inline-flex items-center border border-blue-500 text-blue-400 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-blue-500/10 transition-all duration-200 hover:-translate-y-0.5"
         >
           Work With Me
         </Link>
@@ -96,7 +96,7 @@ export default function Navbar() {
               <Link
                 href="/#contact"
                 onClick={() => setOpen(false)}
-                className="mt-2 inline-flex items-center justify-center bg-lime-400 text-black text-sm font-bold px-5 py-3 rounded-xl hover:bg-lime-300 transition-colors"
+                className="mt-2 inline-flex items-center justify-center border border-blue-500 text-blue-400 text-sm font-bold px-5 py-3 rounded-xl hover:bg-blue-500/10 transition-colors"
               >
                 Work With Me
               </Link>

@@ -12,17 +12,12 @@ export default function Footer() {
     <footer className="border-t border-zinc-800/50 bg-[#080808]">
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          {/* Logo + tagline */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-lime-400" />
-              <span className="font-black text-white text-lg tracking-tight">
-                Data<span className="text-lime-400">Hygienics</span>
-              </span>
-            </div>
-            <p className="text-zinc-600 text-sm">
-              Helping small businesses step into the AI era.
-            </p>
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-blue-500" />
+            <span className="font-black text-white text-lg tracking-tight">
+              Data<span className="text-blue-400">Hygienics</span>
+            </span>
           </div>
 
           {/* Nav links */}
@@ -37,6 +32,11 @@ export default function Footer() {
               </Link>
             ))}
           </div>
+
+          {/* Tagline */}
+          <p className="text-zinc-600 text-sm">
+            Modern tools for real businesses.
+          </p>
         </div>
 
         {/* Bottom bar */}

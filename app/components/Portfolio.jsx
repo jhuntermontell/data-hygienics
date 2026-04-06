@@ -1,29 +1,28 @@
 "use client"
 import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
-import { ArrowUpRight } from "lucide-react"
 
 const projects = [
   {
-    title: "Project Title One",
+    title: "Client Data Pipeline",
     description:
-      "A short description of what this project does and the problem it solves. Fill in with your real work.",
-    tags: ["Next.js", "TypeScript", "OpenAI"],
-    gradient: "from-lime-400/20 via-emerald-500/5 to-transparent",
+      "Built an automated data ingestion and cleaning pipeline for a mid-size retailer. Reduced manual data processing time by 80%.",
+    tags: ["Python", "Airflow", "PostgreSQL"],
+    accentColor: "from-blue-500/25 via-blue-500/5 to-transparent",
   },
   {
-    title: "Project Title Two",
+    title: "AI Customer Assistant",
     description:
-      "A short description of what this project does and the problem it solves. Fill in with your real work.",
-    tags: ["React", "Node.js", "PostgreSQL"],
-    gradient: "from-blue-500/20 via-indigo-500/5 to-transparent",
+      "Designed and deployed a GPT-powered assistant for a service business to handle FAQs and appointment requests.",
+    tags: ["Next.js", "OpenAI", "Vercel"],
+    accentColor: "from-violet-500/25 via-violet-500/5 to-transparent",
   },
   {
-    title: "Project Title Three",
+    title: "Business Intelligence Dashboard",
     description:
-      "A short description of what this project does and the problem it solves. Fill in with your real work.",
-    tags: ["Python", "Automation", "AWS"],
-    gradient: "from-violet-500/20 via-purple-500/5 to-transparent",
+      "Created an internal analytics dashboard giving leadership real-time visibility into operations.",
+    tags: ["React", "Tailwind", "Supabase"],
+    accentColor: "from-cyan-500/25 via-cyan-500/5 to-transparent",
   },
 ]
 
@@ -49,11 +48,11 @@ export default function Portfolio() {
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <span className="text-lime-400 text-xs font-semibold tracking-widest uppercase">
+          <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
             Portfolio
           </span>
           <h2 className="text-4xl md:text-5xl font-black text-white mt-3 leading-tight tracking-tight">
-            Things I&apos;ve built.
+            Selected Work.
           </h2>
         </motion.div>
 
@@ -63,7 +62,7 @@ export default function Portfolio() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, amount: 0.1 }}
-          className="grid md:grid-cols-3 gap-5"
+          className="grid md:grid-cols-3 gap-5 mb-10"
         >
           {projects.map((project) => (
             <motion.div
@@ -71,20 +70,14 @@ export default function Portfolio() {
               variants={item}
               className="rounded-2xl border border-zinc-800 overflow-hidden group hover:border-zinc-600 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
-              {/* Gradient image area */}
+              {/* Colored top gradient area */}
               <div
-                className={`h-48 bg-gradient-to-br ${project.gradient} border-b border-zinc-800 relative`}
-              >
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-              </div>
+                className={`h-48 bg-gradient-to-br ${project.accentColor} border-b border-zinc-800`}
+              />
 
               {/* Content */}
               <div className="p-6 bg-[#0d0d0d]">
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-lime-400 transition-colors duration-200 leading-tight">
+                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors duration-200 leading-tight">
                   {project.title}
                 </h3>
                 <p className="text-zinc-500 text-sm leading-relaxed mb-5">
@@ -101,6 +94,20 @@ export default function Portfolio() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* More coming soon */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center text-zinc-600 text-sm"
+        >
+          More coming soon —{" "}
+          <a href="#contact" className="text-blue-400/70 hover:text-blue-400 transition-colors">
+            reach out to discuss your project
+          </a>
+        </motion.p>
       </div>
     </section>
   )
