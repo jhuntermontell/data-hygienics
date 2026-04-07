@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { Suspense, useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry } from "@/lib/questions"
+import { useSubscription } from "@/lib/hooks/useSubscription"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { Button } from "@/components/ui/button"
@@ -13,9 +14,7 @@ import {
   Shield,
   ArrowRight,
   LogOut,
-  PlayCircle,
   CheckCircle2,
-  BarChart3,
   Building2,
   Newspaper,
   Lock,
@@ -24,6 +23,9 @@ import {
   KeyRound,
   AlertTriangle,
   Clock,
+  CreditCard,
+  Sparkles,
+  X,
 } from "lucide-react"
 
 const COMING_SOON_TOOLS = [
@@ -31,6 +33,19 @@ const COMING_SOON_TOOLS = [
   { icon: KeyRound, name: "Password Audit Tool", desc: "Check password policy strength" },
   { icon: AlertTriangle, name: "Incident Response Planner", desc: "Build your IR plan step by step" },
 ]
+
+const PLAN_LABELS = {
+  free: "Free",
+  starter: "Starter",
+  professional: "Professional",
+  msp: "MSP / Advisor",
+}
+
+const PLAN_FEATURES = {
+  starter: ["Full cybersecurity assessment & reports", "Industry news feed", "2 customizable policies"],
+  professional: ["Unlimited assessments & reports", "All 9 insurance-ready policies", "Score tracking over time"],
+  msp: ["Everything in Professional", "Up to 10 client assessments", "Client management dashboard"],
+}
 
 function getFirstName(profile, user) {
   if (profile?.full_name) return profile.full_name.split(" ")[0]
@@ -42,8 +57,22 @@ function getFirstName(profile, user) {
 }
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin" />
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
+  )
+}
+
+function DashboardContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+  const { plan, access, subscription, purchases, loading: subLoading } = useSubscription()
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [assessment, setAssessment] = useState(null)
@@ -52,9 +81,15 @@ export default function DashboardPage() {
   const [news, setNews] = useState([])
   const [policies, setPolicies] = useState([])
   const [loading, setLoading] = useState(true)
+  const [showWelcome, setShowWelcome] = useState(false)
 
-  // TODO: Connect Stripe - check actual subscription status
-  const isPaid = false
+  const isPaid = plan !== "free"
+
+  useEffect(() => {
+    if (searchParams.get("welcome") === "true" && !subLoading && isPaid) {
+      setShowWelcome(true)
+    }
+  }, [searchParams, subLoading, isPaid])
 
   useEffect(() => {
     async function load() {
@@ -93,7 +128,6 @@ export default function DashboardPage() {
           setNews(newsData || [])
         }
 
-        // Load completed policies
         const { data: policyData } = await supabase
           .from("generated_policies")
           .select("policy_type, company_name, updated_at")
@@ -109,6 +143,19 @@ export default function DashboardPage() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push("/tools/cyber-audit/login")
+  }
+
+  async function handleManageBilling() {
+    try {
+      const res = await fetch("/api/stripe/create-portal-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch (err) {
+      console.error("Portal error:", err)
+    }
   }
 
   if (loading) {
@@ -128,6 +175,42 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       <Navbar />
       <div className="flex-1 max-w-4xl mx-auto px-6 pt-28 pb-20 w-full">
+        {/* Welcome Banner */}
+        <AnimatePresence>
+          {showWelcome && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6 rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5 relative"
+            >
+              <button
+                onClick={() => setShowWelcome(false)}
+                className="absolute top-3 right-3 text-[#94A3B8] hover:text-[#475569]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-[#1D4ED8] mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="text-sm font-bold text-[#0F172A] mb-2">
+                    Welcome to {PLAN_LABELS[plan] || "your plan"}!
+                  </h3>
+                  <p className="text-xs text-[#475569] mb-2">Here&apos;s what you can do now:</p>
+                  <ul className="space-y-1">
+                    {(PLAN_FEATURES[plan] || []).map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-xs text-[#475569]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#059669] shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -180,6 +263,58 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
+        {/* Your Plan */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.07 }}
+          className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm p-6 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] border border-[#EFF6FF] flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-[#1D4ED8]" />
+            </div>
+            <h2 className="text-lg font-bold text-[#0F172A]">Your Plan</h2>
+          </div>
+
+          {isPaid ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-[#0F172A]">
+                  {PLAN_LABELS[plan]}
+                  <span className="ml-2 text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+                    Active
+                  </span>
+                </p>
+                {subscription?.current_period_end && (
+                  <p className="text-xs text-[#94A3B8] mt-1">
+                    Renews {new Date(subscription.current_period_end).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </p>
+                )}
+              </div>
+              <Button size="sm" variant="outline" onClick={handleManageBilling}>
+                Manage Billing
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-[#475569]">You&apos;re on the free plan</p>
+                {purchases.length > 0 && (
+                  <p className="text-xs text-[#94A3B8] mt-1">
+                    {purchases.length} one-time purchase{purchases.length > 1 ? "s" : ""}
+                  </p>
+                )}
+              </div>
+              <Button size="sm" onClick={() => router.push("/pricing")}>
+                <span className="flex items-center gap-2">
+                  Upgrade <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </Button>
+            </div>
+          )}
+        </motion.div>
+
         {/* Your Tools */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -189,7 +324,7 @@ export default function DashboardPage() {
         >
           <h2 className="text-lg font-bold text-[#0F172A] mb-4">Your Tools</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            {/* Cyber Audit - Active */}
+            {/* Cyber Audit */}
             <div className="rounded-2xl border border-[#1D4ED8]/30 bg-white shadow-sm p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] border border-[#EFF6FF] flex items-center justify-center">
@@ -203,7 +338,6 @@ export default function DashboardPage() {
               <p className="text-[#475569] text-xs mb-4">
                 Industry-tailored cybersecurity assessment with scored results and downloadable reports.
               </p>
-
               {!assessment && (
                 <Button size="sm" onClick={() => router.push("/tools/cyber-audit/assessment")}>
                   <span className="flex items-center gap-2">
@@ -237,7 +371,7 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Policy Library - Active */}
+            {/* Policy Library */}
             <div className="rounded-2xl border border-[#0F766E]/20 bg-white shadow-sm p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#0F766E]/20 flex items-center justify-center">
@@ -353,7 +487,7 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* Industry News - gated for free users */}
+        {/* Industry News */}
         {industry && news.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -373,14 +507,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* First headline always visible */}
             <div className="border-b border-[#E2E8F0] pb-3 mb-3">
               <h3 className="text-sm font-semibold text-[#0F172A] mb-1">{news[0].title}</h3>
               <p className="text-xs text-[#475569] leading-relaxed">{news[0].summary}</p>
             </div>
 
-            {/* Rest blurred for free users */}
-            {isPaid ? (
+            {access.canAccessNewsFeed ? (
               <div className="grid gap-3">
                 {news.slice(1).map((item) => (
                   <div key={item.id} className="border-b border-[#E2E8F0] pb-3 last:border-0 last:pb-0">

@@ -11,6 +11,7 @@ import {
   getLetterGrade,
   getGaps,
 } from "@/lib/cyber-audit/scoring"
+import { useSubscription } from "@/lib/hooks/useSubscription"
 import Navbar from "@/app/components/Navbar"
 import ScoreGauge from "../components/ScoreGauge"
 import SectionBreakdown from "../components/SectionBreakdown"
@@ -62,8 +63,8 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
   const [showPdf, setShowPdf] = useState(null) // null | "insurance" | "remediation"
   const [showUpgrade, setShowUpgrade] = useState(false)
-  // TODO: Connect Stripe - check actual subscription status
-  const isPaid = false
+  const { plan, access, hasPurchase } = useSubscription()
+  const isPaid = access.canDownloadReports || hasPurchase("assessment_bundle")
 
   useEffect(() => {
     async function load() {

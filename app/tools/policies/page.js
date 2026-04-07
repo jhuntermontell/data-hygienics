@@ -7,6 +7,7 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/lib/supabase/auth-context"
+import { useSubscription } from "@/lib/hooks/useSubscription"
 import { createClient } from "@/lib/supabase/client"
 import { POLICIES } from "@/lib/policies"
 import UpgradeModal from "@/app/tools/cyber-audit/components/UpgradeModal"
@@ -22,11 +23,11 @@ import {
 
 export default function PolicyHubPage() {
   const { user } = useAuth()
+  const { access, hasPurchase } = useSubscription()
   const [completedSlugs, setCompletedSlugs] = useState(new Set())
   const [showUpgrade, setShowUpgrade] = useState(false)
 
-  // TODO: Connect Stripe - check actual subscription status
-  const isPaid = false
+  const isPaid = access.canAccessPolicies || hasPurchase("policy_bundle")
 
   useEffect(() => {
     if (!user) return
@@ -183,7 +184,7 @@ export default function PolicyHubPage() {
         </div>
       </div>
 
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} feature="All Policies" showOneTime="policies" />}
       <Footer />
     </div>
   )
