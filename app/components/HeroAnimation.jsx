@@ -130,31 +130,25 @@ export default function HeroAnimation() {
 
       ctx.clearRect(0, 0, w, h)
 
-      // Background radial gradient
-      const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.6)
-      bgGrad.addColorStop(0, "#F0F7FF")
-      bgGrad.addColorStop(1, "#FFFFFF")
-      ctx.fillStyle = bgGrad
+      // Clean white background
+      ctx.fillStyle = "#FFFFFF"
       ctx.fillRect(0, 0, w, h)
 
-      // Radar rings
-      if (!s.reducedMotion) {
-        if (s.time - lastRing > 3000) {
-          s.rings.push({ born: s.time, radius: 0 })
-          lastRing = s.time
-        }
-        s.rings = s.rings.filter((r) => {
-          const age = s.time - r.born
-          r.radius = age * 0.04 * sc
-          const alpha = Math.max(0, 0.05 - (age / 8000) * 0.05)
-          if (alpha <= 0) return false
-          ctx.beginPath()
-          ctx.arc(cx, cy, r.radius, 0, Math.PI * 2)
-          ctx.strokeStyle = `rgba(29, 78, 216, ${alpha})`
-          ctx.lineWidth = 1
-          ctx.stroke()
-          return true
-        })
+      // Subtle grid pattern
+      ctx.strokeStyle = "rgba(226, 232, 240, 0.3)"
+      ctx.lineWidth = 0.5
+      const gridSize = 40 * sc
+      for (let x = (cx % gridSize); x < w; x += gridSize) {
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, h)
+        ctx.stroke()
+      }
+      for (let y = (cy % gridSize); y < h; y += gridSize) {
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.lineTo(w, y)
+        ctx.stroke()
       }
 
       // Satellite positions
@@ -244,11 +238,7 @@ export default function HeroAnimation() {
       ctx.beginPath()
       roundedRect(ctx, cx - cs, cy - cs, cs * 2, cs * 2, cr)
       ctx.fillStyle = "#1D4ED8"
-      ctx.shadowColor = "rgba(29, 78, 216, 0.3)"
-      ctx.shadowBlur = 20 * sc
       ctx.fill()
-      ctx.shadowColor = "transparent"
-      ctx.shadowBlur = 0
 
       // Satellite nodes + labels
       satPositions.forEach((pos, i) => {

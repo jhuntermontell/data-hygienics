@@ -7,6 +7,7 @@ import { motion } from "framer-motion"
 import { Check, Loader2 } from "lucide-react"
 import { PRICES } from "@/lib/stripe/prices"
 import { useAuth } from "@/lib/supabase/auth-context"
+import { useSubscription } from "@/lib/hooks/useSubscription"
 import { useRouter } from "next/navigation"
 
 const tiers = [
@@ -86,12 +87,35 @@ const oneTimePurchases = [
 
 export default function PricingPage() {
   const { user } = useAuth()
+  const { plan, subscription } = useSubscription()
   const router = useRouter()
   const [checkingOut, setCheckingOut] = useState(null)
+  const hasActiveSub = subscription?.status === "active" && plan !== "free"
 
   async function handleCheckout(priceId, mode) {
     if (!user) {
       router.push("/tools/cyber-audit/register")
+      return
+    }
+
+    // If user already has an active subscription, send to billing portal
+    if (hasActiveSub && mode === "subscription") {
+      setCheckingOut(priceId)
+      try {
+        const res = await fetch("/api/stripe/create-portal-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+        const data = await res.json()
+        if (data.url) {
+          window.location.href = data.url
+          return
+        }
+      } catch (err) {
+        console.error("Portal error:", err)
+      } finally {
+        setCheckingOut(null)
+      }
       return
     }
 
@@ -195,6 +219,8 @@ export default function PricingPage() {
                     <span className="flex items-center justify-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" /> Redirecting...
                     </span>
+                  ) : hasActiveSub ? (
+                    "Manage Plan"
                   ) : (
                     tier.cta
                   )}

@@ -147,7 +147,7 @@ export default function Navbar() {
                       className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] transition-colors">
                       <FileText className="w-4 h-4" /> My Reports
                     </Link>
-                    <Link href="/controls" onClick={() => setUserOpen(false)}
+                    <Link href="/tools/policies" onClick={() => setUserOpen(false)}
                       className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] transition-colors">
                       <ShieldCheck className="w-4 h-4" /> My Policies
                     </Link>
