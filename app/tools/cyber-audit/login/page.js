@@ -1,11 +1,25 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Navbar from "@/app/components/Navbar"
 import AuthForm from "../components/AuthForm"
 import { Shield } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/lib/supabase/auth-context"
 
 export default function LoginPage() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/tools/cyber-audit/dashboard")
+    }
+  }, [user, loading, router])
+
+  if (!loading && user) return null
+
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />

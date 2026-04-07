@@ -148,7 +148,7 @@ function DashboardContent() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
-    router.push("/tools/cyber-audit/login")
+    window.location.href = "/"
   }
 
   async function handleManageBilling() {

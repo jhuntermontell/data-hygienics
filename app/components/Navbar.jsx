@@ -22,10 +22,7 @@ const comingSoon = [
 function getFirstName(profile, user) {
   if (profile?.full_name) return profile.full_name.split(" ")[0]
   if (user?.user_metadata?.full_name) return user.user_metadata.full_name.split(" ")[0]
-  const email = user?.email || ""
-  const local = email.split("@")[0] || ""
-  const name = local.replace(/[._-]/g, " ").split(" ")[0]
-  return name.charAt(0).toUpperCase() + name.slice(1)
+  return "there"
 }
 
 export default function Navbar() {
@@ -55,9 +52,10 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     setUserOpen(false)
+    setMobileOpen(false)
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/")
+    window.location.href = "/"
   }
 
   const firstName = user ? getFirstName(profile, user) : null

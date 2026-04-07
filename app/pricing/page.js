@@ -79,7 +79,7 @@ const oneTimePurchases = [
   },
   {
     name: "Individual Policy",
-    price: "$29",
+    price: "$49",
     priceId: PRICES.individualPolicy,
     desc: "Pick any single policy from our library. Customize and download as PDF.",
   },
