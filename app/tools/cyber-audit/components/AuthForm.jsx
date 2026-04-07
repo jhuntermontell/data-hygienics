@@ -56,7 +56,8 @@ export default function AuthForm({ mode = "login" }) {
           password,
         })
         if (error) throw error
-        router.push("/tools/cyber-audit/dashboard")
+        // Full page reload ensures auth state propagates to all contexts
+        window.location.href = "/tools/cyber-audit/dashboard"
       }
     } catch (err) {
       setError(err.message)

@@ -56,11 +56,6 @@ export default function CyberAuditLanding() {
 
       {/* Hero */}
       <section className="relative pt-36 pb-24 px-6 overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-blue-100/50 blur-3xl" />
-        </div>
-
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
