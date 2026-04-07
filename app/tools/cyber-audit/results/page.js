@@ -11,7 +11,7 @@ import {
   getLetterGrade,
   getGaps,
 } from "@/lib/cyber-audit/scoring"
-import { useSubscription } from "@/lib/hooks/useSubscription"
+import { getSubscription } from "@/lib/stripe/subscription"
 import Navbar from "@/app/components/Navbar"
 import ScoreGauge from "../components/ScoreGauge"
 import SectionBreakdown from "../components/SectionBreakdown"
@@ -63,24 +63,25 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true)
   const [showPdf, setShowPdf] = useState(null) // null | "insurance" | "remediation"
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const { plan, access, hasPurchase } = useSubscription()
-  const isPaid = access.canDownloadReports || hasPurchase("assessment_bundle")
+  const [isPaid, setIsPaid] = useState(false)
 
   useEffect(() => {
     async function load() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) return router.push("/tools/cyber-audit/login")
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        window.location.href = "/tools/cyber-audit/login"
+        return
+      }
+      const user = session.user
       setUserEmail(user.email)
 
-      // Load profile
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle()
-      setProfile(profileData)
+      // Load profile and subscription in parallel
+      const [profileResult, subData] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+        getSubscription(user.id),
+      ])
+      setProfile(profileResult.data)
+      setIsPaid(subData.access.canDownloadReports || subData.hasPurchase("assessment_bundle"))
 
       const { data: assessments } = await supabase
         .from("assessments")

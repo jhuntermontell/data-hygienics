@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import dynamic from "next/dynamic"
 import { createClient } from "@/lib/supabase/client"
-import { useAuth } from "@/lib/supabase/auth-context"
 import { getPolicyBySlug } from "@/lib/policies"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
@@ -30,7 +29,8 @@ const STEPS = ["Company Info", "Customize Sections", "Review", "Download"]
 export default function PolicyWizardPage() {
   const { slug } = useParams()
   const router = useRouter()
-  const { user, profile } = useAuth()
+  const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [step, setStep] = useState(0)
   const [policyData, setPolicyData] = useState(null)
   const [policyMeta, setPolicyMeta] = useState(null)
@@ -48,60 +48,65 @@ export default function PolicyWizardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) {
-      router.push("/tools/cyber-audit/login")
-      return
-    }
+    async function init() {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        window.location.href = "/tools/cyber-audit/login"
+        return
+      }
+      setUser(session.user)
 
-    const meta = getPolicyBySlug(slug)
-    if (!meta) {
-      router.push("/tools/policies")
-      return
-    }
-    setPolicyMeta(meta)
+      const meta = getPolicyBySlug(slug)
+      if (!meta) {
+        router.push("/tools/policies")
+        return
+      }
+      setPolicyMeta(meta)
 
-    // Dynamic import of policy content
-    import(`@/lib/policies/${slug}`)
-      .then((mod) => {
+      // Dynamic import of policy content
+      try {
+        const mod = await import(`@/lib/policies/${slug}`)
         const data = mod.POLICY_DATA
         setPolicyData(data)
-        // Set defaults
         const defaults = {}
         data.sections.forEach((section) => {
           const defaultOpt = section.options.find((o) => o.default) || section.options[0]
           defaults[section.id] = defaultOpt.id
         })
         setSelections(defaults)
-      })
-      .catch(() => {
+      } catch {
         router.push("/tools/policies")
-      })
+        return
+      }
 
-    // Pre-fill from profile
-    if (profile) {
-      setCompanyInfo((prev) => ({
-        ...prev,
-        companyName: profile.company_name || prev.companyName,
-        ownerName: profile.full_name || prev.ownerName,
-      }))
-    }
+      // Pre-fill from profile
+      const { data: profileData } = await supabase
+        .from("profiles").select("*").eq("id", session.user.id).maybeSingle()
+      setProfile(profileData)
+      if (profileData) {
+        setCompanyInfo((prev) => ({
+          ...prev,
+          companyName: profileData.company_name || prev.companyName,
+          ownerName: profileData.full_name || prev.ownerName,
+        }))
+      }
 
-    // Load last assessment industry
-    async function loadIndustry() {
-      const supabase = createClient()
-      const { data } = await supabase
+      // Load last assessment industry
+      const { data: assessments } = await supabase
         .from("assessments")
         .select("industry")
-        .eq("user_id", user.id)
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(1)
-      if (data?.[0]?.industry) {
-        setCompanyInfo((prev) => ({ ...prev, industry: data[0].industry }))
+      if (assessments?.[0]?.industry) {
+        setCompanyInfo((prev) => ({ ...prev, industry: assessments[0].industry }))
       }
+
+      setLoading(false)
     }
-    loadIndustry()
-    setLoading(false)
-  }, [slug, user, profile, router])
+    init()
+  }, [slug, router])
 
   const handleSave = async () => {
     setSaving(true)

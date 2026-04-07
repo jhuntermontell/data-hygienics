@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { motion } from "framer-motion"
 import { Check, Loader2 } from "lucide-react"
 import { PRICES } from "@/lib/stripe/prices"
-import { useAuth } from "@/lib/supabase/auth-context"
-import { useSubscription } from "@/lib/hooks/useSubscription"
+import { createClient } from "@/lib/supabase/client"
+import { getSubscription } from "@/lib/stripe/subscription"
 import { useRouter } from "next/navigation"
 
 const tiers = [
@@ -86,14 +86,24 @@ const oneTimePurchases = [
 ]
 
 export default function PricingPage() {
-  const { user } = useAuth()
-  const { plan, subscription } = useSubscription()
   const router = useRouter()
   const [checkingOut, setCheckingOut] = useState(null)
-  const hasActiveSub = subscription?.status === "active" && plan !== "free"
+  const [session, setSession] = useState(null)
+  const [hasActiveSub, setHasActiveSub] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      setSession(s)
+      if (s?.user) {
+        const sub = await getSubscription(s.user.id)
+        setHasActiveSub(sub.subscription?.status === "active" && sub.plan !== "free")
+      }
+    })
+  }, [])
 
   async function handleCheckout(priceId, mode) {
-    if (!user) {
+    if (!session) {
       router.push("/tools/cyber-audit/register")
       return
     }

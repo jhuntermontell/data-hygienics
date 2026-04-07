@@ -1,12 +1,7 @@
 "use client"
 
-import { AuthProvider } from "@/lib/supabase/auth-context"
-import { SubscriptionProvider } from "@/lib/hooks/useSubscription"
-
+// No context providers needed — auth comes from Supabase session directly,
+// subscription data is fetched on demand with localStorage caching.
 export function Providers({ children }) {
-  return (
-    <AuthProvider>
-      <SubscriptionProvider>{children}</SubscriptionProvider>
-    </AuthProvider>
-  )
+  return children
 }

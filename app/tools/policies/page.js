@@ -6,9 +6,8 @@ import Link from "next/link"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/supabase/auth-context"
-import { useSubscription } from "@/lib/hooks/useSubscription"
 import { createClient } from "@/lib/supabase/client"
+import { getSubscription } from "@/lib/stripe/subscription"
 import { POLICIES } from "@/lib/policies"
 import UpgradeModal from "@/app/tools/cyber-audit/components/UpgradeModal"
 import {
@@ -22,27 +21,27 @@ import {
 } from "lucide-react"
 
 export default function PolicyHubPage() {
-  const { user } = useAuth()
-  const { access, hasPurchase } = useSubscription()
+  const [user, setUser] = useState(null)
   const [completedSlugs, setCompletedSlugs] = useState(new Set())
   const [showUpgrade, setShowUpgrade] = useState(false)
-
-  const isPaid = access.canAccessPolicies || hasPurchase("policy_bundle")
+  const [isPaid, setIsPaid] = useState(false)
 
   useEffect(() => {
-    if (!user) return
     async function load() {
       const supabase = createClient()
-      const { data } = await supabase
-        .from("generated_policies")
-        .select("policy_type")
-        .eq("user_id", user.id)
-      if (data) {
-        setCompletedSlugs(new Set(data.map((p) => p.policy_type)))
-      }
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      setUser(session.user)
+
+      const [{ data }, subData] = await Promise.all([
+        supabase.from("generated_policies").select("policy_type").eq("user_id", session.user.id),
+        getSubscription(session.user.id),
+      ])
+      if (data) setCompletedSlugs(new Set(data.map((p) => p.policy_type)))
+      setIsPaid(subData.access.canAccessPolicies || subData.hasPurchase("policy_bundle"))
     }
     load()
-  }, [user])
+  }, [])
 
   const completedCount = POLICIES.filter((p) => completedSlugs.has(p.slug)).length
 

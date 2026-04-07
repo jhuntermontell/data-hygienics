@@ -184,7 +184,7 @@ export async function POST(request) {
           .from('subscriptions')
           .update({
             plan: 'free',
-            status: 'canceled',
+            status: 'inactive',
             updated_at: new Date().toISOString(),
           })
           .eq('stripe_subscription_id', subscription.id)

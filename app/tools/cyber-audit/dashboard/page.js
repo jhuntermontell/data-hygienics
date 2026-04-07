@@ -1,11 +1,11 @@
 "use client"
 
 import { Suspense, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry } from "@/lib/questions"
-import { useSubscription } from "@/lib/hooks/useSubscription"
+import { getSubscription, clearSubscriptionCache } from "@/lib/stripe/subscription"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { Button } from "@/components/ui/button"
@@ -50,10 +50,7 @@ const PLAN_FEATURES = {
 function getFirstName(profile, user) {
   if (profile?.full_name) return profile.full_name.split(" ")[0]
   if (user?.user_metadata?.full_name) return user.user_metadata.full_name.split(" ")[0]
-  const email = user?.email || ""
-  const local = email.split("@")[0] || ""
-  const name = local.replace(/[._-]/g, " ").split(" ")[0]
-  return name.charAt(0).toUpperCase() + name.slice(1)
+  return "there"
 }
 
 export default function DashboardPage() {
@@ -69,10 +66,8 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-  const { plan, access, subscription, purchases, loading: subLoading } = useSubscription()
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [assessment, setAssessment] = useState(null)
@@ -80,35 +75,44 @@ function DashboardContent() {
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [news, setNews] = useState([])
   const [policies, setPolicies] = useState([])
+  const [sub, setSub] = useState({ plan: "free", access: { canAccessNewsFeed: false }, subscription: null, purchases: [] })
   const [loading, setLoading] = useState(true)
   const [showWelcome, setShowWelcome] = useState(false)
 
+  const plan = sub.plan
+  const access = sub.access
+  const subscription = sub.subscription
+  const purchases = sub.purchases
   const isPaid = plan !== "free"
 
   useEffect(() => {
-    if (searchParams.get("welcome") === "true" && !subLoading && isPaid) {
-      setShowWelcome(true)
-    }
-  }, [searchParams, subLoading, isPaid])
-
-  useEffect(() => {
     async function load() {
+      // Get session directly
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        window.location.href = "/tools/cyber-audit/login"
+        return
+      }
+
+      const currentUser = session.user
+      setUser(currentUser)
+
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          router.replace("/tools/cyber-audit/login")
-          return
-        }
-        setUser(user)
+        // Load everything in parallel
+        const [profileResult, assessmentResult, policyResult, subData] = await Promise.all([
+          supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle(),
+          supabase.from("assessments").select("*").eq("user_id", currentUser.id)
+            .order("created_at", { ascending: false }).limit(1),
+          supabase.from("generated_policies").select("policy_type, company_name, updated_at")
+            .eq("user_id", currentUser.id).order("updated_at", { ascending: false }),
+          getSubscription(currentUser.id),
+        ])
 
-        const { data: profileData } = await supabase
-          .from("profiles").select("*").eq("id", user.id).maybeSingle()
-        setProfile(profileData)
+        setProfile(profileResult.data)
+        setSub(subData)
+        setPolicies(policyResult.data || [])
 
-        const { data: assessments } = await supabase
-          .from("assessments").select("*").eq("user_id", user.id)
-          .order("created_at", { ascending: false }).limit(1)
-
+        const assessments = assessmentResult.data
         if (assessments?.length > 0) {
           const latest = assessments[0]
           setAssessment(latest)
@@ -123,30 +127,30 @@ function DashboardContent() {
               .select("*", { count: "exact", head: true }).eq("assessment_id", latest.id)
             setResponseCount(count || 0)
           }
+
+          if (latest.industry) {
+            const { data: newsData } = await supabase.from("news_cache")
+              .select("*").eq("industry", latest.industry)
+              .order("cached_at", { ascending: false }).limit(5)
+            setNews(newsData || [])
+          }
         }
 
-        if (assessments?.[0]?.industry) {
-          const { data: newsData } = await supabase.from("news_cache")
-            .select("*").eq("industry", assessments[0].industry)
-            .order("cached_at", { ascending: false }).limit(5)
-          setNews(newsData || [])
+        // Show welcome banner if returning from payment
+        if (searchParams.get("welcome") === "true" && subData.plan !== "free") {
+          setShowWelcome(true)
         }
-
-        const { data: policyData } = await supabase
-          .from("generated_policies")
-          .select("policy_type, company_name, updated_at")
-          .eq("user_id", user.id)
-          .order("updated_at", { ascending: false })
-        setPolicies(policyData || [])
       } catch (err) {
         console.error("Dashboard load error:", err)
       }
+
       setLoading(false)
     }
     load()
   }, [])
 
   const handleSignOut = async () => {
+    clearSubscriptionCache()
     await supabase.auth.signOut()
     window.location.href = "/"
   }
@@ -312,11 +316,13 @@ function DashboardContent() {
                   </p>
                 )}
               </div>
-              <Button size="sm" onClick={() => router.push("/pricing")}>
-                <span className="flex items-center gap-2">
-                  Upgrade <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Button>
+              <Link href="/pricing">
+                <Button size="sm">
+                  <span className="flex items-center gap-2">
+                    Upgrade <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </Button>
+              </Link>
             </div>
           )}
         </motion.div>
@@ -330,7 +336,6 @@ function DashboardContent() {
         >
           <h2 className="text-lg font-bold text-[#0F172A] mb-4">Your Tools</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            {/* Cyber Audit */}
             <div className="rounded-2xl border border-[#1D4ED8]/30 bg-white shadow-sm p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] border border-[#EFF6FF] flex items-center justify-center">
@@ -345,11 +350,13 @@ function DashboardContent() {
                 Industry-tailored cybersecurity assessment with scored results and downloadable reports.
               </p>
               {!assessment && (
-                <Button size="sm" onClick={() => router.push("/tools/cyber-audit/assessment")}>
-                  <span className="flex items-center gap-2">
-                    Start Assessment <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </Button>
+                <Link href="/tools/cyber-audit/assessment">
+                  <Button size="sm">
+                    <span className="flex items-center gap-2">
+                      Start Assessment <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </Button>
+                </Link>
               )}
               {assessment?.status === "in_progress" && (
                 <>
@@ -358,26 +365,23 @@ function DashboardContent() {
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }} />
                     </div>
                   )}
-                  <Button size="sm" onClick={() => router.push("/tools/cyber-audit/assessment")}>
-                    <span className="flex items-center gap-2">
-                      Continue <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </Button>
+                  <Link href="/tools/cyber-audit/assessment">
+                    <Button size="sm">
+                      <span className="flex items-center gap-2">
+                        Continue <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </Button>
+                  </Link>
                 </>
               )}
               {assessment?.status === "completed" && (
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => router.push("/tools/cyber-audit/results")}>
-                    View Results
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => router.push("/tools/cyber-audit/assessment")}>
-                    Retake
-                  </Button>
+                  <Link href="/tools/cyber-audit/results"><Button size="sm">View Results</Button></Link>
+                  <Link href="/tools/cyber-audit/assessment"><Button size="sm" variant="outline">Retake</Button></Link>
                 </div>
               )}
             </div>
 
-            {/* Policy Library */}
             <div className="rounded-2xl border border-[#0F766E]/20 bg-white shadow-sm p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#0F766E]/20 flex items-center justify-center">
@@ -391,14 +395,15 @@ function DashboardContent() {
               <p className="text-[#475569] text-xs mb-4">
                 Generate all 9 insurance-required cybersecurity policies, customized for your organization.
               </p>
-              <Button size="sm" variant="outline" onClick={() => router.push("/tools/policies")}>
-                <span className="flex items-center gap-2">
-                  {policies.length > 0 ? `${policies.length} of 9 done` : "Get started"} <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Button>
+              <Link href="/tools/policies">
+                <Button size="sm" variant="outline">
+                  <span className="flex items-center gap-2">
+                    {policies.length > 0 ? `${policies.length} of 9 done` : "Get started"} <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </Button>
+              </Link>
             </div>
 
-            {/* Coming soon tools */}
             {COMING_SOON_TOOLS.map((tool) => {
               const Icon = tool.icon
               return (
@@ -439,9 +444,11 @@ function DashboardContent() {
                     <p className="text-xs text-[#94A3B8]">{new Date(assessment.completed_at).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => router.push("/tools/cyber-audit/results")}>
-                  {isPaid ? "Download" : <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Unlock</span>}
-                </Button>
+                <Link href="/tools/cyber-audit/results">
+                  <Button size="sm" variant="outline">
+                    {isPaid ? "Download" : <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Unlock</span>}
+                  </Button>
+                </Link>
               </div>
               <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
                 <div className="flex items-center gap-3">
@@ -451,9 +458,11 @@ function DashboardContent() {
                     <p className="text-xs text-[#94A3B8]">{new Date(assessment.completed_at).toLocaleDateString()}</p>
                   </div>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => router.push("/tools/cyber-audit/results")}>
-                  {isPaid ? "Download" : <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Unlock</span>}
-                </Button>
+                <Link href="/tools/cyber-audit/results">
+                  <Button size="sm" variant="outline">
+                    {isPaid ? "Download" : <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Unlock</span>}
+                  </Button>
+                </Link>
               </div>
             </div>
           </motion.div>

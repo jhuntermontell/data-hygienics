@@ -1,24 +1,33 @@
 "use client"
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import Navbar from "@/app/components/Navbar"
 import AuthForm from "../components/AuthForm"
 import { Shield } from "lucide-react"
 import Link from "next/link"
-import { useAuth } from "@/lib/supabase/auth-context"
+import { createClient } from "@/lib/supabase/client"
 
 export default function LoginPage() {
-  const { user, loading } = useAuth()
-  const router = useRouter()
+  const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    if (!loading && user) {
-      router.replace("/tools/cyber-audit/dashboard")
-    }
-  }, [user, loading, router])
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        window.location.href = "/tools/cyber-audit/dashboard"
+      } else {
+        setChecking(false)
+      }
+    })
+  }, [])
 
-  if (!loading && user) return null
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">

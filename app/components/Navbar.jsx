@@ -1,11 +1,10 @@
 "use client"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut } from "lucide-react"
-import { useAuth } from "@/lib/supabase/auth-context"
 import { createClient } from "@/lib/supabase/client"
+import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 
 const toolLinks = [
   { href: "/tools/cyber-audit", label: "Cyber Audit" },
@@ -19,21 +18,53 @@ const comingSoon = [
   "Incident Response Planner",
 ]
 
-function getFirstName(profile, user) {
-  if (profile?.full_name) return profile.full_name.split(" ")[0]
-  if (user?.user_metadata?.full_name) return user.user_metadata.full_name.split(" ")[0]
-  return "there"
-}
-
 export default function Navbar() {
-  const router = useRouter()
-  const { user, profile, loading: authLoading } = useAuth()
+  const supabase = createClient()
+  const [session, setSession] = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [ready, setReady] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [userOpen, setUserOpen] = useState(false)
   const toolsRef = useRef(null)
   const userRef = useRef(null)
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s)
+      setReady(true)
+      if (s?.user) {
+        supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", s.user.id)
+          .maybeSingle()
+          .then(({ data }) => setProfile(data))
+      }
+    })
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, s) => {
+        setSession(s)
+        setReady(true)
+        if (s?.user) {
+          supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", s.user.id)
+            .maybeSingle()
+            .then(({ data }) => setProfile(data))
+        } else {
+          setProfile(null)
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
@@ -53,12 +84,15 @@ export default function Navbar() {
   const handleSignOut = async () => {
     setUserOpen(false)
     setMobileOpen(false)
-    const supabase = createClient()
+    clearSubscriptionCache()
     await supabase.auth.signOut()
     window.location.href = "/"
   }
 
-  const firstName = user ? getFirstName(profile, user) : null
+  const user = session?.user
+  let firstName = "there"
+  if (profile?.full_name) firstName = profile.full_name.split(" ")[0]
+  else if (user?.user_metadata?.full_name) firstName = user.user_metadata.full_name.split(" ")[0]
 
   return (
     <motion.nav
@@ -117,7 +151,7 @@ export default function Navbar() {
 
         {/* Desktop right: auth-aware */}
         <div className="hidden md:flex items-center gap-3">
-          {authLoading ? (
+          {!ready ? (
             <div className="w-20 h-9" />
           ) : user ? (
             <div className="relative" ref={userRef}>
@@ -207,17 +241,17 @@ export default function Navbar() {
                 Pricing
               </Link>
               {user ? (
-                <>
-                  <div className="border-t border-[#F1F5F9] mt-2 pt-3">
-                    <p className="text-[#0F172A] text-sm font-medium mb-2">Hi, {firstName}</p>
-                    <Link href="/tools/cyber-audit/dashboard" onClick={() => setMobileOpen(false)}
-                      className="block text-[#475569] text-sm py-1.5">Dashboard</Link>
-                    <Link href="/tools/cyber-audit/results" onClick={() => setMobileOpen(false)}
-                      className="block text-[#475569] text-sm py-1.5">My Reports</Link>
-                    <button onClick={() => { setMobileOpen(false); handleSignOut() }}
-                      className="text-[#DC2626] text-sm py-1.5 cursor-pointer">Sign out</button>
-                  </div>
-                </>
+                <div className="border-t border-[#F1F5F9] mt-2 pt-3">
+                  <p className="text-[#0F172A] text-sm font-medium mb-2">Hi, {firstName}</p>
+                  <Link href="/tools/cyber-audit/dashboard" onClick={() => setMobileOpen(false)}
+                    className="block text-[#475569] text-sm py-1.5">Dashboard</Link>
+                  <Link href="/tools/cyber-audit/results" onClick={() => setMobileOpen(false)}
+                    className="block text-[#475569] text-sm py-1.5">My Reports</Link>
+                  <Link href="/tools/policies" onClick={() => setMobileOpen(false)}
+                    className="block text-[#475569] text-sm py-1.5">My Policies</Link>
+                  <button onClick={handleSignOut}
+                    className="text-[#DC2626] text-sm py-1.5 cursor-pointer">Sign out</button>
+                </div>
               ) : (
                 <div className="flex gap-3 mt-3">
                   <Link href="/tools/cyber-audit/login" onClick={() => setMobileOpen(false)}
