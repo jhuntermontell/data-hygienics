@@ -152,7 +152,9 @@ export async function POST(request) {
           stripe_price_id: priceId,
           plan,
           status: subscription.status === 'active' ? 'active' : subscription.status,
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          current_period_end: subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null,
           updated_at: new Date().toISOString(),
         }
 
