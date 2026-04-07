@@ -50,6 +50,7 @@ export default function DashboardPage() {
   const [responseCount, setResponseCount] = useState(0)
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [news, setNews] = useState([])
+  const [policies, setPolicies] = useState([])
   const [loading, setLoading] = useState(true)
 
   // TODO: Connect Stripe - check actual subscription status
@@ -91,6 +92,14 @@ export default function DashboardPage() {
             .order("cached_at", { ascending: false }).limit(5)
           setNews(newsData || [])
         }
+
+        // Load completed policies
+        const { data: policyData } = await supabase
+          .from("generated_policies")
+          .select("policy_type, company_name, updated_at")
+          .eq("user_id", user.id)
+          .order("updated_at", { ascending: false })
+        setPolicies(policyData || [])
       }
       setLoading(false)
     }
@@ -228,6 +237,27 @@ export default function DashboardPage() {
               )}
             </div>
 
+            {/* Policy Library - Active */}
+            <div className="rounded-2xl border border-[#0F766E]/20 bg-white shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] border border-[#0F766E]/20 flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-[#0F766E]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#0F172A]">Policy Library</h3>
+                  <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-1.5 py-0.5 rounded">Active</span>
+                </div>
+              </div>
+              <p className="text-[#475569] text-xs mb-4">
+                Generate all 9 insurance-required cybersecurity policies, customized for your organization.
+              </p>
+              <Button size="sm" variant="outline" onClick={() => router.push("/tools/policies")}>
+                <span className="flex items-center gap-2">
+                  {policies.length > 0 ? `${policies.length} of 9 done` : "Get started"} <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </Button>
+            </div>
+
             {/* Coming soon tools */}
             {COMING_SOON_TOOLS.map((tool) => {
               const Icon = tool.icon
@@ -285,6 +315,40 @@ export default function DashboardPage() {
                   {isPaid ? "Download" : <span className="flex items-center gap-1"><Lock className="w-3 h-3" /> Unlock</span>}
                 </Button>
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* My Policies */}
+        {policies.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.18 }}
+            className="bg-white rounded-xl border border-[#E2E8F0] p-6 mb-8 shadow-sm"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-[#0F172A]">My Policies</h2>
+              <Link href="/tools/policies" className="text-[#1D4ED8] text-xs font-semibold hover:text-[#1E40AF]">
+                View all
+              </Link>
+            </div>
+            <div className="grid gap-3">
+              {policies.slice(0, 4).map((p) => (
+                <div key={p.policy_type} className="flex items-center justify-between px-4 py-3 rounded-lg bg-[#F8FAFC] border border-[#F1F5F9]">
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-4 h-4 text-[#1D4ED8]" />
+                    <div>
+                      <p className="text-sm text-[#0F172A] font-medium capitalize">{p.policy_type.replace(/-/g, " ")}</p>
+                      <p className="text-xs text-[#94A3B8]">{new Date(p.updated_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <Link href={`/tools/policies/${p.policy_type}`}
+                    className="text-[#1D4ED8] text-xs font-semibold hover:text-[#1E40AF]">
+                    Edit
+                  </Link>
+                </div>
+              ))}
             </div>
           </motion.div>
         )}

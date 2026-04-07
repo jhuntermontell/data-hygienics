@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client"
 
 const toolLinks = [
   { href: "/tools/cyber-audit", label: "Cyber Audit" },
+  { href: "/tools/policies", label: "Policy Library" },
   { href: "/controls", label: "Controls Library" },
 ]
 
