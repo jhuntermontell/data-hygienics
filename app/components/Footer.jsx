@@ -9,14 +9,14 @@ const links = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-zinc-800/50 bg-[#080808]">
+    <footer className="border-t border-[#E2E8F0] bg-white">
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-2">
-              <img src="/logo.svg" alt="Data Hygienics" className="h-8 w-auto" />
+              <img src="/logo.svg" alt="Data Hygienics" className="h-7 w-auto" />
             </div>
-            <p className="text-zinc-600 text-sm max-w-xs">
+            <p className="text-[#94A3B8] text-sm max-w-xs">
               The unbiased cybersecurity platform for small business.
             </p>
           </div>
@@ -26,7 +26,7 @@ export default function Footer() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-zinc-600 hover:text-zinc-300 text-sm transition-colors duration-200"
+                className="text-[#475569] hover:text-[#0F172A] text-sm transition-colors duration-150"
               >
                 {link.label}
               </Link>
@@ -34,18 +34,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-zinc-700 text-xs">
-            &copy; {new Date().getFullYear()} Data Hygienics, LLC. All rights reserved.
+        <div className="mt-10 pt-6 border-t border-[#F1F5F9] flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-[#94A3B8] text-xs">
+            &copy; {new Date().getFullYear()} Data Hygienics, LLC.
           </p>
-          <p className="text-zinc-700 text-xs italic">
-            Built for the reluctant tech leader.
+          <p className="text-[#94A3B8] text-xs">
+            Cybersecurity clarity for every business.
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-zinc-700 hover:text-zinc-500 text-xs transition-colors">
+            <Link href="/privacy" className="text-[#94A3B8] hover:text-[#475569] text-xs transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-zinc-700 hover:text-zinc-500 text-xs transition-colors">
+            <Link href="/terms" className="text-[#94A3B8] hover:text-[#475569] text-xs transition-colors">
               Terms of Service
             </Link>
           </div>

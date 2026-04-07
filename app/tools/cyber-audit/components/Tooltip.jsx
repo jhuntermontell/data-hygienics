@@ -29,21 +29,21 @@ export default function Tooltip({ tooltip }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="text-blue-500/60 hover:text-blue-400 transition-colors cursor-pointer align-middle"
+        className="text-[#1D4ED8]/60 hover:text-[#1D4ED8] transition-colors cursor-pointer align-middle"
         aria-label="More info"
       >
         <Info className="w-3.5 h-3.5" />
       </button>
       {open && (
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-80 rounded-xl bg-zinc-900 border border-zinc-700 shadow-xl z-50 overflow-hidden">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-80 rounded-xl bg-white border border-[#E2E8F0] shadow-lg z-50 overflow-hidden">
           <div className="p-4 space-y-3">
-            <p className="text-zinc-300 text-xs leading-relaxed">
+            <p className="text-[#475569] text-xs leading-relaxed">
               {explanation}
             </p>
             {insurerNote && (
-              <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-2.5">
-                <p className="text-blue-300/80 text-[11px] leading-relaxed">
-                  <span className="font-semibold text-blue-400">Why insurers care: </span>
+              <div className="bg-[#EFF6FF] border border-[#EFF6FF] rounded-lg p-2.5">
+                <p className="text-[#1D4ED8]/80 text-[11px] leading-relaxed">
+                  <span className="font-semibold text-[#1D4ED8]">Why insurers care: </span>
                   {insurerNote}
                 </p>
               </div>
@@ -53,14 +53,14 @@ export default function Tooltip({ tooltip }) {
                 href={`/controls/${controlSlug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-blue-400 text-[11px] font-semibold hover:text-blue-300 transition-colors"
+                className="inline-flex items-center text-[#1D4ED8] text-[11px] font-semibold hover:text-[#1D4ED8]/80 transition-colors"
                 onClick={() => setOpen(false)}
               >
                 Learn more →
               </a>
             )}
           </div>
-          <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-zinc-900 border-r border-b border-zinc-700 rotate-45 -mt-1" />
+          <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-white border-r border-b border-[#E2E8F0] rotate-45 -mt-1" />
         </div>
       )}
     </span>

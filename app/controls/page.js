@@ -12,11 +12,11 @@ import { Search, Shield, ArrowRight } from "lucide-react"
 const NIST_FUNCTIONS = ["Identify", "Protect", "Detect", "Respond", "Recover"]
 
 const functionColors = {
-  Identify: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  Protect: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  Detect: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  Respond: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  Recover: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  Identify: "bg-violet-50 text-violet-700 border-violet-200",
+  Protect: "bg-[#EFF6FF] text-[#1D4ED8] border-blue-200",
+  Detect: "bg-amber-50 text-amber-700 border-amber-200",
+  Respond: "bg-orange-50 text-orange-700 border-orange-200",
+  Recover: "bg-emerald-50 text-emerald-700 border-emerald-200",
 }
 
 const container = {
@@ -53,7 +53,7 @@ export default function ControlsIndexPage() {
   }, [search, filterFunction])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 pt-32 pb-20">
         {/* Header */}
@@ -64,17 +64,17 @@ export default function ControlsIndexPage() {
           className="mb-10"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Shield className="w-5 h-5 text-blue-400" />
-            <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+            <Shield className="w-5 h-5 text-[#1D4ED8]" />
+            <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
               Security Controls
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-tight tracking-tight mb-4">
             Security Control
             <br />
             Reference Guide
           </h1>
-          <p className="text-zinc-500 text-base max-w-xl">
+          <p className="text-[#475569] text-base max-w-xl">
             Plain English explanations of cybersecurity controls, mapped to NIST
             CSF and CIS frameworks. Understand what each control means and why
             insurers care about it.
@@ -86,9 +86,9 @@ export default function ControlsIndexPage() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 mb-8"
+          className="rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] p-5 mb-8"
         >
-          <p className="text-emerald-300 text-sm font-medium text-center">
+          <p className="text-[#059669] text-sm font-medium text-center">
             Free forever. No account required. Because everyone deserves to understand their security.
           </p>
         </motion.div>
@@ -101,7 +101,7 @@ export default function ControlsIndexPage() {
           className="mb-8"
         >
           <div className="relative mb-4">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
             <Input
               type="text"
               placeholder="Search controls by name, framework, or keyword..."
@@ -115,8 +115,8 @@ export default function ControlsIndexPage() {
               onClick={() => setFilterFunction(null)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 !filterFunction
-                  ? "bg-blue-500 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:text-zinc-300"
+                  ? "bg-[#1D4ED8] text-white"
+                  : "bg-white text-[#475569] border border-[#E2E8F0] hover:text-[#0F172A]"
               }`}
             >
               All
@@ -129,8 +129,8 @@ export default function ControlsIndexPage() {
                 }
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filterFunction === fn
-                    ? "bg-blue-500 text-white"
-                    : "bg-zinc-800 text-zinc-400 hover:text-zinc-300"
+                    ? "bg-[#1D4ED8] text-white"
+                    : "bg-white text-[#475569] border border-[#E2E8F0] hover:text-[#0F172A]"
                 }`}
               >
                 {fn}
@@ -140,7 +140,7 @@ export default function ControlsIndexPage() {
         </motion.div>
 
         {/* Results count */}
-        <p className="text-zinc-600 text-xs mb-4">
+        <p className="text-[#94A3B8] text-xs mb-4">
           {filtered.length} control{filtered.length !== 1 ? "s" : ""}
         </p>
 
@@ -156,13 +156,13 @@ export default function ControlsIndexPage() {
             <motion.div key={control.slug} variants={item}>
               <Link
                 href={`/controls/${control.slug}`}
-                className="block rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-5 hover:border-zinc-700 transition-all group"
+                className="block rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-sm hover:shadow-md transition-all group"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors leading-snug flex-1">
+                  <h3 className="text-sm font-bold text-[#0F172A] group-hover:text-[#1D4ED8] transition-colors leading-snug flex-1">
                     {control.name}
                   </h3>
-                  <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-blue-400 transition-colors shrink-0 mt-0.5 ml-2" />
+                  <ArrowRight className="w-4 h-4 text-[#94A3B8] group-hover:text-[#1D4ED8] transition-colors shrink-0 mt-0.5 ml-2" />
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span
@@ -172,10 +172,10 @@ export default function ControlsIndexPage() {
                   >
                     {control.nistFunction}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-500 border border-zinc-700">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
                     {control.nistCategory}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-500 border border-zinc-700">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
                     CIS {control.cisControl}
                   </span>
                 </div>
@@ -186,7 +186,7 @@ export default function ControlsIndexPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-zinc-500">No controls match your search.</p>
+            <p className="text-[#475569]">No controls match your search.</p>
           </div>
         )}
       </div>

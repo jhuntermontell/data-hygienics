@@ -3,12 +3,12 @@
 import { motion } from "framer-motion"
 
 const frequencyColors = {
-  1.0: "bg-emerald-500/15 border-emerald-500 text-emerald-400",
-  0.8: "bg-blue-500/15 border-blue-500 text-blue-400",
-  0.6: "bg-blue-500/15 border-blue-500 text-blue-400",
-  0.4: "bg-yellow-500/15 border-yellow-500 text-yellow-400",
-  0.2: "bg-orange-500/15 border-orange-500 text-orange-400",
-  0.0: "bg-red-500/15 border-red-500 text-red-400",
+  1.0: "bg-[#ECFDF5] border-[#059669] text-[#059669]",
+  0.8: "bg-[#EFF6FF] border-[#1D4ED8] text-[#1D4ED8]",
+  0.6: "bg-[#EFF6FF] border-[#1D4ED8] text-[#1D4ED8]",
+  0.4: "bg-[#FFFBEB] border-[#D97706] text-[#D97706]",
+  0.2: "bg-[#FFFBEB] border-[#D97706] text-[#D97706]",
+  0.0: "bg-[#FEF2F2] border-[#DC2626] text-[#DC2626]",
 }
 
 function getColorClass(weight) {
@@ -33,7 +33,7 @@ export default function FrequencySelect({ options, value, onChange }) {
             className={`px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer text-center ${
               isSelected
                 ? `${getColorClass(option.weight)} border-2`
-                : "bg-zinc-800/60 border border-zinc-700/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300"
+                : "bg-white border border-[#E2E8F0] text-[#475569] hover:shadow-sm hover:border-[#94A3B8]"
             }`}
           >
             {option.label}

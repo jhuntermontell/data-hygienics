@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 export default function SectionBreakdown({ sectionScores }) {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-bold text-white mb-4">Section Breakdown</h3>
+      <h3 className="text-lg font-bold text-[#0F172A] mb-4">Section Breakdown</h3>
       {sectionScores.map((section, i) => (
         <motion.div
           key={section.key}
@@ -14,7 +14,7 @@ export default function SectionBreakdown({ sectionScores }) {
           transition={{ duration: 0.4, delay: 0.1 * i, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-sm text-zinc-300 font-medium">
+            <span className="text-sm text-[#475569] font-medium">
               {section.title}
             </span>
             <span
@@ -29,7 +29,7 @@ export default function SectionBreakdown({ sectionScores }) {
               {section.percentage}%
             </span>
           </div>
-          <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-[#E2E8F0] rounded-full overflow-hidden">
             <motion.div
               className={`h-full rounded-full ${
                 section.percentage >= 80

@@ -51,14 +51,14 @@ const item = {
 
 export default function CyberAuditLanding() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
 
       {/* Hero */}
       <section className="relative pt-36 pb-24 px-6 overflow-hidden">
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/[0.04] blur-3xl" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-blue-100/50 blur-3xl" />
         </div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -67,9 +67,9 @@ export default function CyberAuditLanding() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-8">
-              <Shield className="w-4 h-4 text-blue-400" />
-              <span className="text-blue-400 text-xs font-semibold tracking-wide uppercase">
+            <div className="inline-flex items-center gap-2 bg-[#EFF6FF] border border-blue-200 rounded-full px-4 py-1.5 mb-8">
+              <Shield className="w-4 h-4 text-[#1D4ED8]" />
+              <span className="text-[#1D4ED8] text-xs font-semibold tracking-wide uppercase">
                 Free Cybersecurity Assessment
               </span>
             </div>
@@ -83,7 +83,7 @@ export default function CyberAuditLanding() {
               delay: 0.1,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight mb-6"
+            className="text-5xl md:text-7xl font-black text-[#0F172A] leading-[1.05] tracking-tight mb-6"
           >
             Know Where
             <br />
@@ -98,7 +98,7 @@ export default function CyberAuditLanding() {
               delay: 0.2,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-[#475569] text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
           >
             A free guided cybersecurity audit built for small businesses.
             Complete it in under 30 minutes and get a report you can actually
@@ -136,10 +136,10 @@ export default function CyberAuditLanding() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+            <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
               How It Works
             </span>
-            <h2 className="text-3xl md:text-4xl font-black text-white mt-3 leading-tight tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-black text-[#0F172A] mt-3 leading-tight tracking-tight">
               Simple, Actionable, Useful.
             </h2>
           </motion.div>
@@ -157,15 +157,15 @@ export default function CyberAuditLanding() {
                 <motion.div
                   key={benefit.title}
                   variants={item}
-                  className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-7"
+                  className="rounded-xl border border-[#E2E8F0] bg-white p-7 shadow-sm"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5">
-                    <Icon className="w-5 h-5 text-blue-400" />
+                  <div className="w-11 h-11 rounded-xl bg-[#EFF6FF] border border-blue-200 flex items-center justify-center mb-5">
+                    <Icon className="w-5 h-5 text-[#1D4ED8]" />
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">
+                  <h3 className="text-lg font-bold text-[#0F172A] mb-2">
                     {benefit.title}
                   </h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
+                  <p className="text-[#475569] text-sm leading-relaxed">
                     {benefit.description}
                   </p>
                 </motion.div>
@@ -176,7 +176,7 @@ export default function CyberAuditLanding() {
       </section>
 
       {/* What you get */}
-      <section className="py-24 px-6 border-t border-zinc-800/50">
+      <section className="py-24 px-6 border-t border-[#E2E8F0]">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -184,10 +184,10 @@ export default function CyberAuditLanding() {
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+            <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
               Your Report Includes
             </span>
-            <h2 className="text-3xl md:text-4xl font-black text-white mt-3 mb-10 leading-tight tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-black text-[#0F172A] mt-3 mb-10 leading-tight tracking-tight">
               Everything You Need
               <br />
               to Take Action.
@@ -209,8 +209,8 @@ export default function CyberAuditLanding() {
               "Actionable next steps you can take today",
             ].map((text, i) => (
               <div key={i} className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                <span className="text-zinc-300 text-sm">{text}</span>
+                <CheckCircle className="w-5 h-5 text-[#1D4ED8] shrink-0 mt-0.5" />
+                <span className="text-[#475569] text-sm">{text}</span>
               </div>
             ))}
           </motion.div>
@@ -218,7 +218,7 @@ export default function CyberAuditLanding() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 px-6 border-t border-zinc-800/50">
+      <section className="py-24 px-6 border-t border-[#E2E8F0]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -226,10 +226,10 @@ export default function CyberAuditLanding() {
           transition={{ duration: 0.6 }}
           className="max-w-2xl mx-auto text-center"
         >
-          <h2 className="text-3xl md:text-4xl font-black text-white mb-4 leading-tight tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-black text-[#0F172A] mb-4 leading-tight tracking-tight">
             Ready to Find Out?
           </h2>
-          <p className="text-zinc-400 mb-8">
+          <p className="text-[#475569] mb-8">
             It takes less than 30 minutes and it is completely free. No credit card,
             no sales call, no catch.
           </p>

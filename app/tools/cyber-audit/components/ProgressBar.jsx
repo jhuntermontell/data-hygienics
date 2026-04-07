@@ -10,17 +10,17 @@ export default function ProgressBar({ currentStep, completedSections, sections, 
     <div className="w-full mb-10">
       {/* Mobile: simple bar */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
+        <div className="flex items-center justify-between text-xs text-[#475569] mb-2">
           <span>
             Section {currentStep + 1} of {totalSections}
           </span>
-          <span className="text-white font-medium">
+          <span className="text-[#0F172A] font-medium">
             {sections[currentStep]?.title}
           </span>
         </div>
-        <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-blue-500 rounded-full"
+            className="h-full bg-[#1D4ED8] rounded-full"
             initial={false}
             animate={{
               width: `${((currentStep + 1) / totalSections) * 100}%`,
@@ -46,12 +46,12 @@ export default function ProgressBar({ currentStep, completedSections, sections, 
                   disabled={!isComplete && !isPast}
                   className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
                     isComplete
-                      ? "bg-blue-500 text-white cursor-pointer hover:bg-blue-400"
+                      ? "bg-[#1D4ED8] text-white cursor-pointer hover:bg-[#1D4ED8]/90"
                       : isCurrent
-                      ? "bg-blue-500/20 border-2 border-blue-500 text-blue-400"
+                      ? "bg-white border-2 border-[#1D4ED8] text-[#1D4ED8]"
                       : isPast
-                      ? "bg-zinc-700 text-zinc-400 cursor-pointer hover:bg-zinc-600"
-                      : "bg-zinc-800 text-zinc-600 cursor-default"
+                      ? "bg-[#F1F5F9] text-[#475569] cursor-pointer hover:bg-[#E2E8F0]"
+                      : "bg-[#F1F5F9] text-[#94A3B8] cursor-default"
                   }`}
                 >
                   {isComplete ? <Check className="w-3 h-3" /> : i + 1}
@@ -59,8 +59,8 @@ export default function ProgressBar({ currentStep, completedSections, sections, 
                 <span
                   className={`text-[9px] mt-1.5 text-center leading-tight max-w-16 ${
                     isCurrent
-                      ? "text-blue-400 font-semibold"
-                      : "text-zinc-600"
+                      ? "text-[#1D4ED8] font-semibold"
+                      : "text-[#94A3B8]"
                   }`}
                 >
                   {section.title}
@@ -69,7 +69,7 @@ export default function ProgressBar({ currentStep, completedSections, sections, 
               {i < totalSections - 1 && (
                 <div
                   className={`h-px w-full min-w-2 -mt-5 ${
-                    i < currentStep ? "bg-blue-500/40" : "bg-zinc-800"
+                    i < currentStep ? "bg-[#1D4ED8]/40" : "bg-[#E2E8F0]"
                   }`}
                 />
               )}

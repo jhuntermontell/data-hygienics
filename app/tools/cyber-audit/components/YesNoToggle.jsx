@@ -14,9 +14,9 @@ export default function YesNoToggle({ value, onChange }) {
           className={`flex-1 h-11 rounded-xl font-bold text-sm capitalize transition-all duration-200 cursor-pointer ${
             value === option
               ? option === "yes"
-                ? "bg-blue-500 text-white shadow-[0_4px_20px_rgba(59,130,246,0.3)]"
-                : "bg-zinc-700 text-white"
-              : "bg-zinc-800/60 text-zinc-500 border border-zinc-700/50 hover:border-zinc-600"
+                ? "bg-[#1D4ED8] text-white shadow-[0_4px_20px_rgba(29,78,216,0.2)]"
+                : "bg-[#475569] text-white"
+              : "bg-white text-[#475569] border border-[#E2E8F0] hover:border-[#94A3B8]"
           }`}
         >
           {option}

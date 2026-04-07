@@ -3,10 +3,10 @@
 import { motion } from "framer-motion"
 
 const tiers = [
-  { label: "Not in place", weight: 0.0, color: "border-red-500 bg-red-500/15 text-red-400" },
-  { label: "Partially in place", weight: 0.33, color: "border-yellow-500 bg-yellow-500/15 text-yellow-400" },
-  { label: "Fully in place", weight: 0.67, color: "border-blue-500 bg-blue-500/15 text-blue-400" },
-  { label: "Documented & tested", weight: 1.0, color: "border-emerald-500 bg-emerald-500/15 text-emerald-400" },
+  { label: "Not in place", weight: 0.0, color: "border-[#DC2626] bg-[#FEF2F2] text-[#DC2626]" },
+  { label: "Partially in place", weight: 0.33, color: "border-[#D97706] bg-[#FFFBEB] text-[#D97706]" },
+  { label: "Fully in place", weight: 0.67, color: "border-[#1D4ED8] bg-[#EFF6FF] text-[#1D4ED8]" },
+  { label: "Documented & tested", weight: 1.0, color: "border-[#059669] bg-[#ECFDF5] text-[#059669]" },
 ]
 
 export default function MaturityTier({ value, onChange }) {
@@ -23,7 +23,7 @@ export default function MaturityTier({ value, onChange }) {
             className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
               isSelected
                 ? `${tier.color} border-2`
-                : "bg-zinc-800/60 border border-zinc-700/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300"
+                : "bg-white border border-[#E2E8F0] text-[#475569] hover:shadow-sm hover:border-[#94A3B8]"
             }`}
           >
             <div className="flex items-center gap-3">
@@ -33,14 +33,14 @@ export default function MaturityTier({ value, onChange }) {
                     key={i}
                     className={`w-2 h-2 rounded-full ${
                       i <= tiers.indexOf(tier) && isSelected
-                        ? tier.color.includes("red")
-                          ? "bg-red-400"
-                          : tier.color.includes("yellow")
-                          ? "bg-yellow-400"
-                          : tier.color.includes("blue")
-                          ? "bg-blue-400"
-                          : "bg-emerald-400"
-                        : "bg-zinc-700"
+                        ? tier.color.includes("DC2626")
+                          ? "bg-[#DC2626]"
+                          : tier.color.includes("D97706")
+                          ? "bg-[#D97706]"
+                          : tier.color.includes("1D4ED8")
+                          ? "bg-[#1D4ED8]"
+                          : "bg-[#059669]"
+                        : "bg-[#E2E8F0]"
                     }`}
                   />
                 ))}

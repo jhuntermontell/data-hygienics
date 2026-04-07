@@ -8,23 +8,23 @@ import { AlertTriangle, AlertCircle, Info, ExternalLink, Lock } from "lucide-rea
 const priorityConfig = {
   high: {
     icon: AlertTriangle,
-    color: "text-red-400",
-    bg: "bg-red-500/10",
-    border: "border-red-500/20",
+    color: "text-[#DC2626]",
+    bg: "bg-[#FEF2F2]",
+    border: "border-[#DC2626]/20",
     label: "High Priority",
   },
   medium: {
     icon: AlertCircle,
-    color: "text-yellow-400",
-    bg: "bg-yellow-500/10",
-    border: "border-yellow-500/20",
+    color: "text-[#D97706]",
+    bg: "bg-[#FFFBEB]",
+    border: "border-[#D97706]/20",
     label: "Medium Priority",
   },
   low: {
     icon: Info,
-    color: "text-zinc-400",
-    bg: "bg-zinc-500/10",
-    border: "border-zinc-500/20",
+    color: "text-[#475569]",
+    bg: "bg-[#F8FAFC]",
+    border: "border-[#E2E8F0]",
     label: "Low Priority",
   },
 }
@@ -54,7 +54,7 @@ export default function GapList({ gaps, isPaid = true }) {
 
   return (
     <div>
-      <h3 className="text-lg font-bold text-white mb-4">
+      <h3 className="text-lg font-bold text-[#0F172A] mb-4">
         Identified Gaps ({gaps.length})
       </h3>
       <div className="space-y-3">
@@ -76,11 +76,11 @@ export default function GapList({ gaps, isPaid = true }) {
                 delay: 0.05 * Math.min(i, 10),
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className={`rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-5 ${isBlurred ? "relative overflow-hidden" : ""}`}
+              className={`rounded-2xl border border-[#E2E8F0] bg-white p-5 ${isBlurred ? "relative overflow-hidden" : ""}`}
             >
               {isBlurred && (
-                <div className="absolute inset-0 backdrop-blur-sm bg-zinc-900/60 z-10 flex items-center justify-center rounded-2xl">
-                  <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                <div className="absolute inset-0 backdrop-blur-sm bg-white/60 z-10 flex items-center justify-center rounded-2xl">
+                  <div className="flex items-center gap-2 text-[#475569] text-sm">
                     <Lock className="w-4 h-4" />
                     <span>Upgrade to view</span>
                   </div>
@@ -94,7 +94,7 @@ export default function GapList({ gaps, isPaid = true }) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 className="text-sm font-bold text-white">
+                    <h4 className="text-sm font-bold text-[#0F172A]">
                       {rec?.title || gap.questionText}
                     </h4>
                     <span
@@ -106,27 +106,27 @@ export default function GapList({ gaps, isPaid = true }) {
 
                   {/* Framework mappings */}
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-zinc-600 text-xs">{gap.section}</span>
+                    <span className="text-[#94A3B8] text-xs">{gap.section}</span>
                     {gap.nistFunction && (
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400/70 border border-blue-500/10">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#1D4ED8] border border-[#EFF6FF]">
                         NIST {gap.nistFunction}
                       </span>
                     )}
                     {gap.cisControl && (
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-500 border border-zinc-700">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#F0FDFA] text-[#0F766E] border border-[#F0FDFA]">
                         CIS {gap.cisControl}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-zinc-400 text-sm leading-relaxed">
+                  <p className="text-[#475569] text-sm leading-relaxed">
                     {rec?.action || "Review and address this security gap."}
                   </p>
 
                   {gap.controlSlug && (
                     <Link
                       href={`/controls/${gap.controlSlug}`}
-                      className="inline-flex items-center gap-1 text-blue-400 text-xs font-semibold mt-2 hover:text-blue-300 transition-colors"
+                      className="inline-flex items-center gap-1 text-[#1D4ED8] text-xs font-semibold mt-2 hover:text-[#1D4ED8]/80 transition-colors"
                     >
                       Learn more
                       <ExternalLink className="w-3 h-3" />

@@ -18,7 +18,7 @@ export default function ScoreGauge({ score }) {
           cy="100"
           r={radius}
           fill="none"
-          stroke="#27272a"
+          stroke="#E2E8F0"
           strokeWidth="12"
         />
         {/* Progress */}
@@ -42,11 +42,11 @@ export default function ScoreGauge({ score }) {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="text-5xl font-black text-white"
+          className="text-5xl font-black text-[#0F172A]"
         >
           {score}
         </motion.span>
-        <span className="text-zinc-500 text-xs font-medium mt-1">out of 100</span>
+        <span className="text-[#94A3B8] text-xs font-medium mt-1">out of 100</span>
       </div>
     </div>
   )

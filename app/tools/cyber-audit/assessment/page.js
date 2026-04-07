@@ -178,13 +178,13 @@ export default function AssessmentPage() {
 
   if (loading || showIntake) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a]">
+      <div className="min-h-screen bg-[#F8FAFC]">
         <Navbar />
         {showIntake ? (
           <IntakeModal onComplete={handleIntakeComplete} />
         ) : (
           <div className="flex items-center justify-center min-h-screen">
-            <div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin" />
           </div>
         )}
       </div>
@@ -225,17 +225,17 @@ export default function AssessmentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 pt-28 pb-20">
         {/* Header */}
         <div className="flex items-center gap-2 mb-6">
-          <Shield className="w-5 h-5 text-blue-400" />
-          <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+          <Shield className="w-5 h-5 text-[#1D4ED8]" />
+          <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
             Cyber Audit
           </span>
           {industry && (
-            <span className="text-zinc-600 text-xs">- {industry}</span>
+            <span className="text-[#94A3B8] text-xs">- {industry}</span>
           )}
         </div>
 
@@ -256,10 +256,10 @@ export default function AssessmentPage() {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold text-[#0F172A] mb-2">
                 {section.title}
               </h2>
-              <p className="text-zinc-500 text-sm">{section.description}</p>
+              <p className="text-[#475569] text-sm">{section.description}</p>
             </div>
 
             <div className="space-y-8">
@@ -273,7 +273,7 @@ export default function AssessmentPage() {
                     delay: i * 0.05,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-6"
+                  className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm"
                 >
                   <QuestionRenderer
                     question={question}
@@ -286,7 +286,7 @@ export default function AssessmentPage() {
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-10 pt-6 border-t border-zinc-800">
+            <div className="flex items-center justify-between mt-10 pt-6 border-t border-[#E2E8F0]">
               <Button
                 variant="ghost"
                 onClick={() => setCurrentStep((s) => s - 1)}

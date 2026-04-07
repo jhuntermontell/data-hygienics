@@ -1,27 +1,29 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import { Inter } from "next/font/google"
+import { Providers } from "./providers"
 import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 })
 
 export const metadata = {
-  title: "Data Hygienics - AI-Ready Tools for Small Business",
+  title: "Data Hygienics - The Unbiased Cybersecurity Platform",
   description:
-    "Practical tools, real strategy, and custom software helping small businesses step into the AI era.",
+    "Data Hygienics gives small businesses and their leaders the same cybersecurity clarity that Fortune 500 companies pay millions for.",
+  icons: {
+    icon: "/logo-mark.svg",
+    shortcut: "/logo-mark.svg",
+    apple: "/logo-mark.svg",
+  },
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+      <body className={`${inter.variable} antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

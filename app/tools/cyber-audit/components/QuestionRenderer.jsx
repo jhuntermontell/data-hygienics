@@ -11,19 +11,19 @@ import Tooltip from "./Tooltip"
 export default function QuestionRenderer({ question, value, onChange, index }) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-zinc-200">
-        <span className="text-zinc-600 mr-2">{index + 1}.</span>
+      <label className="block text-sm font-medium text-[#0F172A]">
+        <span className="text-[#94A3B8] mr-2">{index + 1}.</span>
         {question.text}
         {question.tooltip && <Tooltip tooltip={question.tooltip} />}
       </label>
 
       {question.nistFunction && (
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EFF6FF] text-[#1D4ED8] border border-[#EFF6FF]">
             NIST {question.nistFunction}
           </span>
           {question.cisControl && (
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0F766E] border border-[#F0FDFA]">
               CIS {question.cisControl}
             </span>
           )}

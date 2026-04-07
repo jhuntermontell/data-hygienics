@@ -13,11 +13,11 @@ import {
 } from "lucide-react"
 
 const functionColors = {
-  Identify: "bg-violet-500/10 text-violet-400 border-violet-500/20",
-  Protect: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  Detect: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  Respond: "bg-orange-500/10 text-orange-400 border-orange-500/20",
-  Recover: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  Identify: "bg-violet-50 text-violet-700 border-violet-200",
+  Protect: "bg-[#EFF6FF] text-[#1D4ED8] border-blue-200",
+  Detect: "bg-amber-50 text-amber-700 border-amber-200",
+  Respond: "bg-orange-50 text-orange-700 border-orange-200",
+  Recover: "bg-emerald-50 text-emerald-700 border-emerald-200",
 }
 
 const industryLabels = {
@@ -30,7 +30,7 @@ const industryLabels = {
 
 export default function ControlDetailClient({ control }) {
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-20">
         {/* Back link */}
@@ -41,7 +41,7 @@ export default function ControlDetailClient({ control }) {
         >
           <Link
             href="/controls"
-            className="inline-flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors text-sm mb-8"
+            className="inline-flex items-center gap-2 text-[#475569] hover:text-[#0F172A] transition-colors text-sm mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             All Controls
@@ -56,12 +56,12 @@ export default function ControlDetailClient({ control }) {
           className="mb-10"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Shield className="w-5 h-5 text-blue-400" />
-            <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+            <Shield className="w-5 h-5 text-[#1D4ED8]" />
+            <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
               Security Control
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-white leading-tight tracking-tight mb-4">
+          <h1 className="text-3xl md:text-4xl font-black text-[#0F172A] leading-tight tracking-tight mb-4">
             {control.name}
           </h1>
           <div className="flex items-center gap-2 flex-wrap">
@@ -72,10 +72,10 @@ export default function ControlDetailClient({ control }) {
             >
               NIST {control.nistFunction}
             </span>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
               {control.nistCategory}
             </span>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
               CIS Control {control.cisControl}: {control.cisControlName}
             </span>
           </div>
@@ -86,12 +86,12 @@ export default function ControlDetailClient({ control }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-6"
+          className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
         >
-          <h2 className="text-lg font-bold text-white mb-4">
+          <h2 className="text-lg font-bold text-[#0F172A] mb-4">
             What This Control Means
           </h2>
-          <div className="text-zinc-400 text-sm leading-relaxed space-y-4">
+          <div className="text-[#475569] text-sm leading-relaxed space-y-4">
             {control.explanation.split("\n\n").map((paragraph, i) => (
               <p key={i}>{paragraph}</p>
             ))}
@@ -103,15 +103,15 @@ export default function ControlDetailClient({ control }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-blue-500/20 bg-blue-500/[0.03] p-8 mb-6"
+          className="rounded-xl border border-blue-200 bg-[#EFF6FF] p-8 mb-6 shadow-sm"
         >
           <div className="flex items-center gap-2 mb-4">
-            <FileText className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-bold text-white">
+            <FileText className="w-5 h-5 text-[#1D4ED8]" />
+            <h2 className="text-lg font-bold text-[#0F172A]">
               Why Insurers Care
             </h2>
           </div>
-          <div className="text-blue-200/70 text-sm leading-relaxed space-y-4">
+          <div className="text-[#475569] text-sm leading-relaxed space-y-4">
             {control.insuranceRelevance.split("\n\n").map((paragraph, i) => (
               <p key={i}>{paragraph}</p>
             ))}
@@ -124,21 +124,21 @@ export default function ControlDetailClient({ control }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-6"
+            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
           >
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="w-5 h-5 text-zinc-400" />
-              <h2 className="text-lg font-bold text-white">
+              <Building2 className="w-5 h-5 text-[#475569]" />
+              <h2 className="text-lg font-bold text-[#0F172A]">
                 Industry-Specific Notes
               </h2>
             </div>
             <div className="space-y-4">
               {Object.entries(control.industryNotes).map(([key, note]) => (
                 <div key={key}>
-                  <h3 className="text-xs font-semibold text-zinc-300 mb-1">
+                  <h3 className="text-xs font-semibold text-[#0F172A] mb-1">
                     {industryLabels[key] || key}
                   </h3>
-                  <p className="text-zinc-500 text-sm leading-relaxed">
+                  <p className="text-[#475569] text-sm leading-relaxed">
                     {note}
                   </p>
                 </div>
@@ -153,18 +153,18 @@ export default function ControlDetailClient({ control }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-6"
+            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
           >
-            <h2 className="text-lg font-bold text-white mb-4">
+            <h2 className="text-lg font-bold text-[#0F172A] mb-4">
               Implementation Steps
             </h2>
             <div className="space-y-3">
               {control.implementationSteps.map((step, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle className="w-3.5 h-3.5 text-blue-400" />
+                  <div className="w-6 h-6 rounded-full bg-[#EFF6FF] border border-blue-200 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-[#1D4ED8]" />
                   </div>
-                  <p className="text-zinc-400 text-sm leading-relaxed">
+                  <p className="text-[#475569] text-sm leading-relaxed">
                     {step}
                   </p>
                 </div>
@@ -180,12 +180,12 @@ export default function ControlDetailClient({ control }) {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="text-center pt-6"
         >
-          <p className="text-zinc-500 text-sm mb-4">
+          <p className="text-[#475569] text-sm mb-4">
             Want to know how your organization measures up on this control?
           </p>
           <Link
             href="/tools/cyber-audit"
-            className="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-400 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#1D4ED8] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#1E40AF] transition-colors"
           >
             Take the free assessment →
           </Link>

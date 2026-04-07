@@ -65,7 +65,7 @@ export default function IntakeModal({ onComplete }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
       />
 
       {/* Modal */}
@@ -73,7 +73,7 @@ export default function IntakeModal({ onComplete }) {
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#0d0d0d] overflow-hidden"
+        className="relative w-full max-w-lg rounded-2xl border border-[#E2E8F0] bg-white shadow-xl overflow-hidden"
       >
         {/* Progress indicator */}
         <div className="flex gap-1.5 p-4 pb-0">
@@ -81,7 +81,7 @@ export default function IntakeModal({ onComplete }) {
             <div
               key={i}
               className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                i <= step ? "bg-blue-500" : "bg-zinc-800"
+                i <= step ? "bg-[#1D4ED8]" : "bg-[#E2E8F0]"
               }`}
             />
           ))}
@@ -97,18 +97,18 @@ export default function IntakeModal({ onComplete }) {
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-blue-400" />
+                <div className="w-9 h-9 rounded-xl bg-[#EFF6FF] border border-[#EFF6FF] flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-[#1D4ED8]" />
                 </div>
-                <span className="text-zinc-500 text-xs font-semibold">
+                <span className="text-[#475569] text-xs font-semibold">
                   Step {step + 1} of {STEPS.length}
                 </span>
               </div>
 
-              <h2 className="text-xl font-bold text-white mb-1 mt-4">
+              <h2 className="text-xl font-bold text-[#0F172A] mb-1 mt-4">
                 {currentStep.title}
               </h2>
-              <p className="text-zinc-500 text-sm mb-6">
+              <p className="text-[#475569] text-sm mb-6">
                 {currentStep.description}
               </p>
 
@@ -121,8 +121,8 @@ export default function IntakeModal({ onComplete }) {
                     onClick={() => handleSelect(option)}
                     className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                       currentAnswer === option
-                        ? "bg-blue-500/15 border-2 border-blue-500 text-white"
-                        : "bg-zinc-800/60 border border-zinc-700/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300"
+                        ? "bg-[#EFF6FF] border-2 border-[#1D4ED8] text-[#0F172A]"
+                        : "bg-white border border-[#E2E8F0] text-[#475569] hover:shadow-sm hover:border-[#94A3B8]"
                     }`}
                   >
                     {option}
@@ -133,7 +133,7 @@ export default function IntakeModal({ onComplete }) {
           </AnimatePresence>
 
           {/* Navigation */}
-          <div className="flex items-center justify-between mt-8 pt-6 border-t border-zinc-800">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#E2E8F0]">
             <Button
               variant="ghost"
               onClick={() => setStep((s) => s - 1)}

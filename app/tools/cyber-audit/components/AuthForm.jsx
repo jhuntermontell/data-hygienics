@@ -73,20 +73,20 @@ export default function AuthForm({ mode = "login" }) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="text-center"
       >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-          <CheckCircle className="w-8 h-8 text-blue-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#EFF6FF] border border-blue-200 mb-6">
+          <CheckCircle className="w-8 h-8 text-[#1D4ED8]" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-3">Check Your Email</h2>
-        <p className="text-zinc-400 mb-6">
+        <h2 className="text-2xl font-bold text-[#0F172A] mb-3">Check Your Email</h2>
+        <p className="text-[#475569] mb-6">
           We sent a verification link to{" "}
-          <span className="text-white font-medium">{email}</span>. Click the
+          <span className="text-[#0F172A] font-medium">{email}</span>. Click the
           link to activate your account.
         </p>
-        <p className="text-zinc-600 text-sm">
+        <p className="text-[#94A3B8] text-sm">
           Didn&apos;t get it? Check your spam folder or{" "}
           <button
             onClick={() => setEmailSent(false)}
-            className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+            className="text-[#1D4ED8] hover:text-[#1E40AF] underline underline-offset-2"
           >
             try again
           </button>
@@ -102,10 +102,10 @@ export default function AuthForm({ mode = "login" }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
-      <h2 className="text-3xl font-bold text-white mb-2">
+      <h2 className="text-3xl font-bold text-[#0F172A] mb-2">
         {isRegister ? "Create Your Account" : "Welcome Back"}
       </h2>
-      <p className="text-zinc-400 mb-8">
+      <p className="text-[#475569] mb-8">
         {isRegister
           ? "Sign up to start your free cybersecurity assessment."
           : "Log in to continue your assessment."}
@@ -117,7 +117,7 @@ export default function AuthForm({ mode = "login" }) {
             <div>
               <Label htmlFor="fullName">Full Name</Label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
                 <Input
                   id="fullName"
                   type="text"
@@ -132,7 +132,7 @@ export default function AuthForm({ mode = "login" }) {
             <div>
               <Label htmlFor="companyName">Company Name</Label>
               <div className="relative">
-                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
                 <Input
                   id="companyName"
                   type="text"
@@ -149,7 +149,7 @@ export default function AuthForm({ mode = "login" }) {
         <div>
           <Label htmlFor="email">Email</Label>
           <div className="relative">
-            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
             <Input
               id="email"
               type="email"
@@ -165,7 +165,7 @@ export default function AuthForm({ mode = "login" }) {
         <div>
           <Label htmlFor="password">Password</Label>
           <div className="relative">
-            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
             <Input
               id="password"
               type="password"
@@ -180,7 +180,7 @@ export default function AuthForm({ mode = "login" }) {
         </div>
 
         {error && (
-          <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5">
+          <p className="text-[#DC2626] text-sm bg-[#FEF2F2] border border-[#DC2626]/20 rounded-xl px-4 py-2.5">
             {error}
           </p>
         )}
@@ -200,13 +200,13 @@ export default function AuthForm({ mode = "login" }) {
         </Button>
       </form>
 
-      <p className="text-zinc-500 text-sm mt-6 text-center">
+      <p className="text-[#475569] text-sm mt-6 text-center">
         {isRegister ? (
           <>
             Already have an account?{" "}
             <Link
               href="/tools/cyber-audit/login"
-              className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+              className="text-[#1D4ED8] hover:text-[#1E40AF] underline underline-offset-2"
             >
               Sign in
             </Link>
@@ -216,7 +216,7 @@ export default function AuthForm({ mode = "login" }) {
             Don&apos;t have an account?{" "}
             <Link
               href="/tools/cyber-audit/register"
-              className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+              className="text-[#1D4ED8] hover:text-[#1E40AF] underline underline-offset-2"
             >
               Sign up free
             </Link>

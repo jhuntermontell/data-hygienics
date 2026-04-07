@@ -115,8 +115,8 @@ export default function ResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin" />
       </div>
     )
   }
@@ -136,7 +136,7 @@ export default function ResultsPage() {
   const summary = getSummary(score, assessment.has_insurance)
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <div className="max-w-3xl mx-auto px-6 pt-28 pb-20">
         {/* Header */}
@@ -147,14 +147,14 @@ export default function ResultsPage() {
           className="mb-10"
         >
           <div className="flex items-center gap-2 mb-4">
-            <Shield className="w-5 h-5 text-blue-400" />
-            <span className="text-blue-400 text-xs font-semibold tracking-widest uppercase">
+            <Shield className="w-5 h-5 text-[#1D4ED8]" />
+            <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
               Cyber Audit Results
             </span>
           </div>
-          <h1 className="text-3xl font-bold text-white">Your Security Report</h1>
+          <h1 className="text-3xl font-bold text-[#0F172A]">Your Security Report</h1>
           <div className="flex items-center gap-4 mt-2">
-            <p className="text-zinc-500 text-sm">
+            <p className="text-[#94A3B8] text-sm">
               Completed{" "}
               {new Date(assessment.completed_at).toLocaleDateString("en-US", {
                 year: "numeric",
@@ -164,8 +164,8 @@ export default function ResultsPage() {
             </p>
             {assessment.industry && (
               <div className="flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-zinc-500" />
-                <span className="text-zinc-500 text-xs font-medium">{assessment.industry}</span>
+                <Building2 className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span className="text-[#94A3B8] text-xs font-medium">{assessment.industry}</span>
               </div>
             )}
           </div>
@@ -177,12 +177,12 @@ export default function ResultsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5 mb-8 flex items-start gap-3"
+            className="rounded-2xl border border-[#D97706]/20 bg-[#FFFBEB] p-5 mb-8 flex items-start gap-3"
           >
-            <AlertTriangle className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-[#D97706] shrink-0 mt-0.5" />
             <div>
-              <p className="text-orange-300 text-sm font-semibold mb-1">No Cyber Insurance Detected</p>
-              <p className="text-orange-300/70 text-xs leading-relaxed">
+              <p className="text-[#D97706] text-sm font-semibold mb-1">No Cyber Insurance Detected</p>
+              <p className="text-[#D97706]/70 text-xs leading-relaxed">
                 Your business does not currently have cyber insurance. This report can be used to support your application. We strongly recommend obtaining coverage. The average cost of a data breach for small businesses exceeds $120,000.
               </p>
             </div>
@@ -194,7 +194,7 @@ export default function ResultsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
+          className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm p-8 mb-8"
         >
           <div className="flex flex-col md:flex-row items-center gap-8">
             <ScoreGauge score={score} />
@@ -205,7 +205,7 @@ export default function ResultsPage() {
                   {label}
                 </span>
               </div>
-              <p className="text-zinc-400 text-sm leading-relaxed max-w-md">
+              <p className="text-[#475569] text-sm leading-relaxed max-w-md">
                 {summary}
               </p>
             </div>
@@ -217,7 +217,7 @@ export default function ResultsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
+          className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm p-8 mb-8"
         >
           <SectionBreakdown sectionScores={sectionScores} />
         </motion.div>
@@ -227,7 +227,7 @@ export default function ResultsPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
+          className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm p-8 mb-8"
         >
           <GapList gaps={gaps} isPaid={isPaid} />
         </motion.div>

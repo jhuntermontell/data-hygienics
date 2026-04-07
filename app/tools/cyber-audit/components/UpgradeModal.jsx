@@ -11,30 +11,30 @@ export default function UpgradeModal({ onClose }) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
         onClick={onClose}
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-md rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 text-center"
+        className="relative w-full max-w-md rounded-xl border border-[#E2E8F0] bg-white shadow-xl p-8 text-center"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-600 hover:text-zinc-400 transition-colors"
+          className="absolute top-4 right-4 text-[#94A3B8] hover:text-[#475569] transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-500/10 border border-blue-500/20 mb-5">
-          <Lock className="w-7 h-7 text-blue-400" />
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#EFF6FF] mb-5">
+          <Lock className="w-7 h-7 text-[#1D4ED8]" />
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-[#0F172A] mb-2">
           Unlock Your Full Report
         </h2>
-        <p className="text-zinc-400 text-sm mb-8">
+        <p className="text-[#475569] text-sm mb-8">
           $49 one-time or $29/month with a subscription
         </p>
 
@@ -57,7 +57,7 @@ export default function UpgradeModal({ onClose }) {
           </Button>
         </div>
 
-        <p className="text-zinc-600 text-xs">
+        <p className="text-[#94A3B8] text-xs">
           Subscribers get unlimited reports, the news feed, and priority access to new tools.
         </p>
       </motion.div>
