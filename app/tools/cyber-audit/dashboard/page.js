@@ -93,12 +93,16 @@ function DashboardContent() {
 
   useEffect(() => {
     async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          router.replace("/tools/cyber-audit/login")
+          return
+        }
+        setUser(user)
 
-      if (user) {
         const { data: profileData } = await supabase
-          .from("profiles").select("*").eq("id", user.id).single()
+          .from("profiles").select("*").eq("id", user.id).maybeSingle()
         setProfile(profileData)
 
         const { data: assessments } = await supabase
@@ -134,6 +138,8 @@ function DashboardContent() {
           .eq("user_id", user.id)
           .order("updated_at", { ascending: false })
         setPolicies(policyData || [])
+      } catch (err) {
+        console.error("Dashboard load error:", err)
       }
       setLoading(false)
     }
