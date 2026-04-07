@@ -1,5 +1,6 @@
 "use client"
 import { useRef } from "react"
+import Link from "next/link"
 import { motion, useScroll, useTransform } from "framer-motion"
 
 export default function Hero() {
@@ -9,7 +10,6 @@ export default function Hero() {
     offset: ["start start", "end start"],
   })
 
-  // Parallax: gradient drifts upward at 30% scroll speed
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
   const bgOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0])
 
@@ -18,12 +18,11 @@ export default function Hero() {
       ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]"
     >
-      {/* Parallax background layers */}
+      {/* Parallax background */}
       <motion.div
         style={{ y: bgY, opacity: bgOpacity }}
         className="absolute inset-0 pointer-events-none"
       >
-        {/* Subtle grid */}
         <div
           className="absolute inset-0"
           style={{
@@ -32,8 +31,6 @@ export default function Hero() {
             backgroundSize: "64px 64px",
           }}
         />
-
-        {/* Blue radial bloom - center */}
         <motion.div
           className="absolute rounded-full"
           style={{
@@ -49,8 +46,6 @@ export default function Hero() {
           animate={{ scale: [1, 1.08, 1], opacity: [0.8, 1, 0.8] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
-
-        {/* Secondary blue orb - bottom right */}
         <motion.div
           className="absolute rounded-full"
           style={{
@@ -66,12 +61,10 @@ export default function Hero() {
         />
       </motion.div>
 
-      {/* Bottom fade */}
       <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-[#0a0a0a] to-transparent pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 text-center pt-16">
-        {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -80,56 +73,52 @@ export default function Hero() {
         >
           <span className="inline-flex items-center gap-2.5 bg-blue-500/10 text-blue-400 text-xs font-semibold tracking-widest uppercase px-4 py-2 rounded-full border border-blue-500/20">
             <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
-            Tools &amp; strategy for small business
+            The unbiased cybersecurity platform
           </span>
         </motion.div>
 
-        {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 36 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl sm:text-7xl md:text-[100px] font-black leading-[0.86] tracking-[-0.03em] text-white mb-8"
+          className="text-5xl sm:text-6xl md:text-[80px] font-black leading-[0.92] tracking-[-0.03em] text-white mb-8"
         >
-          Small Business.
+          You didn&apos;t ask to be
           <br />
-          <span className="text-blue-400">Big Era.</span>
+          <span className="text-blue-400">the tech person.</span>
         </motion.h1>
 
-        {/* Sub */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.65 }}
           className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
         >
-          We build the tools and strategies that help real businesses step into
-          the age of AI. Practically, affordably, and without the overwhelm.
+          The unbiased cybersecurity platform for small businesses, nonprofits,
+          and the reluctant tech leaders who run them.
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.85 }}
           className="flex flex-wrap gap-4 justify-center"
         >
-          <a
-            href="#tools"
+          <Link
+            href="/tools/cyber-audit"
             className="inline-flex items-center bg-blue-500 text-white font-bold text-base px-8 py-4 rounded-xl hover:bg-blue-400 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(59,130,246,0.35)]"
           >
-            Explore the Tools
-          </a>
-          <a
-            href="#contact"
+            Start Your Free Assessment
+          </Link>
+          <Link
+            href="/controls"
             className="inline-flex items-center border border-zinc-700 text-white font-bold text-base px-8 py-4 rounded-xl hover:bg-zinc-900 hover:border-zinc-500 transition-all duration-200 hover:-translate-y-0.5"
           >
-            Work With Us →
-          </a>
+            Browse the Controls Library
+          </Link>
         </motion.div>
       </div>
 
-      {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

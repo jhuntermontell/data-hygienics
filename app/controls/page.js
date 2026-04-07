@@ -81,6 +81,18 @@ export default function ControlsIndexPage() {
           </p>
         </motion.div>
 
+        {/* Free forever banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 mb-8"
+        >
+          <p className="text-emerald-300 text-sm font-medium text-center">
+            Free forever. No account required. Because everyone deserves to understand their security.
+          </p>
+        </motion.div>
+
         {/* Search + Filters */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}

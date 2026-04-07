@@ -1,10 +1,7 @@
 import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
-import About from "./components/About"
-import WhatIDo from "./components/WhatIDo"
+import ValueProps from "./components/ValueProps"
 import ToolsPreview from "./components/ToolsPreview"
-import Portfolio from "./components/Portfolio"
-import ContactSection from "./components/ContactSection"
 import Footer from "./components/Footer"
 
 export default function Home() {
@@ -12,11 +9,8 @@ export default function Home() {
     <div className="bg-[#0a0a0a] min-h-screen">
       <Navbar />
       <Hero />
-      <About />
-      <WhatIDo />
+      <ValueProps />
       <ToolsPreview />
-      <Portfolio />
-      <ContactSection />
       <Footer />
     </div>
   )

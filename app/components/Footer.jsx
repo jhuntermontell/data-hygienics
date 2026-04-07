@@ -1,10 +1,10 @@
 import Link from "next/link"
 
-const navLinks = [
-  { href: "/#about", label: "About" },
-  { href: "/#tools", label: "Tools" },
-  { href: "/#portfolio", label: "Portfolio" },
-  { href: "/#contact", label: "Contact" },
+const links = [
+  { href: "/tools/cyber-audit", label: "Cyber Audit" },
+  { href: "/controls", label: "Controls Library" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/about", label: "About" },
 ]
 
 export default function Footer() {
@@ -12,17 +12,17 @@ export default function Footer() {
     <footer className="border-t border-zinc-800/50 bg-[#080808]">
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          {/* Logo */}
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-blue-500" />
-            <span className="font-black text-white text-lg tracking-tight">
-              Data<span className="text-blue-400">Hygienics</span>
-            </span>
+          <div>
+            <div className="flex items-center gap-2.5 mb-2">
+              <img src="/logo.svg" alt="Data Hygienics" className="h-8 w-auto" />
+            </div>
+            <p className="text-zinc-600 text-sm max-w-xs">
+              The unbiased cybersecurity platform for small business.
+            </p>
           </div>
 
-          {/* Nav links */}
           <div className="flex flex-wrap gap-6">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -32,31 +32,22 @@ export default function Footer() {
               </Link>
             ))}
           </div>
-
-          {/* Tagline */}
-          <p className="text-zinc-600 text-sm">
-            Modern tools for real businesses.
-          </p>
         </div>
 
-        {/* Bottom bar */}
         <div className="mt-10 pt-6 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-zinc-700 text-xs">
-            &copy; 2025 Data Hygienics, LLC. All rights reserved.
+            &copy; {new Date().getFullYear()} Data Hygienics, LLC. All rights reserved.
+          </p>
+          <p className="text-zinc-700 text-xs italic">
+            Built for the reluctant tech leader.
           </p>
           <div className="flex gap-6">
-            <a
-              href="#"
-              className="text-zinc-700 hover:text-zinc-500 text-xs transition-colors"
-            >
+            <Link href="/privacy" className="text-zinc-700 hover:text-zinc-500 text-xs transition-colors">
               Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-zinc-700 hover:text-zinc-500 text-xs transition-colors"
-            >
+            </Link>
+            <Link href="/terms" className="text-zinc-700 hover:text-zinc-500 text-xs transition-colors">
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
       </div>

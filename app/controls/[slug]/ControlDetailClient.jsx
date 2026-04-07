@@ -181,13 +181,13 @@ export default function ControlDetailClient({ control }) {
           className="text-center pt-6"
         >
           <p className="text-zinc-500 text-sm mb-4">
-            Want to know where you stand on this control and others?
+            Want to know how your organization measures up on this control?
           </p>
           <Link
             href="/tools/cyber-audit"
             className="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-400 transition-colors"
           >
-            Take the Free Cyber Audit
+            Take the free assessment →
           </Link>
         </motion.div>
       </div>

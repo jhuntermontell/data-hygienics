@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { RECOMMENDATIONS } from "@/lib/cyber-audit/recommendations"
-import { AlertTriangle, AlertCircle, Info, ExternalLink } from "lucide-react"
+import { AlertTriangle, AlertCircle, Info, ExternalLink, Lock } from "lucide-react"
 
 const priorityConfig = {
   high: {
@@ -29,7 +29,8 @@ const priorityConfig = {
   },
 }
 
-export default function GapList({ gaps }) {
+export default function GapList({ gaps, isPaid = true }) {
+  const FREE_LIMIT = 3
   if (gaps.length === 0) {
     return (
       <div className="text-center py-8">
@@ -63,6 +64,7 @@ export default function GapList({ gaps }) {
             ? priorityConfig[rec.priority] || priorityConfig.low
             : priorityConfig.low
           const Icon = config.icon
+          const isBlurred = !isPaid && i >= FREE_LIMIT
 
           return (
             <motion.div
@@ -74,8 +76,16 @@ export default function GapList({ gaps }) {
                 delay: 0.05 * Math.min(i, 10),
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-5"
+              className={`rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-5 ${isBlurred ? "relative overflow-hidden" : ""}`}
             >
+              {isBlurred && (
+                <div className="absolute inset-0 backdrop-blur-sm bg-zinc-900/60 z-10 flex items-center justify-center rounded-2xl">
+                  <div className="flex items-center gap-2 text-zinc-400 text-sm">
+                    <Lock className="w-4 h-4" />
+                    <span>Upgrade to view</span>
+                  </div>
+                </div>
+              )}
               <div className="flex items-start gap-3">
                 <div
                   className={`w-8 h-8 rounded-lg ${config.bg} border ${config.border} flex items-center justify-center shrink-0 mt-0.5`}

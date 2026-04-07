@@ -15,6 +15,7 @@ import Navbar from "@/app/components/Navbar"
 import ScoreGauge from "../components/ScoreGauge"
 import SectionBreakdown from "../components/SectionBreakdown"
 import GapList from "../components/GapList"
+import UpgradeModal from "../components/UpgradeModal"
 import { Button } from "@/components/ui/button"
 import {
   Shield,
@@ -24,6 +25,7 @@ import {
   Building2,
   AlertTriangle,
   FileText,
+  Lock,
 } from "lucide-react"
 
 const PdfReport = dynamic(() => import("../components/PdfReport"), {
@@ -59,6 +61,9 @@ export default function ResultsPage() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showPdf, setShowPdf] = useState(null) // null | "insurance" | "remediation"
+  const [showUpgrade, setShowUpgrade] = useState(false)
+  // TODO: Connect Stripe - check actual subscription status
+  const isPaid = false
 
   useEffect(() => {
     async function load() {
@@ -224,7 +229,7 @@ export default function ResultsPage() {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="rounded-2xl border border-zinc-800 bg-[#0d0d0d] p-8 mb-8"
         >
-          <GapList gaps={gaps} />
+          <GapList gaps={gaps} isPaid={isPaid} />
         </motion.div>
 
         {/* Actions */}
@@ -234,15 +239,15 @@ export default function ResultsPage() {
           transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-wrap gap-3"
         >
-          <Button onClick={() => setShowPdf("insurance")}>
+          <Button onClick={() => isPaid ? setShowPdf("insurance") : setShowUpgrade(true)}>
             <span className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
+              {isPaid ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               Insurance Report
             </span>
           </Button>
-          <Button variant="outline" onClick={() => setShowPdf("remediation")}>
+          <Button variant="outline" onClick={() => isPaid ? setShowPdf("remediation") : setShowUpgrade(true)}>
             <span className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+              {isPaid ? <FileText className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               Remediation Report
             </span>
           </Button>
@@ -283,6 +288,10 @@ export default function ResultsPage() {
             hasInsurance={assessment.has_insurance}
             onClose={() => setShowPdf(null)}
           />
+        )}
+
+        {showUpgrade && (
+          <UpgradeModal onClose={() => setShowUpgrade(false)} />
         )}
       </div>
     </div>

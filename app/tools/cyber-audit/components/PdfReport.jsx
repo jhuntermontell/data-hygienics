@@ -286,7 +286,7 @@ function ReportDocument({
             <LogoSvg />
             <View style={styles.logoText}>
               <Text style={styles.logoTitle}>Data Hygienics</Text>
-              <Text style={styles.logoSubtitle}>Cybersecurity Consulting</Text>
+              <Text style={styles.logoSubtitle}>Cybersecurity Platform</Text>
             </View>
           </View>
           {companyName && (
