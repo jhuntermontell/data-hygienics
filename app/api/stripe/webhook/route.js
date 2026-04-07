@@ -3,10 +3,14 @@ import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@supabase/supabase-js'
 import { PRICE_TO_PLAN } from '@/lib/stripe/prices'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
+function getServiceSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) {
+    throw new Error(`Missing Supabase env vars: url=${!!url}, key=${!!key}`)
+  }
+  return createClient(url, key)
+}
 
 export async function POST(request) {
   const body = await request.text()
@@ -23,6 +27,8 @@ export async function POST(request) {
     console.error('Webhook signature verification failed:', err.message)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
+
+  const supabase = getServiceSupabase()
 
   try {
     switch (event.type) {
@@ -64,7 +70,6 @@ export async function POST(request) {
             break
           }
 
-          // Get price ID — try items.data first, fall back to subscription.plan
           let priceId = subscription.items?.data?.[0]?.price?.id
           if (!priceId && subscription.plan) {
             priceId = subscription.plan.id
@@ -75,30 +80,33 @@ export async function POST(request) {
             ? new Date(subscription.current_period_end * 1000).toISOString()
             : null
 
-          console.log('Activating subscription:', {
-            subId,
-            priceId,
+          const upsertPayload = {
+            user_id: userId,
+            stripe_customer_id: customerId,
+            stripe_subscription_id: subId,
+            stripe_price_id: priceId,
             plan,
-            periodEnd,
+            status: 'active',
+            current_period_end: periodEnd,
+            updated_at: new Date().toISOString(),
+          }
+
+          console.log('Upserting subscription:', JSON.stringify(upsertPayload))
+
+          const { data, error, status, statusText } = await supabase
+            .from('subscriptions')
+            .upsert(upsertPayload, { onConflict: 'user_id' })
+            .select()
+
+          console.log('Supabase upsert response:', {
+            data: JSON.stringify(data),
+            error: JSON.stringify(error),
+            status,
+            statusText,
           })
 
-          const { error } = await supabase
-            .from('subscriptions')
-            .upsert({
-              user_id: userId,
-              stripe_customer_id: customerId,
-              stripe_subscription_id: subId,
-              stripe_price_id: priceId,
-              plan,
-              status: 'active',
-              current_period_end: periodEnd,
-              updated_at: new Date().toISOString(),
-            }, { onConflict: 'user_id' })
-
           if (error) {
-            console.error('Supabase upsert error:', JSON.stringify(error))
-          } else {
-            console.log('Subscription activated successfully for user', userId)
+            console.error('Supabase upsert FAILED:', error.message, error.code, error.details)
           }
         }
 
@@ -115,7 +123,7 @@ export async function POST(request) {
             else if (priceId.includes('enL')) purchaseType = 'individual_policy'
           }
 
-          const { error } = await supabase
+          const { data, error } = await supabase
             .from('one_time_purchases')
             .insert({
               user_id: userId,
@@ -124,6 +132,7 @@ export async function POST(request) {
               purchase_type: purchaseType,
               metadata: session.metadata || {},
             })
+            .select()
 
           if (error) {
             console.error('Supabase insert error (purchase):', JSON.stringify(error))
@@ -136,41 +145,33 @@ export async function POST(request) {
         const subscription = event.data.object
         const userId = subscription.metadata?.supabase_user_id
 
-        if (!userId) {
-          // Fall back: look up by stripe_subscription_id
-          const priceId = subscription.items?.data?.[0]?.price?.id
-          const plan = PRICE_TO_PLAN[priceId] || 'free'
-
-          const { error } = await supabase
-            .from('subscriptions')
-            .update({
-              stripe_price_id: priceId,
-              plan,
-              status: subscription.status === 'active' ? 'active' : subscription.status,
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq('stripe_subscription_id', subscription.id)
-
-          if (error) console.error('Supabase update error (sub.updated, no userId):', error)
-          break
-        }
-
         const priceId = subscription.items?.data?.[0]?.price?.id
         const plan = PRICE_TO_PLAN[priceId] || 'free'
 
-        const { error } = await supabase
-          .from('subscriptions')
-          .update({
-            stripe_price_id: priceId,
-            plan,
-            status: subscription.status === 'active' ? 'active' : subscription.status,
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', userId)
+        const updatePayload = {
+          stripe_price_id: priceId,
+          plan,
+          status: subscription.status === 'active' ? 'active' : subscription.status,
+          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+        }
 
-        if (error) console.error('Supabase update error (sub.updated):', error)
+        // Try by user_id first, fall back to stripe_subscription_id
+        if (userId) {
+          const { error } = await supabase
+            .from('subscriptions')
+            .update(updatePayload)
+            .eq('user_id', userId)
+
+          if (error) console.error('Supabase update error (sub.updated):', JSON.stringify(error))
+        } else {
+          const { error } = await supabase
+            .from('subscriptions')
+            .update(updatePayload)
+            .eq('stripe_subscription_id', subscription.id)
+
+          if (error) console.error('Supabase update error (sub.updated, by subId):', JSON.stringify(error))
+        }
         break
       }
 
@@ -186,31 +187,32 @@ export async function POST(request) {
           })
           .eq('stripe_subscription_id', subscription.id)
 
-        if (error) console.error('Supabase update error (sub.deleted):', error)
+        if (error) console.error('Supabase update error (sub.deleted):', JSON.stringify(error))
         break
       }
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object
+        const subId = typeof invoice.subscription === 'string'
+          ? invoice.subscription
+          : invoice.subscription?.id
 
-        if (invoice.subscription) {
+        if (subId) {
           const { error } = await supabase
             .from('subscriptions')
             .update({
               status: 'past_due',
               updated_at: new Date().toISOString(),
             })
-            .eq('stripe_subscription_id', typeof invoice.subscription === 'string'
-              ? invoice.subscription
-              : invoice.subscription.id)
+            .eq('stripe_subscription_id', subId)
 
-          if (error) console.error('Supabase update error (invoice.failed):', error)
+          if (error) console.error('Supabase update error (invoice.failed):', JSON.stringify(error))
         }
         break
       }
     }
   } catch (err) {
-    console.error('Webhook handler error:', err)
+    console.error('Webhook handler error:', err.message, err.stack)
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 })
   }
 
