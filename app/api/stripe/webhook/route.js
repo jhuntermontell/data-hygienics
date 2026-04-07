@@ -27,63 +27,85 @@ export async function POST(request) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
-        // Retrieve the full session with subscription expanded
-        const session = await stripe.checkout.sessions.retrieve(
-          event.data.object.id,
-          { expand: ['subscription', 'subscription.items.data'] }
-        )
+        const session = event.data.object
         const userId = session.metadata?.supabase_user_id
+        const customerId = typeof session.customer === 'string'
+          ? session.customer
+          : session.customer?.id || null
+
+        console.log('checkout.session.completed:', {
+          sessionId: session.id,
+          mode: session.mode,
+          userId,
+          customerId,
+          subscriptionRaw: session.subscription,
+        })
 
         if (!userId) {
-          console.error('checkout.session.completed: no supabase_user_id in metadata')
+          console.error('No supabase_user_id in session metadata')
           break
         }
 
         if (session.mode === 'subscription') {
-          const subscription = typeof session.subscription === 'string'
-            ? await stripe.subscriptions.retrieve(session.subscription, {
-                expand: ['items.data'],
-              })
-            : session.subscription
+          const subId = typeof session.subscription === 'string'
+            ? session.subscription
+            : session.subscription?.id
 
-          if (!subscription) {
-            console.error('checkout.session.completed: subscription is null for session', session.id)
+          if (!subId) {
+            console.error('No subscription ID found on session', session.id)
             break
           }
 
-          const priceId = subscription.items?.data?.[0]?.price?.id
-          const plan = PRICE_TO_PLAN[priceId] || 'free'
+          let subscription
+          try {
+            subscription = await stripe.subscriptions.retrieve(subId)
+          } catch (stripeErr) {
+            console.error('Failed to retrieve subscription from Stripe:', stripeErr.message)
+            break
+          }
 
-          console.log('Webhook: activating subscription', {
-            userId,
-            subscriptionId: subscription.id,
+          // Get price ID — try items.data first, fall back to subscription.plan
+          let priceId = subscription.items?.data?.[0]?.price?.id
+          if (!priceId && subscription.plan) {
+            priceId = subscription.plan.id
+          }
+
+          const plan = PRICE_TO_PLAN[priceId] || 'free'
+          const periodEnd = subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000).toISOString()
+            : null
+
+          console.log('Activating subscription:', {
+            subId,
             priceId,
             plan,
-            customerId: session.customer,
+            periodEnd,
           })
 
           const { error } = await supabase
             .from('subscriptions')
             .upsert({
               user_id: userId,
-              stripe_customer_id: typeof session.customer === 'string'
-                ? session.customer
-                : session.customer?.id,
-              stripe_subscription_id: subscription.id,
+              stripe_customer_id: customerId,
+              stripe_subscription_id: subId,
               stripe_price_id: priceId,
               plan,
               status: 'active',
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              current_period_end: periodEnd,
               updated_at: new Date().toISOString(),
             }, { onConflict: 'user_id' })
 
           if (error) {
-            console.error('Supabase upsert error (subscription):', error)
+            console.error('Supabase upsert error:', JSON.stringify(error))
+          } else {
+            console.log('Subscription activated successfully for user', userId)
           }
         }
 
         if (session.mode === 'payment') {
-          const paymentIntent = session.payment_intent
+          const paymentIntent = typeof session.payment_intent === 'string'
+            ? session.payment_intent
+            : session.payment_intent?.id
           const priceId = session.metadata?.price_id
 
           let purchaseType = 'unknown'
@@ -97,14 +119,14 @@ export async function POST(request) {
             .from('one_time_purchases')
             .insert({
               user_id: userId,
-              stripe_payment_intent_id: typeof paymentIntent === 'string' ? paymentIntent : paymentIntent?.id,
+              stripe_payment_intent_id: paymentIntent || 'unknown',
               stripe_price_id: priceId || '',
               purchase_type: purchaseType,
               metadata: session.metadata || {},
             })
 
           if (error) {
-            console.error('Supabase insert error (purchase):', error)
+            console.error('Supabase insert error (purchase):', JSON.stringify(error))
           }
         }
         break
