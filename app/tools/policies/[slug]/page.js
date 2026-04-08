@@ -20,11 +20,19 @@ import {
   Building2,
   User,
   Calendar,
+  Info,
+  X,
 } from "lucide-react"
 
 const PolicyPdf = dynamic(() => import("./PolicyPdf"), { ssr: false })
 
 const STEPS = ["Company Info", "Customize Sections", "Review", "Download"]
+
+const TIER_TOOLTIP = `Simplified: Shorter, plain-English language. Good for very small teams or organizations just getting started with formal policies.
+
+Standard: The recommended baseline. Matches what most cyber insurance underwriters expect to see. Appropriate for most small and mid-sized businesses.
+
+Comprehensive: Enterprise-grade language with detailed procedures and accountability structures. Best for regulated industries or organizations with dedicated compliance staff.`
 
 export default function PolicyWizardPage() {
   const { slug } = useParams()
@@ -32,6 +40,7 @@ export default function PolicyWizardPage() {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [step, setStep] = useState(0)
+  const [sectionIdx, setSectionIdx] = useState(0)
   const [policyData, setPolicyData] = useState(null)
   const [policyMeta, setPolicyMeta] = useState(null)
   const [companyInfo, setCompanyInfo] = useState({
@@ -46,6 +55,7 @@ export default function PolicyWizardPage() {
   const [showPdf, setShowPdf] = useState(false)
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   useEffect(() => {
     async function init() {
@@ -64,14 +74,15 @@ export default function PolicyWizardPage() {
       }
       setPolicyMeta(meta)
 
-      // Dynamic import of policy content
       try {
         const mod = await import(`@/lib/policies/${slug}`)
         const data = mod.POLICY_DATA
         setPolicyData(data)
         const defaults = {}
         data.sections.forEach((section) => {
-          const defaultOpt = section.options.find((o) => o.default) || section.options[0]
+          // Default to "standard" option
+          const standardOpt = section.options.find((o) => o.id === "standard" || o.label === "Standard")
+          const defaultOpt = standardOpt || section.options.find((o) => o.default) || section.options[0]
           defaults[section.id] = defaultOpt.id
         })
         setSelections(defaults)
@@ -80,7 +91,6 @@ export default function PolicyWizardPage() {
         return
       }
 
-      // Pre-fill from profile
       const { data: profileData } = await supabase
         .from("profiles").select("*").eq("id", session.user.id).maybeSingle()
       setProfile(profileData)
@@ -92,13 +102,10 @@ export default function PolicyWizardPage() {
         }))
       }
 
-      // Load last assessment industry
       const { data: assessments } = await supabase
-        .from("assessments")
-        .select("industry")
+        .from("assessments").select("industry")
         .eq("user_id", session.user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
+        .order("created_at", { ascending: false }).limit(1)
       if (assessments?.[0]?.industry) {
         setCompanyInfo((prev) => ({ ...prev, industry: assessments[0].industry }))
       }
@@ -132,6 +139,9 @@ export default function PolicyWizardPage() {
     )
   }
 
+  const totalSections = policyData.sections.length
+  const currentSection = policyData.sections[sectionIdx]
+
   const assembledSections = policyData.sections.map((section) => {
     const selectedOpt = section.options.find((o) => o.id === selections[section.id]) || section.options[0]
     return {
@@ -139,6 +149,38 @@ export default function PolicyWizardPage() {
       text: selectedOpt.text.replace(/\[COMPANY_NAME\]/g, companyInfo.companyName || "[Your Company Name]"),
     }
   })
+
+  function handleNext() {
+    if (step === 0) {
+      setStep(1)
+      setSectionIdx(0)
+    } else if (step === 1) {
+      if (sectionIdx < totalSections - 1) {
+        setSectionIdx(sectionIdx + 1)
+      } else {
+        setStep(2)
+      }
+    }
+  }
+
+  function handleBack() {
+    if (step === 1 && sectionIdx > 0) {
+      setSectionIdx(sectionIdx - 1)
+    } else if (step === 1 && sectionIdx === 0) {
+      setStep(0)
+    } else if (step > 0) {
+      setStep(step - 1)
+      if (step === 2) setSectionIdx(totalSections - 1)
+    }
+  }
+
+  // Overall progress for the progress bar
+  const totalSteps = 1 + totalSections + 1 + 1 // company + sections + review + download
+  let currentProgress = 0
+  if (step === 0) currentProgress = 0
+  else if (step === 1) currentProgress = 1 + sectionIdx
+  else if (step === 2) currentProgress = 1 + totalSections
+  else currentProgress = totalSteps
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -148,7 +190,7 @@ export default function PolicyWizardPage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
           <button
             onClick={() => router.push("/tools/policies")}
@@ -159,31 +201,25 @@ export default function PolicyWizardPage() {
           <h1 className="text-2xl font-bold text-[#0F172A]">{policyMeta.name}</h1>
         </motion.div>
 
-        {/* Progress */}
-        <div className="flex items-center gap-1 mb-10">
-          {STEPS.map((label, i) => (
-            <div key={label} className="flex items-center gap-1 flex-1">
-              <div className="flex flex-col items-center flex-1">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                    i < step
-                      ? "bg-[#1D4ED8] text-white"
-                      : i === step
-                      ? "bg-white border-2 border-[#1D4ED8] text-[#1D4ED8]"
-                      : "bg-[#F1F5F9] text-[#94A3B8]"
-                  }`}
-                >
-                  {i < step ? <Check className="w-3.5 h-3.5" /> : i + 1}
-                </div>
-                <span className={`text-[10px] mt-1.5 text-center ${i === step ? "text-[#1D4ED8] font-medium" : "text-[#94A3B8]"}`}>
-                  {label}
-                </span>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className={`h-px flex-1 -mt-4 ${i < step ? "bg-[#1D4ED8]/40" : "bg-[#E2E8F0]"}`} />
-              )}
-            </div>
-          ))}
+        {/* Progress bar */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-[#94A3B8]">
+              {step === 0 && "Company Info"}
+              {step === 1 && `Section ${sectionIdx + 1} of ${totalSections}`}
+              {step === 2 && "Review"}
+              {step === 3 && "Download"}
+            </span>
+            <span className="text-xs text-[#94A3B8]">
+              {Math.round((currentProgress / totalSteps) * 100)}%
+            </span>
+          </div>
+          <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#1D4ED8] rounded-full transition-all duration-300"
+              style={{ width: `${(currentProgress / totalSteps) * 100}%` }}
+            />
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -250,43 +286,75 @@ export default function PolicyWizardPage() {
             </motion.div>
           )}
 
-          {/* Step 1: Section Customization */}
-          {step === 1 && (
+          {/* Step 1: One section per page */}
+          {step === 1 && currentSection && (
             <motion.div
-              key="step1"
+              key={`section-${sectionIdx}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
-              className="space-y-6"
             >
-              {policyData.sections.map((section, si) => (
-                <div key={section.id} className="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm">
-                  <h3 className="text-sm font-semibold text-[#0F172A] mb-1">
-                    Section {si + 1}: {section.title}
-                  </h3>
-                  <p className="text-xs text-[#94A3B8] mb-4">Choose the version that best fits your organization</p>
-                  <div className="grid gap-2.5">
-                    {section.options.map((opt) => (
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-semibold text-[#0F172A]">
+                  Section {sectionIdx + 1} of {totalSections}: {currentSection.title}
+                </h2>
+                <div className="relative">
+                  <button
+                    onClick={() => setShowTooltip(!showTooltip)}
+                    className="w-7 h-7 rounded-full bg-[#F1F5F9] flex items-center justify-center text-[#94A3B8] hover:text-[#475569] transition-colors"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                  {showTooltip && (
+                    <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl border border-[#E2E8F0] shadow-lg p-5 z-20">
                       <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setSelections({ ...selections, [section.id]: opt.id })}
-                        className={`w-full text-left px-4 py-3 rounded-lg text-sm transition-all duration-150 cursor-pointer ${
-                          selections[section.id] === opt.id
-                            ? "bg-[#EFF6FF] border-2 border-[#1D4ED8] text-[#0F172A]"
-                            : "bg-white border border-[#E2E8F0] text-[#475569] hover:border-[#94A3B8] hover:shadow-sm"
-                        }`}
+                        onClick={() => setShowTooltip(false)}
+                        className="absolute top-3 right-3 text-[#94A3B8] hover:text-[#475569]"
                       >
-                        <span className="font-medium">{opt.label}</span>
-                        <p className="text-xs mt-1 text-[#94A3B8] line-clamp-2">
-                          {opt.text.slice(0, 150).replace(/\[COMPANY_NAME\]/g, companyInfo.companyName || "Your Company")}...
-                        </p>
+                        <X className="w-3.5 h-3.5" />
                       </button>
-                    ))}
-                  </div>
+                      <p className="text-xs text-[#475569] leading-relaxed whitespace-pre-line">{TIER_TOOLTIP}</p>
+                    </div>
+                  )}
                 </div>
-              ))}
+              </div>
+
+              <div className="space-y-4">
+                {currentSection.options.map((opt) => {
+                  const isSelected = selections[currentSection.id] === opt.id
+                  const displayText = opt.text.replace(/\[COMPANY_NAME\]/g, companyInfo.companyName || "Your Company")
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setSelections({ ...selections, [currentSection.id]: opt.id })}
+                      className={`w-full text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                        isSelected
+                          ? "border-[#1D4ED8] bg-[#EFF6FF]/40 border-l-4"
+                          : "border-[#E2E8F0] bg-white hover:border-[#94A3B8]"
+                      }`}
+                    >
+                      <div className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`text-sm font-semibold ${isSelected ? "text-[#1D4ED8]" : "text-[#0F172A]"}`}>
+                            {opt.label}
+                          </span>
+                          {isSelected && (
+                            <div className="w-5 h-5 rounded-full bg-[#1D4ED8] flex items-center justify-center shrink-0">
+                              <Check className="w-3 h-3 text-white" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-xs text-[#475569] leading-relaxed whitespace-pre-line">
+                          {displayText}
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
             </motion.div>
           )}
 
@@ -316,7 +384,6 @@ export default function PolicyWizardPage() {
                   </div>
                 ))}
               </div>
-              {/* Signature block */}
               <div className="mt-10 pt-8 border-t border-[#E2E8F0]">
                 <h3 className="text-sm font-semibold text-[#0F172A] mb-4">Approval</h3>
                 <div className="grid grid-cols-3 gap-6">
@@ -384,7 +451,7 @@ export default function PolicyWizardPage() {
         <div className="flex items-center justify-between mt-8">
           <Button
             variant="ghost"
-            onClick={() => setStep((s) => s - 1)}
+            onClick={handleBack}
             disabled={step === 0}
           >
             <span className="flex items-center gap-2">
@@ -393,9 +460,9 @@ export default function PolicyWizardPage() {
           </Button>
 
           {step < 2 && (
-            <Button onClick={() => setStep((s) => s + 1)} disabled={step === 0 && !companyInfo.companyName}>
+            <Button onClick={handleNext} disabled={step === 0 && !companyInfo.companyName}>
               <span className="flex items-center gap-2">
-                Next <ArrowRight className="w-4 h-4" />
+                {step === 1 && sectionIdx < totalSections - 1 ? "Continue" : "Next"} <ArrowRight className="w-4 h-4" />
               </span>
             </Button>
           )}

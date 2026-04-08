@@ -7,7 +7,7 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { Input } from "@/components/ui/input"
 import { CONTROLS } from "@/lib/controls"
-import { Search, Shield, ArrowRight } from "lucide-react"
+import { Search, Shield, ArrowRight, Info } from "lucide-react"
 
 const NIST_FUNCTIONS = ["Identify", "Protect", "Detect", "Respond", "Recover"]
 
@@ -18,6 +18,21 @@ const functionColors = {
   Respond: "bg-orange-50 text-orange-700 border-orange-200",
   Recover: "bg-emerald-50 text-emerald-700 border-emerald-200",
 }
+
+const explainers = [
+  {
+    title: "What is a cybersecurity control?",
+    body: "A cybersecurity control is any practice, process, or technology that reduces your risk of a breach. Think of controls as the locks, alarms, and habits that protect your business. Some are technical (like requiring strong passwords). Some are procedural (like having an incident response plan). Together, they form your security posture.",
+  },
+  {
+    title: "What is NIST CSF?",
+    body: "The NIST Cybersecurity Framework is a set of best practices developed by the U.S. National Institute of Standards and Technology. It organizes security into five functions: Identify, Protect, Detect, Respond, and Recover. It\u2019s the most widely recognized framework in the U.S. and is what most cyber insurance underwriters reference when evaluating your coverage.",
+  },
+  {
+    title: "What is CIS Controls?",
+    body: "The CIS Controls (formerly CIS Top 18) are a prioritized list of actions developed by the Center for Internet Security. They\u2019re more prescriptive than NIST \u2014 they tell you not just what to do but in what order. CIS Control 1 (know what devices you have) comes before CIS Control 6 (manage user access) because you can\u2019t secure what you haven\u2019t inventoried.",
+  },
+]
 
 const container = {
   hidden: {},
@@ -66,30 +81,46 @@ export default function ControlsIndexPage() {
           <div className="flex items-center gap-2 mb-4">
             <Shield className="w-5 h-5 text-[#1D4ED8]" />
             <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
-              Security Controls
+              Free Resource
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-tight tracking-tight mb-4">
-            Security Control
+            The Cybersecurity
             <br />
-            Reference Guide
+            Controls Library
           </h1>
           <p className="text-[#475569] text-base max-w-xl">
-            Plain English explanations of cybersecurity controls, mapped to NIST
-            CSF and CIS frameworks. Understand what each control means and why
-            insurers care about it.
+            Every security control explained in plain English: what it is, why it matters, and what insurance providers look for.
           </p>
+        </motion.div>
+
+        {/* Explainer boxes */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.05 }}
+          className="grid md:grid-cols-3 gap-4 mb-8"
+        >
+          {explainers.map((e) => (
+            <div key={e.title} className="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Info className="w-4 h-4 text-[#1D4ED8] shrink-0" />
+                <h3 className="text-sm font-semibold text-[#0F172A]">{e.title}</h3>
+              </div>
+              <p className="text-xs text-[#475569] leading-relaxed">{e.body}</p>
+            </div>
+          ))}
         </motion.div>
 
         {/* Free forever banner */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="rounded-2xl border border-[#059669]/20 bg-[#ECFDF5] p-5 mb-8"
         >
           <p className="text-[#059669] text-sm font-medium text-center">
-            Free forever. No account required. Because everyone deserves to understand their security.
+            Feel free to explore. Every control, every explanation, every industry note is free. No account required.
           </p>
         </motion.div>
 
@@ -97,7 +128,7 @@ export default function ControlsIndexPage() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.6, delay: 0.15 }}
           className="mb-8"
         >
           <div className="relative mb-4">
@@ -124,9 +155,7 @@ export default function ControlsIndexPage() {
             {NIST_FUNCTIONS.map((fn) => (
               <button
                 key={fn}
-                onClick={() =>
-                  setFilterFunction(filterFunction === fn ? null : fn)
-                }
+                onClick={() => setFilterFunction(filterFunction === fn ? null : fn)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   filterFunction === fn
                     ? "bg-[#1D4ED8] text-white"
@@ -165,11 +194,7 @@ export default function ControlsIndexPage() {
                   <ArrowRight className="w-4 h-4 text-[#94A3B8] group-hover:text-[#1D4ED8] transition-colors shrink-0 mt-0.5 ml-2" />
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                      functionColors[control.nistFunction]
-                    }`}
-                  >
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${functionColors[control.nistFunction]}`}>
                     {control.nistFunction}
                   </span>
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">

@@ -69,7 +69,7 @@ const oneTimePurchases = [
     name: "Assessment Bundle",
     price: "$149",
     priceId: PRICES.assessmentBundle,
-    desc: "Full assessment with both PDF reports — insurance-ready and remediation. Keep forever.",
+    desc: "Full assessment with both PDF reports, insurance-ready and remediation. Keep forever.",
   },
   {
     name: "Policy Bundle",

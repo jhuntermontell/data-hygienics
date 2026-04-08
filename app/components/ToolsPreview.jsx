@@ -1,30 +1,43 @@
 "use client"
 import { motion } from "framer-motion"
-import { Shield, ClipboardList, KeyRound, AlertTriangle, Clock } from "lucide-react"
+import { Shield, FileText, BookOpen, Sparkles, Clock, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 const tools = [
   {
     icon: Shield,
-    name: "Cyber Security Audit",
+    name: "Cyber Audit",
     description: "Assess your security posture and get a scored report with actionable gaps.",
     href: "/tools/cyber-audit",
     active: true,
+    badge: "Try It",
+    badgeColor: "bg-[#EFF6FF] text-[#1D4ED8]",
   },
   {
-    icon: ClipboardList,
-    name: "Vendor Risk Scorecard",
-    description: "Rate your vendors and third-party tools on security posture.",
+    icon: FileText,
+    name: "Policy Library",
+    description: "Generate the 9 cybersecurity policies your insurance provider wants to see.",
+    href: "/tools/policies",
+    active: true,
+    badge: "New",
+    badgeColor: "bg-[#F0FDFA] text-[#0F766E]",
   },
   {
-    icon: KeyRound,
-    name: "Password Audit Tool",
-    description: "Check your password policy strength against current best practices.",
+    icon: BookOpen,
+    name: "Controls Library",
+    description: "Plain-English explanations of every cybersecurity control. No account required.",
+    href: "/controls",
+    active: true,
+    badge: "Free",
+    badgeColor: "bg-[#ECFDF5] text-[#059669]",
   },
   {
-    icon: AlertTriangle,
-    name: "Incident Response Planner",
-    description: "Build a step-by-step incident response plan tailored to your organization.",
+    icon: Sparkles,
+    name: "More Tools Coming",
+    description: "Vendor Risk Scorecard, Password Audit Tool, and Incident Response Planner.",
+    active: false,
+    badge: "Soon",
+    badgeColor: "bg-[#F1F5F9] text-[#94A3B8]",
   },
 ]
 
@@ -53,7 +66,7 @@ export default function ToolsPreview() {
             Platform
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] mt-2 leading-tight tracking-tight">
-            Security tools that speak plain English.
+            Security tools built for your business
           </h2>
         </motion.div>
 
@@ -64,7 +77,7 @@ export default function ToolsPreview() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-[#475569] text-base max-w-xl mb-14"
         >
-          Built for people running a business, not a security operations center.
+          Professional-grade cybersecurity tools, built for the people actually running the business.
         </motion.p>
 
         <motion.div
@@ -95,11 +108,10 @@ export default function ToolsPreview() {
                   <div className="p-5">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className="text-[#0F172A] font-semibold text-sm">{tool.name}</h3>
-                      {!isActive && (
-                        <span className="text-[9px] font-medium text-[#94A3B8] bg-[#F8FAFC] px-1.5 py-0.5 rounded flex items-center gap-1">
-                          <Clock className="w-2.5 h-2.5" /> Soon
-                        </span>
-                      )}
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${tool.badgeColor} flex items-center gap-1`}>
+                        {!isActive && <Clock className="w-2.5 h-2.5" />}
+                        {tool.badge}
+                      </span>
                     </div>
                     <p className="text-[#475569] text-xs leading-relaxed">{tool.description}</p>
                   </div>

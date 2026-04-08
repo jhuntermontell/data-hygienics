@@ -1,22 +1,22 @@
 "use client"
 import { motion } from "framer-motion"
-import { ShieldCheck, Building2, Zap } from "lucide-react"
+import { Zap, ShieldCheck, BookOpen } from "lucide-react"
 
 const props = [
   {
-    icon: Building2,
-    title: "Built for business leaders, not IT departments.",
-    text: "Whether you're a CFO, office manager, or firm partner, if cybersecurity landed in your lap, this platform was built for you.",
+    icon: Zap,
+    title: "Clarity in 20 minutes",
+    text: "Complete the assessment, get your score, understand your gaps. No waiting, no sales call, no consultant required.",
   },
   {
     icon: ShieldCheck,
-    title: "No vendor. No bias. No upsell.",
-    text: "We don't sell security products. We don't take referral fees. Our only job is to give you an honest picture of where you stand.",
+    title: "Insurance-ready in an afternoon",
+    text: "Download the reports your broker needs and the policies your insurer wants to see, all in one session.",
   },
   {
-    icon: Zap,
-    title: "From assessment to action in minutes.",
-    text: "Take the assessment, see your score, download your report. Clear priorities. Real recommendations. No waiting.",
+    icon: BookOpen,
+    title: "Grow your knowledge, not just your compliance",
+    text: "Our free Controls Library explains every security concept in plain English. Because an informed business owner makes better decisions.",
   },
 ]
 

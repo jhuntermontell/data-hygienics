@@ -36,7 +36,7 @@ const oneTimeOptions = {
   },
   policies: {
     key: "policies",
-    label: "All 9 Policies — One-time",
+    label: "All 9 Policies, One-time",
     price: "$199",
     priceId: PRICES.policyBundle,
     mode: "payment",
