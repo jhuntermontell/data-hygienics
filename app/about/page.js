@@ -1,7 +1,32 @@
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
+import SchemaScript from "@/app/components/SchemaScript"
 import Link from "next/link"
-import { ShieldCheck, Scale, Lightbulb, Briefcase, Building2, Heart, Landmark, DollarSign, HardHat } from "lucide-react"
+import { ShieldCheck, Scale, Lightbulb, Briefcase, Building2, Heart, Landmark, DollarSign, Award, ExternalLink } from "lucide-react"
+
+export const metadata = {
+  title: "About Data Hygienics | Hunter Montell, CompTIA Security+",
+  description: "Data Hygienics was built by Hunter Montell, a cybersecurity practitioner with NIST and CIS 18 framework experience from SAIC and Element Technologies. CompTIA Security+ certified.",
+}
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Hunter Montell",
+  url: "https://datahygienics.com/about",
+  jobTitle: "Founder",
+  worksFor: { "@type": "Organization", name: "Data Hygienics" },
+  hasCredential: [
+    {
+      "@type": "EducationalOccupationalCredential",
+      credentialCategory: "certification",
+      name: "CompTIA Security+",
+      url: "https://www.credly.com/badges/f70e05cc-50bd-4ce5-b60c-639e4386ea0e/public_url",
+    },
+    { "@type": "EducationalOccupationalCredential", name: "CompTIA A+" },
+    { "@type": "EducationalOccupationalCredential", name: "CompTIA Network+" },
+  ],
+}
 
 const beliefs = [
   {
@@ -21,6 +46,34 @@ const beliefs = [
   },
 ]
 
+const credentials = [
+  {
+    name: "CompTIA Security+",
+    detail: "Industry-standard cybersecurity certification",
+    href: "https://www.credly.com/badges/f70e05cc-50bd-4ce5-b60c-639e4386ea0e/public_url",
+  },
+  {
+    name: "NIST Cybersecurity Framework",
+    detail: "Direct implementation experience via SAIC (US government contractor)",
+    href: "https://www.nist.gov/cyberframework",
+  },
+  {
+    name: "CIS Controls v8 (CIS 18)",
+    detail: "Framework deployment experience via Element Technologies, LLC (MSP)",
+    href: "https://www.cisecurity.org/controls",
+  },
+  {
+    name: "CompTIA A+",
+    detail: "IT fundamentals and troubleshooting (TestOut certified)",
+    href: null,
+  },
+  {
+    name: "CompTIA Network+",
+    detail: "Networking infrastructure and operations (TestOut certified)",
+    href: null,
+  },
+]
+
 const industries = [
   { icon: Briefcase, label: "Small Businesses" },
   { icon: Scale, label: "Law Firms" },
@@ -33,6 +86,7 @@ const industries = [
 export default function About() {
   return (
     <>
+      <SchemaScript schema={personSchema} />
       <Navbar />
       <main className="min-h-screen bg-white text-[#0F172A]">
         {/* Hero */}
@@ -50,7 +104,6 @@ export default function About() {
         {/* Founding Story */}
         <section className="py-16 px-6 bg-white">
           <div className="max-w-3xl mx-auto">
-            {/* Pull quote */}
             <blockquote className="border-l-4 border-[#1D4ED8] pl-6 py-2 mb-12">
               <p className="text-xl sm:text-2xl font-semibold text-[#0F172A] leading-relaxed italic">
                 &ldquo;I have watched capable, intelligent business leaders get talked into solutions they did not need. Not because they were not smart, but because the information gap was too wide and the incentives were pointed the wrong way.&rdquo;
@@ -62,7 +115,7 @@ export default function About() {
 
             <div className="space-y-6 text-[#475569] text-lg leading-relaxed">
               <p>
-                The insight that built Data Hygienics did not come from a boardroom. It came from years of working inside organizations that had everything at stake and not enough clarity to protect it.
+                Hunter built Data Hygienics to solve a problem that every non-technical business owner runs into sooner or later: cybersecurity guidance that actually makes sense. He has direct experience implementing NIST Cybersecurity Framework controls for US government contractors at SAIC, and he led CIS Controls v8 deployments at Element Technologies, LLC, a managed service provider. That background means he has seen both sides of the security gap firsthand.
               </p>
               <p>
                 Early in his career, Hunter worked as an incident response analyst for a Native American tribal nation, responsible for securing federal government infrastructure, casinos, museums, and hospitals. These were communities depending on systems most people never think about. Getting it wrong had real consequences for real people.
@@ -80,7 +133,7 @@ export default function About() {
                 The cybersecurity industry had built remarkable tools. It just had not built them for the people running the business.
               </p>
               <p>
-                Data Hygienics is the platform Hunter wished had existed for every client he ever worked with. Independent, plain-English, and built with one purpose: to give the people running small businesses the same quality of cybersecurity clarity that large enterprises pay consultants hundreds of dollars an hour to receive.
+                The CompTIA Security+ credential, alongside A+ and Network+ certifications, grounds this work in verified, standards-aligned practice. Data Hygienics is the resource Hunter wished existed when he was working with small business clients who had real risk and no clear path forward.
               </p>
               <p>
                 He is now a software developer with a deep belief that technology should serve people, not mystify them. This is where that belief lives.
@@ -89,8 +142,37 @@ export default function About() {
           </div>
         </section>
 
+        {/* Credentials */}
+        <section className="py-16 px-6 border-t border-[#E2E8F0] bg-[#F8FAFC]">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-center gap-3 mb-8">
+              <Award className="w-6 h-6 text-[#1D4ED8]" />
+              <h2 className="text-2xl font-bold text-[#0F172A]">Credentials</h2>
+            </div>
+            <div className="space-y-4">
+              {credentials.map((cred) => (
+                <div key={cred.name} className="flex items-start gap-4 bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm">
+                  <ShieldCheck className="w-5 h-5 text-[#1D4ED8] mt-0.5 shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-semibold text-[#0F172A]">{cred.name}</h3>
+                      {cred.href && (
+                        <Link href={cred.href} target="_blank" rel="noopener noreferrer"
+                          className="text-[#1D4ED8] hover:text-[#1E40AF]">
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#475569] mt-0.5">{cred.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* What We Believe */}
-        <section className="py-16 px-6 bg-[#F8FAFC]">
+        <section className="py-16 px-6 bg-white">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl font-bold text-[#0F172A] text-center mb-12">
               What we believe.
@@ -99,7 +181,7 @@ export default function About() {
               {beliefs.map((b) => {
                 const Icon = b.icon
                 return (
-                  <div key={b.title} className="bg-white rounded-xl border border-[#E2E8F0] p-8 shadow-sm">
+                  <div key={b.title} className="bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] p-8 shadow-sm">
                     <div className="w-11 h-11 rounded-lg bg-[#EFF6FF] flex items-center justify-center mb-5">
                       <Icon className="w-5 h-5 text-[#1D4ED8]" />
                     </div>
@@ -113,7 +195,7 @@ export default function About() {
         </section>
 
         {/* Who We Serve */}
-        <section className="py-16 px-6 bg-white">
+        <section className="py-16 px-6 bg-[#F8FAFC]">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-[#0F172A] text-center mb-12">
               Built for organizations like yours.
@@ -122,7 +204,7 @@ export default function About() {
               {industries.map((ind) => {
                 const Icon = ind.icon
                 return (
-                  <div key={ind.label} className="flex items-center gap-3 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] px-5 py-4">
+                  <div key={ind.label} className="flex items-center gap-3 bg-white rounded-xl border border-[#E2E8F0] px-5 py-4">
                     <Icon className="w-5 h-5 text-[#1D4ED8] shrink-0" />
                     <span className="text-sm font-medium text-[#0F172A]">{ind.label}</span>
                   </div>

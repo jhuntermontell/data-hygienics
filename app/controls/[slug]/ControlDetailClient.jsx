@@ -4,12 +4,16 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
+import AuthorByline from "@/app/components/AuthorByline"
+import TLDR from "@/app/components/TLDR"
 import {
   ArrowLeft,
   Shield,
   CheckCircle,
   Building2,
   FileText,
+  ExternalLink,
+  HelpCircle,
 } from "lucide-react"
 
 const functionColors = {
@@ -28,7 +32,7 @@ const industryLabels = {
   government: "Government / Defense (CMMC 2.0)",
 }
 
-export default function ControlDetailClient({ control }) {
+export default function ControlDetailClient({ control, tldr, faqs }) {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
@@ -53,7 +57,7 @@ export default function ControlDetailClient({ control }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-10"
+          className="mb-4"
         >
           <div className="flex items-center gap-2 mb-4">
             <Shield className="w-5 h-5 text-[#1D4ED8]" />
@@ -64,7 +68,7 @@ export default function ControlDetailClient({ control }) {
           <h1 className="text-3xl md:text-4xl font-black text-[#0F172A] leading-tight tracking-tight mb-4">
             {control.name}
           </h1>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap mb-2">
             <span
               className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
                 functionColors[control.nistFunction]
@@ -80,6 +84,12 @@ export default function ControlDetailClient({ control }) {
             </span>
           </div>
         </motion.div>
+
+        {/* Author byline */}
+        <AuthorByline showFull={true} lastReviewed="April 2026" />
+
+        {/* TL;DR */}
+        <TLDR summary={tldr} />
 
         {/* Explanation */}
         <motion.div
@@ -173,11 +183,86 @@ export default function ControlDetailClient({ control }) {
           </motion.div>
         )}
 
-        {/* CTA */}
+        {/* Framework References */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+        >
+          <h2 className="text-lg font-bold text-[#0F172A] mb-4">
+            Framework References
+          </h2>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <Shield className="w-4 h-4 text-[#1D4ED8] mt-1 shrink-0" />
+              <div>
+                <p className="text-sm text-[#0F172A] font-medium">
+                  NIST CSF 2.0, {control.nistFunction}: {control.nistCategory}
+                </p>
+                <Link
+                  href="https://www.nist.gov/cyberframework"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#1D4ED8] hover:text-[#1E40AF] inline-flex items-center gap-1 mt-0.5"
+                >
+                  NIST Cybersecurity Framework <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Shield className="w-4 h-4 text-[#0F766E] mt-1 shrink-0" />
+              <div>
+                <p className="text-sm text-[#0F172A] font-medium">
+                  CIS Control {control.cisControl}: {control.cisControlName}
+                </p>
+                <Link
+                  href="https://www.cisecurity.org/controls"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#1D4ED8] hover:text-[#1E40AF] inline-flex items-center gap-1 mt-0.5"
+                >
+                  CIS Controls <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* FAQ Section */}
+        {faqs?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <HelpCircle className="w-5 h-5 text-[#475569]" />
+              <h2 className="text-lg font-bold text-[#0F172A]">
+                Frequently Asked Questions
+              </h2>
+            </div>
+            <div className="space-y-6">
+              {faqs.map((faq, i) => (
+                <div key={i}>
+                  <h3 className="text-sm font-semibold text-[#0F172A] mb-2">
+                    {faq.question}
+                  </h3>
+                  <p className="text-[#475569] text-sm leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="text-center pt-6"
         >
           <p className="text-[#475569] text-sm mb-4">
@@ -187,7 +272,7 @@ export default function ControlDetailClient({ control }) {
             href="/tools/cyber-audit"
             className="inline-flex items-center gap-2 bg-[#1D4ED8] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#1E40AF] transition-colors"
           >
-            Take the free assessment →
+            Take the free assessment
           </Link>
         </motion.div>
       </div>

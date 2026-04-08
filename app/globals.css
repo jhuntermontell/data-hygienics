@@ -58,3 +58,43 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-tertiary);
 }
+
+/* Author byline */
+.author-byline {
+  font-size: 0.85rem;
+  color: var(--color-text-tertiary);
+  margin: 0.5rem 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+.author-byline a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* TL;DR block */
+.tldr-block {
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-primary-light);
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0 2rem;
+}
+.tldr-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+.tldr-block p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
