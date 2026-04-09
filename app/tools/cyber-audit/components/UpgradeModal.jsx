@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Lock, X, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getActivePrices } from "@/lib/stripe/prices"
+import PromoCodeInput from "@/app/components/PromoCodeInput"
 
 const PRICES = getActivePrices()
 
@@ -201,6 +202,16 @@ export default function UpgradeModal({ onClose, feature = "Full Report", showOne
             "Select a plan"
           )}
         </Button>
+
+        <div className="mt-5 pt-5 border-t border-[#E2E8F0]">
+          <PromoCodeInput
+            isAuthenticated={true}
+            onSuccess={() => {
+              // Reload so the gated feature re-evaluates the new access level
+              setTimeout(() => window.location.reload(), 1200)
+            }}
+          />
+        </div>
 
         <button
           onClick={onClose}

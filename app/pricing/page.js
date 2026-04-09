@@ -11,6 +11,7 @@ const PRICES = getActivePrices()
 import { createClient } from "@/lib/supabase/client"
 import { getSubscription } from "@/lib/stripe/subscription"
 import { useRouter } from "next/navigation"
+import PromoCodeInput from "@/app/components/PromoCodeInput"
 
 const tiers = [
   {
@@ -240,6 +241,17 @@ export default function PricingPage() {
               </motion.div>
             ))}
           </div>
+
+          {/* Promo / Access Code */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.12 }}
+            className="mt-10 max-w-md mx-auto"
+          >
+            <PromoCodeInput isAuthenticated={!!session} />
+          </motion.div>
 
           {/* One-time Purchases */}
           <motion.div

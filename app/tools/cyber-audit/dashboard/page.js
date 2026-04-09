@@ -83,6 +83,7 @@ function DashboardContent() {
   const subscription = sub.subscription
   const purchases = sub.purchases
   const isPaid = plan !== "free"
+  const isPromo = sub.isPromo
 
   useEffect(() => {
     async function load() {
@@ -304,19 +305,32 @@ function DashboardContent() {
               <div>
                 <p className="text-sm font-semibold text-[#0F172A]">
                   {PLAN_LABELS[plan]}
-                  <span className="ml-2 text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
-                    Active
-                  </span>
+                  {isPromo ? (
+                    <span className="ml-2 text-[10px] font-semibold text-[#0F766E] bg-[#F0FDFA] border border-[#0F766E]/20 px-2 py-0.5 rounded-full">
+                      Beta Access
+                    </span>
+                  ) : (
+                    <span className="ml-2 text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+                      Active
+                    </span>
+                  )}
                 </p>
-                {subscription?.current_period_end && (
+                {!isPromo && subscription?.current_period_end && (
                   <p className="text-xs text-[#94A3B8] mt-1">
                     Renews {new Date(subscription.current_period_end).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                   </p>
                 )}
+                {isPromo && (
+                  <p className="text-xs text-[#94A3B8] mt-1">
+                    Access granted via beta tester code
+                  </p>
+                )}
               </div>
-              <Button size="sm" variant="outline" onClick={handleManageBilling}>
-                Manage Billing
-              </Button>
+              {!isPromo && (
+                <Button size="sm" variant="outline" onClick={handleManageBilling}>
+                  Manage Billing
+                </Button>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-between">
