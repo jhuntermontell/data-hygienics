@@ -108,7 +108,7 @@ export default function CyberAuditLanding() {
             </div>
             <h2 className="text-xl font-bold text-[#0F172A] mb-2">Quick Security Check</h2>
             <p className="text-[#475569] text-sm leading-relaxed mb-6 flex-1">
-              Answer 12 questions and see where your business stands. No account required to start. Get your score, your gaps, and specific next steps.
+              Answer 12 questions and see where your business stands. No account required to start. Get your score, gaps, and specific next steps.
             </p>
             <Link href="/tools/cyber-audit/quick">
               <Button className="w-full">
@@ -119,7 +119,7 @@ export default function CyberAuditLanding() {
               </Button>
             </Link>
             <p className="text-[#94A3B8] text-xs text-center mt-3">
-              No credit card. No spam. Just answers.
+              No credit card required. 
             </p>
           </motion.div>
 

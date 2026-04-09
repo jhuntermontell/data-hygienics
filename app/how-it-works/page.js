@@ -144,10 +144,10 @@ export default function HowItWorksPage() {
               Maybe it&apos;s your insurance broker asking questions you&apos;ve never heard before. Maybe it&apos;s a client sending you a security questionnaire. Maybe it&apos;s the news about another breach at a company your size.
             </p>
             <p>
-              So you call your IT provider. They recommend a list of products. Some of them cost a lot. You&apos;re not sure which ones you actually need, and you don&apos;t have the vocabulary to push back. You&apos;re trusting someone whose revenue depends on what they recommend.
+              So you call your IT provider. Of course, they recommend a list of products - and some of them cost a lot money. You&apos;re not sure which ones you actually need, and you don&apos;t have the vocabulary to push back. You&apos;re trusting someone whose revenue depends on what they recommend.
             </p>
             <p>
-              That&apos;s not a criticism of IT providers. Most of them are doing good work. But the incentive structure creates a gap: the person making the recommendations profits from the recommendations. The person paying for them can&apos;t evaluate whether they&apos;re necessary.
+              That&apos;s not a criticism of IT providers, because most of them are doing good work. But the incentive structure creates a gap: the person making the recommendations profits from the recommendations. The person paying for them can&apos;t evaluate whether they&apos;re necessary.
             </p>
             <p>
               That gap is where bad decisions happen. Where businesses overpay for tools they don&apos;t need and underpay for protections they do.
