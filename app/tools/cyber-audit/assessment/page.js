@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry } from "@/lib/questions"
 import { calculateTotalScore, calculateSectionScores } from "@/lib/cyber-audit/scoring"
+import { getActiveDrillDowns } from "@/lib/cyber-audit/drill-downs"
 import Navbar from "@/app/components/Navbar"
 import ProgressBar from "../components/ProgressBar"
 import QuestionRenderer from "../components/QuestionRenderer"
@@ -227,17 +228,21 @@ export default function AssessmentPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
-      <div className="max-w-3xl mx-auto px-6 pt-28 pb-20">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-6">
-          <Shield className="w-5 h-5 text-[#1D4ED8]" />
-          <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
-            Cyber Audit
-          </span>
-          {industry && (
-            <span className="text-[#94A3B8] text-xs">- {industry}</span>
-          )}
+
+      {/* Assessment type indicator banner */}
+      <div className="pt-16">
+        <div className="bg-[#0F766E]">
+          <div className="max-w-5xl mx-auto px-6 py-2.5 flex items-center justify-center gap-2">
+            <Shield className="w-3.5 h-3.5 text-white" />
+            <span className="text-white text-xs font-semibold tracking-wide uppercase">
+              Comprehensive Cyber Audit
+              {industry && <> &nbsp;&middot;&nbsp; {industry}</>}
+            </span>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-6 pt-10 pb-20">
 
         <ProgressBar
           currentStep={currentStep}
@@ -263,26 +268,50 @@ export default function AssessmentPage() {
             </div>
 
             <div className="space-y-8">
-              {section.questions.map((question, i) => (
-                <motion.div
-                  key={question.key}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: i * 0.05,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm"
-                >
-                  <QuestionRenderer
-                    question={question}
-                    value={answers[question.key]}
-                    onChange={(val) => handleAnswer(question.key, val)}
-                    index={i}
-                  />
-                </motion.div>
-              ))}
+              {section.questions.map((question, i) => {
+                const activeDrillDowns = getActiveDrillDowns(question, answers[question.key])
+                return (
+                  <motion.div
+                    key={question.key}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.4,
+                      delay: i * 0.05,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm"
+                  >
+                    <QuestionRenderer
+                      question={question}
+                      value={answers[question.key]}
+                      onChange={(val) => handleAnswer(question.key, val)}
+                      index={i}
+                    />
+
+                    {activeDrillDowns.length > 0 && (
+                      <div className="mt-6 pl-4 border-l-2 border-[#1D4ED8]/20 space-y-6">
+                        <p className="text-[10px] font-semibold text-[#1D4ED8] uppercase tracking-widest">
+                          Follow-up details
+                        </p>
+                        {activeDrillDowns.map((dd, ddIdx) => {
+                          const scopedKey = `${question.key}${dd.key}`
+                          const scopedQuestion = { ...dd, key: scopedKey }
+                          return (
+                            <QuestionRenderer
+                              key={scopedKey}
+                              question={scopedQuestion}
+                              value={answers[scopedKey]}
+                              onChange={(val) => handleAnswer(scopedKey, val)}
+                              index={ddIdx}
+                            />
+                          )
+                        })}
+                      </div>
+                    )}
+                  </motion.div>
+                )
+              })}
             </div>
 
             {/* Navigation */}

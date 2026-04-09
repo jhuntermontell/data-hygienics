@@ -123,9 +123,9 @@ const styles = StyleSheet.create({
 function LogoMark() {
   return (
     <Svg viewBox="0 0 32 32" width={22} height={22}>
-      <Rect x="2" y="4" width="16" height="16" rx="4.5" fill="#1D4ED8" opacity={0.2} />
-      <Rect x="10" y="12" width="16" height="16" rx="4.5" fill="#1D4ED8" opacity={0.45} />
-      <Rect x="6" y="8" width="16" height="16" rx="4.5" fill="none" stroke="#1D4ED8" strokeWidth={1.8} />
+      <Rect x={2} y={4} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.2} />
+      <Rect x={10} y={12} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.45} />
+      <Rect x={6} y={8} width={16} height={16} rx={4.5} ry={4.5} fill="none" stroke="#1D4ED8" strokeWidth={1.8} />
     </Svg>
   )
 }

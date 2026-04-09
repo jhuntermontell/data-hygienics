@@ -24,22 +24,25 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.1] tracking-tight text-[#0F172A] mb-6"
           >
-            We build tools for 
-            <br />
-            business leaders, not tech departments.
+            Cybersecurity tools for the people actually running the business.
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.45 }}
-            className="text-[#475569] text-lg leading-[1.7] max-w-[480px] mb-8"
+            transition={{ duration: 0.5, delay: 0.42 }}
+            className="text-[#475569] text-xl leading-[1.55] max-w-[520px] mb-5"
           >
-            Whether you&apos;re a CFO, office manager, or firm partner, 
-            This platform was built for you.
-            We don&apos;t take referral fees.
-            Our only job is to give you 
-            an honest picture of where you stand.
+            Whether you&apos;re a CFO, office manager, or firm partner, if cybersecurity landed in your lap, this platform was built for you.
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-[#475569] text-base leading-[1.7] max-w-[520px] mb-8"
+          >
+            We don&apos;t sell security products. We don&apos;t take referral fees. Our only job is to give you an honest picture of where you stand.
           </motion.p>
 
           <motion.div
@@ -55,10 +58,10 @@ export default function Hero() {
               Start the Free Assessment
             </Link>
             <Link
-              href="/why-data-hygienics"
-              className="inline-flex items-center border border-[#E2E8F0] text-[#475569] font-semibold text-sm px-7 py-3 rounded-lg hover:bg-[#F8FAFC] hover:border-[#CBD5E1] transition-all duration-150"
+              href="/how-it-works"
+              className="inline-flex items-center bg-white border border-[#1D4ED8] text-[#1D4ED8] font-semibold text-sm px-7 py-3 rounded-lg hover:bg-[#EFF6FF] transition-all duration-150"
             >
-              Learn More
+              How It Works
             </Link>
           </motion.div>
 

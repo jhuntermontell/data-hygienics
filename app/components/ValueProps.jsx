@@ -1,22 +1,22 @@
 "use client"
 import { motion } from "framer-motion"
-import { Zap, ShieldCheck, BookOpen } from "lucide-react"
+import { ShieldCheck, Building2, Zap } from "lucide-react"
 
 const props = [
   {
-    icon: Zap,
-    title: "Clarity in 20 minutes",
-    text: "Complete the assessment, get your score, understand your gaps. No waiting, no sales call, no consultant required.",
-  },
-  {
     icon: ShieldCheck,
-    title: "Insurance-ready in an afternoon",
-    text: "Download the reports your broker needs and the policies your insurer wants to see, all in one session.",
+    title: "No vendor bias. Ever.",
+    text: "We don't sell security products. We don't receive referral fees from vendors. Our job is to tell you the truth about where you stand.",
   },
   {
-    icon: BookOpen,
-    title: "Grow your knowledge, not just your compliance",
-    text: "Our free Controls Library explains every security concept in plain English. Because an informed business owner makes better decisions.",
+    icon: Building2,
+    title: "Built for real businesses.",
+    text: "Not enterprise. Not Fortune 500. Built for the law firm with 12 employees, the medical practice with no IT department, the nonprofit protecting donor data.",
+  },
+  {
+    icon: Zap,
+    title: "From assessment to action in minutes.",
+    text: "Take the assessment, get your score, download your report. No sales calls. No waiting. No upsells.",
   },
 ]
 

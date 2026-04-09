@@ -6,16 +6,18 @@ import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut } 
 import { createClient } from "@/lib/supabase/client"
 import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 
-const toolLinks = [
+const primaryLinks = [
+  { href: "/how-it-works", label: "How It Works" },
   { href: "/tools/cyber-audit", label: "Cyber Audit" },
   { href: "/tools/policies", label: "Policy Library" },
-  { href: "/vendors", label: "Vendor Scorecards" },
-  { href: "/controls", label: "Controls Library" },
-  { href: "/threats", label: "Threat Library" },
+  { href: "/vendor-reviews", label: "Vendor Reviews" },
 ]
 
-const comingSoon = [
-  "Incident Response Planner",
+const resourceLinks = [
+  { href: "/controls", label: "Controls Library" },
+  { href: "/threats", label: "Threat Library" },
+  { href: "/glossary", label: "Glossary" },
+  { href: "/tools", label: "Tools" },
 ]
 
 export default function Navbar() {
@@ -25,12 +27,13 @@ export default function Navbar() {
   const [ready, setReady] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [toolsOpen, setToolsOpen] = useState(false)
+  const [resourcesOpen, setResourcesOpen] = useState(false)
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
   const [userOpen, setUserOpen] = useState(false)
   const [showNameModal, setShowNameModal] = useState(false)
   const [nameInput, setNameInput] = useState("")
   const [savingName, setSavingName] = useState(false)
-  const toolsRef = useRef(null)
+  const resourcesRef = useRef(null)
   const userRef = useRef(null)
 
   useEffect(() => {
@@ -57,7 +60,6 @@ export default function Navbar() {
       .eq("id", userId)
       .maybeSingle()
     setProfile(data)
-    // If no name exists, show the name modal
     if (!data?.full_name) {
       setShowNameModal(true)
     }
@@ -83,7 +85,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (toolsRef.current && !toolsRef.current.contains(e.target)) setToolsOpen(false)
+      if (resourcesRef.current && !resourcesRef.current.contains(e.target)) setResourcesOpen(false)
       if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false)
     }
     document.addEventListener("mousedown", handler)
@@ -113,23 +115,33 @@ export default function Navbar() {
           scrolled ? "shadow-[0_1px_3px_0_rgb(0_0_0/0.06)] border-b border-[#E2E8F0]" : "border-b border-transparent"
         }`}
       >
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <img src="/logo.svg" alt="Data Hygienics" className="h-8 w-auto" />
           </Link>
 
           {/* Desktop center nav */}
-          <div className="hidden md:flex items-center gap-8">
-            <div className="relative" ref={toolsRef}>
+          <div className="hidden lg:flex items-center gap-7">
+            {primaryLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150"
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="relative" ref={resourcesRef}>
               <button
-                onClick={() => setToolsOpen(!toolsOpen)}
+                onClick={() => setResourcesOpen(!resourcesOpen)}
                 className="flex items-center gap-1 text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150 cursor-pointer"
               >
-                Tools
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${toolsOpen ? "rotate-180" : ""}`} />
+                Resources
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${resourcesOpen ? "rotate-180" : ""}`} />
               </button>
               <AnimatePresence>
-                {toolsOpen && (
+                {resourcesOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -137,30 +149,27 @@ export default function Navbar() {
                     transition={{ duration: 0.12 }}
                     className="absolute top-full mt-2 left-0 w-56 rounded-lg bg-white border border-[#E2E8F0] shadow-lg overflow-hidden"
                   >
-                    {toolLinks.map((link) => (
-                      <Link key={link.href} href={link.href} onClick={() => setToolsOpen(false)}
+                    {resourceLinks.map((link) => (
+                      <Link key={link.href} href={link.href} onClick={() => setResourcesOpen(false)}
                         className="block px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors">
                         {link.label}
                       </Link>
                     ))}
-                    <div className="border-t border-[#F1F5F9] px-4 py-2">
-                      <p className="text-[10px] text-[#94A3B8] font-medium tracking-wider mb-1">Coming soon</p>
-                      {comingSoon.map((name) => (
-                        <p key={name} className="text-xs text-[#94A3B8] py-0.5">{name}</p>
-                      ))}
-                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            <Link href="/about" className="text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150">
-              About
+            <Link
+              href="/pricing"
+              className="text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150"
+            >
+              Pricing
             </Link>
           </div>
 
           {/* Desktop right: auth-aware */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             {!ready ? (
               <div className="w-20 h-9" />
             ) : user ? (
@@ -221,7 +230,7 @@ export default function Navbar() {
           {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-[#475569] hover:text-[#0F172A] transition-colors p-1"
+            className="lg:hidden text-[#475569] hover:text-[#0F172A] transition-colors p-1"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -236,22 +245,49 @@ export default function Navbar() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="md:hidden overflow-hidden bg-white border-b border-[#E2E8F0]"
+              className="lg:hidden overflow-hidden bg-white border-b border-[#E2E8F0]"
             >
-              <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col gap-3">
-                <p className="text-[#94A3B8] text-xs font-medium tracking-wider">Tools</p>
-                {toolLinks.map((link) => (
+              <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-1">
+                {primaryLinks.map((link) => (
                   <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                    className="text-[#475569] hover:text-[#0F172A] text-base font-medium py-1 transition-colors">
+                    className="text-[#475569] hover:text-[#0F172A] text-base font-medium py-2 transition-colors">
                     {link.label}
                   </Link>
                 ))}
-                <Link href="/about" onClick={() => setMobileOpen(false)}
-                  className="text-[#475569] hover:text-[#0F172A] text-base font-medium py-1 transition-colors">
-                  About
+
+                <button
+                  onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
+                  className="flex items-center justify-between text-[#475569] hover:text-[#0F172A] text-base font-medium py-2 transition-colors cursor-pointer"
+                >
+                  Resources
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-150 ${mobileResourcesOpen ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence>
+                  {mobileResourcesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="overflow-hidden pl-4 flex flex-col gap-1 border-l border-[#F1F5F9]"
+                    >
+                      {resourceLinks.map((link) => (
+                        <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
+                          className="text-[#475569] hover:text-[#0F172A] text-sm py-1.5 transition-colors">
+                          {link.label}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <Link href="/pricing" onClick={() => setMobileOpen(false)}
+                  className="text-[#475569] hover:text-[#0F172A] text-base font-medium py-2 transition-colors">
+                  Pricing
                 </Link>
+
                 {user ? (
-                  <div className="border-t border-[#F1F5F9] mt-2 pt-3">
+                  <div className="border-t border-[#F1F5F9] mt-3 pt-3">
                     <p className="text-[#0F172A] text-sm font-medium mb-2">Hi, {firstName || "there"}</p>
                     <Link href="/tools/cyber-audit/dashboard" onClick={() => setMobileOpen(false)} className="block text-[#475569] text-sm py-1.5">Dashboard</Link>
                     <Link href="/tools/cyber-audit/results" onClick={() => setMobileOpen(false)} className="block text-[#475569] text-sm py-1.5">My Assessments</Link>
@@ -259,7 +295,7 @@ export default function Navbar() {
                     <button onClick={handleSignOut} className="text-[#DC2626] text-sm py-1.5 cursor-pointer">Sign out</button>
                   </div>
                 ) : (
-                  <div className="flex gap-3 mt-3">
+                  <div className="flex gap-3 mt-4">
                     <Link href="/tools/cyber-audit/login" onClick={() => setMobileOpen(false)}
                       className="flex-1 text-center border border-[#E2E8F0] text-[#475569] text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#F8FAFC] transition-colors">
                       Sign in

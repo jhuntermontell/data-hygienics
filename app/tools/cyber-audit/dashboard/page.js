@@ -8,6 +8,7 @@ import { getQuestionsForIndustry } from "@/lib/questions"
 import { getSubscription, clearSubscriptionCache } from "@/lib/stripe/subscription"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
+import ScoreTimeline from "../components/ScoreTimeline"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import {
@@ -68,6 +69,7 @@ function DashboardContent() {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [assessment, setAssessment] = useState(null)
+  const [allAssessments, setAllAssessments] = useState([])
   const [responseCount, setResponseCount] = useState(0)
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [news, setNews] = useState([])
@@ -99,7 +101,7 @@ function DashboardContent() {
         const [profileResult, assessmentResult, policyResult, subData] = await Promise.all([
           supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle(),
           supabase.from("assessments").select("*").eq("user_id", currentUser.id)
-            .order("created_at", { ascending: false }).limit(1),
+            .order("created_at", { ascending: false }),
           supabase.from("generated_policies").select("policy_type, company_name, updated_at")
             .eq("user_id", currentUser.id).order("updated_at", { ascending: false }),
           getSubscription(currentUser.id),
@@ -110,6 +112,7 @@ function DashboardContent() {
         setPolicies(policyResult.data || [])
 
         const assessments = assessmentResult.data
+        setAllAssessments(assessments || [])
         if (assessments?.length > 0) {
           const latest = assessments[0]
           setAssessment(latest)
@@ -267,6 +270,18 @@ function DashboardContent() {
               </p>
               <p className="text-[#94A3B8] text-xs mt-1">Last Assessment</p>
             </div>
+          </motion.div>
+        )}
+
+        {/* Score over time */}
+        {allAssessments.some((a) => a.status === "completed" && a.score != null) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.06 }}
+            className="mb-8"
+          >
+            <ScoreTimeline assessments={allAssessments} />
           </motion.div>
         )}
 

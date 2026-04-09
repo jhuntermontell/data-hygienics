@@ -9,8 +9,7 @@ import {
   StyleSheet,
   pdf,
   Svg,
-  Path,
-  Circle,
+  Rect,
 } from "@react-pdf/renderer"
 import { RECOMMENDATIONS } from "@/lib/cyber-audit/recommendations"
 
@@ -223,24 +222,10 @@ function getEffortEstimate(rec) {
 
 function LogoSvg() {
   return (
-    <Svg viewBox="0 0 40 40" width={28} height={28}>
-      <Path
-        d="M20 4L6 10v10c0 9.55 5.97 18.48 14 21 8.03-2.52 14-11.45 14-21V10L20 4z"
-        fill="#3b82f6"
-        opacity={0.15}
-        stroke="#3b82f6"
-        strokeWidth={1.5}
-      />
-      <Path
-        d="M14 20l4 4 8-8"
-        stroke="#3b82f6"
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Circle cx={14} cy={14} r={1} fill="#3b82f6" opacity={0.4} />
-      <Circle cx={20} cy={12} r={1} fill="#3b82f6" opacity={0.4} />
-      <Circle cx={26} cy={14} r={1} fill="#3b82f6" opacity={0.4} />
+    <Svg viewBox="0 0 32 32" width={28} height={28}>
+      <Rect x={2} y={4} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.2} />
+      <Rect x={10} y={12} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.45} />
+      <Rect x={6} y={8} width={16} height={16} rx={4.5} ry={4.5} fill="none" stroke="#1D4ED8" strokeWidth={1.8} />
     </Svg>
   )
 }

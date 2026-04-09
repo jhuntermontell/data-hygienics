@@ -10,7 +10,7 @@ export default function sitemap() {
     { url: baseUrl, lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: `${baseUrl}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${baseUrl}/why-data-hygienics`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/how-it-works`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
     { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
@@ -19,7 +19,9 @@ export default function sitemap() {
     { url: `${baseUrl}/tools/policies`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/controls`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/vendors`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/vendor-reviews`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/threats`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/glossary`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
   ]
 
   const controlPages = CONTROLS.map((control) => ({

@@ -178,6 +178,16 @@ export default function AuthForm({ mode = "login" }) {
               className="pl-10"
             />
           </div>
+          {!isRegister && (
+            <div className="mt-2 flex justify-end">
+              <Link
+                href="/tools/cyber-audit/forgot-password"
+                className="text-[#1D4ED8] hover:text-[#1E40AF] text-xs font-medium underline-offset-2 hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          )}
         </div>
 
         {error && (
