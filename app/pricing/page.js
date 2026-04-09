@@ -5,7 +5,9 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { motion } from "framer-motion"
 import { Check, Loader2 } from "lucide-react"
-import { PRICES } from "@/lib/stripe/prices"
+import { getActivePrices } from "@/lib/stripe/prices"
+
+const PRICES = getActivePrices()
 import { createClient } from "@/lib/supabase/client"
 import { getSubscription } from "@/lib/stripe/subscription"
 import { useRouter } from "next/navigation"

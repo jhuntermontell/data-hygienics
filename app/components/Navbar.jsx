@@ -2,19 +2,20 @@
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut, ClipboardList, KeyRound } from "lucide-react"
+import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 
 const toolLinks = [
   { href: "/tools/cyber-audit", label: "Cyber Audit" },
   { href: "/tools/policies", label: "Policy Library" },
+  { href: "/vendors", label: "Vendor Scorecards" },
   { href: "/controls", label: "Controls Library" },
+  { href: "/threats", label: "Threat Library" },
 ]
 
 const comingSoon = [
-  "Vendor Risk Scorecard",
-  "Password Audit Tool",
+  "Incident Response Planner",
 ]
 
 export default function Navbar() {

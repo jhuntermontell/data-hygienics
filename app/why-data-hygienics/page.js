@@ -6,7 +6,9 @@ import Link from "next/link"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { createClient } from "@/lib/supabase/client"
-import { PRICES } from "@/lib/stripe/prices"
+import { getActivePrices } from "@/lib/stripe/prices"
+
+const PRICES = getActivePrices()
 import {
   Shield,
   FileText,
@@ -61,7 +63,7 @@ const toolCards = [
     icon: Sparkles,
     name: "More Tools",
     badge: "Coming Soon",
-    desc: "Vendor Risk Scorecard. Password Audit Tool. Incident Response Planner. We're building the toolkit small business deserves.",
+    desc: "Vendor Risk Scorecard. Incident Response Planner. Score Tracking Dashboard. We are building the toolkit small business deserves.",
     cta: null,
     href: null,
   },

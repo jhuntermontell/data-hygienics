@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@supabase/supabase-js'
-import { PRICE_TO_PLAN } from '@/lib/stripe/prices'
+import { PRICE_TO_PLAN, getActivePriceToPlan } from '@/lib/stripe/prices'
 
 function getServiceSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -75,7 +75,8 @@ export async function POST(request) {
             priceId = subscription.plan.id
           }
 
-          const plan = PRICE_TO_PLAN[priceId] || 'free'
+          const activePlanMap = getActivePriceToPlan()
+          const plan = activePlanMap[priceId] || PRICE_TO_PLAN[priceId] || 'free'
           const periodEnd = subscription.current_period_end
             ? new Date(subscription.current_period_end * 1000).toISOString()
             : null
@@ -146,7 +147,8 @@ export async function POST(request) {
         const userId = subscription.metadata?.supabase_user_id
 
         const priceId = subscription.items?.data?.[0]?.price?.id
-        const plan = PRICE_TO_PLAN[priceId] || 'free'
+        const activePlanMap = getActivePriceToPlan()
+          const plan = activePlanMap[priceId] || PRICE_TO_PLAN[priceId] || 'free'
 
         const updatePayload = {
           stripe_price_id: priceId,

@@ -20,7 +20,6 @@ import {
   Lock,
   FileText,
   ClipboardList,
-  KeyRound,
   AlertTriangle,
   Clock,
   CreditCard,
@@ -29,8 +28,6 @@ import {
 } from "lucide-react"
 
 const COMING_SOON_TOOLS = [
-  { icon: ClipboardList, name: "Vendor Risk Scorecard", desc: "Rate your vendors on security posture" },
-  { icon: KeyRound, name: "Password Audit Tool", desc: "Check password policy strength" },
   { icon: AlertTriangle, name: "Incident Response Planner", desc: "Build your IR plan step by step" },
 ]
 
@@ -399,6 +396,29 @@ function DashboardContent() {
                 <Button size="sm" variant="outline">
                   <span className="flex items-center gap-2">
                     {policies.length > 0 ? `${policies.length} of 9 done` : "Get started"} <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </Button>
+              </Link>
+            </div>
+
+            {/* Vendor Scorecards */}
+            <div className="rounded-2xl border border-[#D97706]/20 bg-white shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FFFBEB] border border-[#D97706]/20 flex items-center justify-center">
+                  <ClipboardList className="w-5 h-5 text-[#D97706]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-[#0F172A]">Vendor Scorecards</h3>
+                  <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-1.5 py-0.5 rounded">Free</span>
+                </div>
+              </div>
+              <p className="text-[#475569] text-xs mb-4">
+                Independent security scores for the 10 tools small businesses use every day.
+              </p>
+              <Link href="/vendors">
+                <Button size="sm" variant="outline">
+                  <span className="flex items-center gap-2">
+                    View Scorecards <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </Button>
               </Link>

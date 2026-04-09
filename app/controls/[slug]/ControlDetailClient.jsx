@@ -14,6 +14,8 @@ import {
   FileText,
   ExternalLink,
   HelpCircle,
+  AlertTriangle,
+  ArrowRight,
 } from "lucide-react"
 
 const functionColors = {
@@ -30,6 +32,29 @@ const industryLabels = {
   financial: "Financial Services (GLBA/PCI-DSS)",
   retail: "Retail / E-commerce (PCI-DSS)",
   government: "Government / Defense (CMMC 2.0)",
+}
+
+// Maps control slugs to the industry threat pages that reference them
+const RELATED_THREATS = {
+  "multi-factor-authentication": ["healthcare", "legal", "financial"],
+  "data-backup": ["healthcare", "financial"],
+  "email-filtering": ["healthcare", "legal", "financial"],
+  "email-authentication": ["healthcare", "legal", "financial"],
+  "endpoint-protection": ["healthcare", "financial"],
+  "access-control-policy": ["healthcare", "legal", "financial"],
+  "patch-management": ["healthcare", "financial"],
+  "security-training": ["healthcare", "legal", "financial"],
+  "vendor-risk-management": ["healthcare", "legal", "financial"],
+  "employee-offboarding": ["healthcare", "legal", "financial"],
+  "incident-response-plan": ["legal"],
+  "password-management": ["legal", "financial"],
+  "network-segmentation": ["financial"],
+}
+
+const threatLabels = {
+  healthcare: "Healthcare Threats",
+  legal: "Legal Threats",
+  financial: "Financial Services Threats",
 }
 
 export default function ControlDetailClient({ control, tldr, faqs }) {
@@ -253,6 +278,38 @@ export default function ControlDetailClient({ control, tldr, faqs }) {
                     {faq.answer}
                   </p>
                 </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Related Industry Threats */}
+        {RELATED_THREATS[control.slug]?.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle className="w-5 h-5 text-[#DC2626]" />
+              <h2 className="text-lg font-bold text-[#0F172A]">
+                Related Industry Threats
+              </h2>
+            </div>
+            <p className="text-[#475569] text-sm leading-relaxed mb-4">
+              See how this control stops real-world attacks in industries where it matters most:
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {RELATED_THREATS[control.slug].map((slug) => (
+                <Link
+                  key={slug}
+                  href={`/threats/${slug}`}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#0F172A] hover:border-[#1D4ED8] hover:text-[#1D4ED8] transition-colors"
+                >
+                  {threatLabels[slug]}
+                  <ArrowRight className="w-4 h-4 shrink-0" />
+                </Link>
               ))}
             </div>
           </motion.div>

@@ -34,7 +34,7 @@ const tools = [
   {
     icon: Sparkles,
     name: "More Tools Coming",
-    description: "Vendor Risk Scorecard, Password Audit Tool, and Incident Response Planner.",
+    description: "Vendor Risk Scorecard, Incident Response Planner, and Score Tracking Dashboard.",
     active: false,
     badge: "Soon",
     badgeColor: "bg-[#F1F5F9] text-[#94A3B8]",

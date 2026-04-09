@@ -98,3 +98,43 @@ body {
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
+
+/* Threat page long-form content */
+.threat-content h2 {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.threat-content h2:first-child {
+  margin-top: 0;
+}
+.threat-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.35;
+}
+.threat-content p {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: #475569;
+  margin-bottom: 1rem;
+}
+.threat-content strong {
+  color: #0F172A;
+  font-weight: 600;
+}
+.threat-content a {
+  color: #1D4ED8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.threat-content a:hover {
+  color: #1E40AF;
+}

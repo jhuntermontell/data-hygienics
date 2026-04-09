@@ -4,7 +4,9 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Lock, X, Check, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PRICES } from "@/lib/stripe/prices"
+import { getActivePrices } from "@/lib/stripe/prices"
+
+const PRICES = getActivePrices()
 
 const subscriptionOptions = [
   {

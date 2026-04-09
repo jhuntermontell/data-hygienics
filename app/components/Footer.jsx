@@ -1,15 +1,17 @@
 import Link from "next/link"
 
 const platformLinks = [
-  { href: "/tools/cyber-audit/login", label: "Sign In" },
-  { href: "/tools/cyber-audit", label: "Get Started" },
+  { href: "/tools/cyber-audit", label: "Cyber Audit" },
+  { href: "/tools/policies", label: "Policy Library" },
+  { href: "/vendors", label: "Vendor Scorecards" },
+  { href: "/controls", label: "Controls Library" },
+  { href: "/threats", label: "Threat Library" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/why-data-hygienics", label: "Learn More" },
 ]
 
 const companyLinks = [
   { href: "/about", label: "About" },
-  { href: "/controls", label: "Controls Library" },
+  { href: "/tools", label: "Tools" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms of Service" },
 ]
@@ -26,9 +28,6 @@ export default function Footer() {
             </div>
             <p className="text-[#475569] text-sm mb-3">
               The cybersecurity platform for small business.
-            </p>
-            <p className="text-[#94A3B8] text-xs">
-              &copy; {new Date().getFullYear()} Data Hygienics. All rights reserved.
             </p>
           </div>
 
@@ -58,6 +57,18 @@ export default function Footer() {
                 ))}
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-10 pt-6 border-t border-[#F1F5F9] flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-[#94A3B8] text-xs">
+            &copy; 2026 Data Hygienics. All rights reserved.
+          </p>
+          <div className="flex items-center gap-1 text-[#94A3B8] text-xs">
+            <Link href="/privacy" className="hover:text-[#475569] transition-colors">Privacy Policy</Link>
+            <span>&middot;</span>
+            <Link href="/terms" className="hover:text-[#475569] transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
