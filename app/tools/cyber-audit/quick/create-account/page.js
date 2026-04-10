@@ -150,17 +150,8 @@ export default function QuickCreateAccountPage() {
         throw new Error("Account creation failed. Please try again.")
       }
 
-      // If email confirmation is required, Supabase returns a user but no session.
-      // Try to sign in to establish a session.
-      if (!signUpData.session) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-        if (signInError) {
-          // If confirmation is required, tell the user and keep lead data
-          setError("Please check your email to confirm your account, then sign in to view your results.")
-          setLoading(false)
-          return
-        }
-      }
+      // Email confirmation is disabled, so signUp returns a session directly.
+      // The user is logged in immediately — proceed to write their assessment.
 
       // 2. Create profile
       await supabase.from("profiles").upsert(

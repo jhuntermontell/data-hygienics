@@ -1,17 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, ArrowRight, CheckCircle, User, Building2 } from "lucide-react"
+import { Mail, Lock, ArrowRight, User, Building2 } from "lucide-react"
 import Link from "next/link"
 
 export default function AuthForm({ mode = "login" }) {
-  const router = useRouter()
   const supabase = createClient()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -19,7 +17,6 @@ export default function AuthForm({ mode = "login" }) {
   const [companyName, setCompanyName] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
 
   const isRegister = mode === "register"
 
@@ -34,13 +31,13 @@ export default function AuthForm({ mode = "login" }) {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
             data: { full_name: fullName, company_name: companyName },
           },
         })
         if (error) throw error
 
-        // Save profile to profiles table
+        // Email confirmation is disabled, so signUp returns a session directly.
+        // Save the profile row, then go straight to the dashboard.
         if (data.user) {
           await supabase.from("profiles").upsert({
             id: data.user.id,
@@ -49,52 +46,21 @@ export default function AuthForm({ mode = "login" }) {
           })
         }
 
-        setEmailSent(true)
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-        if (error) throw error
         // Full page reload ensures auth state propagates to all contexts
         window.location.href = "/tools/cyber-audit/dashboard"
+        return
       }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (error) throw error
+      window.location.href = "/tools/cyber-audit/dashboard"
     } catch (err) {
       setError(err.message)
-    } finally {
       setLoading(false)
     }
-  }
-
-  if (emailSent) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="text-center"
-      >
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#EFF6FF] border border-blue-200 mb-6">
-          <CheckCircle className="w-8 h-8 text-[#1D4ED8]" />
-        </div>
-        <h2 className="text-2xl font-bold text-[#0F172A] mb-3">Check Your Email</h2>
-        <p className="text-[#475569] mb-6">
-          We sent a verification link to{" "}
-          <span className="text-[#0F172A] font-medium">{email}</span>. Click the
-          link to activate your account.
-        </p>
-        <p className="text-[#94A3B8] text-sm">
-          Didn&apos;t get it? Check your spam folder or{" "}
-          <button
-            onClick={() => setEmailSent(false)}
-            className="text-[#1D4ED8] hover:text-[#1E40AF] underline underline-offset-2"
-          >
-            try again
-          </button>
-          .
-        </p>
-      </motion.div>
-    )
   }
 
   return (
