@@ -1,30 +1,53 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { motion } from "framer-motion"
-import { createClient } from "@/lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Mail, Lock, ArrowRight, User, Building2 } from "lucide-react"
 import Link from "next/link"
 
-export default function AuthForm({ mode = "login" }) {
-  const supabase = createClient()
+export default function AuthForm({ mode = "login", redirectTo = "/tools/cyber-audit/dashboard" }) {
+  const supabase = getSupabaseBrowserClient()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [companyName, setCompanyName] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  // After signUp succeeds but profile upsert fails, we keep the user on the
+  // form and offer a retry. The auth user already exists, so retry only
+  // re-attempts the profile write.
+  const [pendingProfileUserId, setPendingProfileUserId] = useState(null)
+  const [retrying, setRetrying] = useState(false)
+  // Synchronous in-flight guard. setLoading(true) only takes effect after
+  // React's next render, so a rapid second click or Enter press in the same
+  // event burst can fire signUp/signIn twice. A ref blocks the second call
+  // immediately.
+  const submitInFlight = useRef(false)
+  const retryInFlight = useRef(false)
 
   const isRegister = mode === "register"
 
+  async function saveProfileRow(userId) {
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: userId,
+      full_name: fullName,
+      company_name: companyName,
+    })
+    return profileError
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitInFlight.current) return
+    submitInFlight.current = true
     setError("")
     setLoading(true)
 
+    let willRedirect = false
     try {
       if (isRegister) {
         const { data, error } = await supabase.auth.signUp({
@@ -39,15 +62,21 @@ export default function AuthForm({ mode = "login" }) {
         // Email confirmation is disabled, so signUp returns a session directly.
         // Save the profile row, then go straight to the dashboard.
         if (data.user) {
-          await supabase.from("profiles").upsert({
-            id: data.user.id,
-            full_name: fullName,
-            company_name: companyName,
-          })
+          const profileError = await saveProfileRow(data.user.id)
+          if (profileError) {
+            console.error("Profile creation failed after signup:", profileError)
+            setPendingProfileUserId(data.user.id)
+            setError(
+              "Your account was created but we could not save your profile. Please try again or contact support."
+            )
+            setLoading(false)
+            return
+          }
         }
 
         // Full page reload ensures auth state propagates to all contexts
-        window.location.href = "/tools/cyber-audit/dashboard"
+        willRedirect = true
+        window.location.href = redirectTo
         return
       }
 
@@ -56,10 +85,45 @@ export default function AuthForm({ mode = "login" }) {
         password,
       })
       if (error) throw error
-      window.location.href = "/tools/cyber-audit/dashboard"
+      willRedirect = true
+      window.location.href = redirectTo
     } catch (err) {
       setError(err.message)
       setLoading(false)
+    } finally {
+      // Only reset the in-flight ref when we're staying on the page. If we
+      // are redirecting, leave it locked so any queued event during the
+      // navigation cannot trigger another submit.
+      if (!willRedirect) {
+        submitInFlight.current = false
+      }
+    }
+  }
+
+  async function handleProfileRetry() {
+    if (!pendingProfileUserId) return
+    if (retryInFlight.current) return
+    retryInFlight.current = true
+    setRetrying(true)
+    setError("")
+    let willRedirect = false
+    try {
+      const profileError = await saveProfileRow(pendingProfileUserId)
+      if (profileError) {
+        console.error("Profile retry failed:", profileError)
+        setError(
+          "We still could not save your profile. Please contact support if this continues."
+        )
+        setRetrying(false)
+        return
+      }
+      setPendingProfileUserId(null)
+      willRedirect = true
+      window.location.href = redirectTo
+    } finally {
+      if (!willRedirect) {
+        retryInFlight.current = false
+      }
     }
   }
 
@@ -157,9 +221,19 @@ export default function AuthForm({ mode = "login" }) {
         </div>
 
         {error && (
-          <p className="text-[#DC2626] text-sm bg-[#FEF2F2] border border-[#DC2626]/20 rounded-xl px-4 py-2.5">
-            {error}
-          </p>
+          <div className="text-[#DC2626] text-sm bg-[#FEF2F2] border border-[#DC2626]/20 rounded-xl px-4 py-2.5">
+            <p>{error}</p>
+            {pendingProfileUserId && (
+              <button
+                type="button"
+                onClick={handleProfileRetry}
+                disabled={retrying}
+                className="mt-2 inline-flex items-center gap-1.5 text-[#DC2626] font-semibold underline underline-offset-2 disabled:opacity-60"
+              >
+                {retrying ? "Retrying..." : "Retry saving profile"}
+              </button>
+            )}
+          </div>
         )}
 
         <Button type="submit" disabled={loading} className="w-full">

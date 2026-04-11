@@ -77,6 +77,11 @@ function DashboardContent() {
   const [sub, setSub] = useState({ plan: "free", access: { canAccessNewsFeed: false }, subscription: null, purchases: [] })
   const [loading, setLoading] = useState(true)
   const [showWelcome, setShowWelcome] = useState(false)
+  // True while we're polling Supabase for the post-checkout webhook to land.
+  // The dashboard shows an "Activating your subscription..." overlay during
+  // this window so the user does not see locked-state UI before the webhook
+  // catches up.
+  const [pendingSync, setPendingSync] = useState(false)
 
   const plan = sub.plan
   const access = sub.access
@@ -86,9 +91,15 @@ function DashboardContent() {
   const isPromo = sub.isPromo
 
   useEffect(() => {
+    // Lifecycle flag + tracked timeout id so the welcome polling loop can
+    // be torn down cleanly when the dashboard unmounts mid-poll.
+    let cancelled = false
+    let pollTimeoutId = null
+
     async function load() {
       // Get session directly
       const { data: { session } } = await supabase.auth.getSession()
+      if (cancelled) return
       if (!session) {
         window.location.href = "/tools/cyber-audit/login"
         return
@@ -96,6 +107,13 @@ function DashboardContent() {
 
       const currentUser = session.user
       setUser(currentUser)
+
+      // After returning from Stripe checkout, the cached subscription may
+      // still reflect the previous (free) state. Drop the cache before
+      // fetching so we always read the freshest entitlement.
+      if (searchParams.get("welcome") === "true") {
+        clearSubscriptionCache()
+      }
 
       try {
         // Load everything in parallel
@@ -141,6 +159,46 @@ function DashboardContent() {
         if (searchParams.get("welcome") === "true" && subData.plan !== "free") {
           setShowWelcome(true)
         }
+
+        // Welcome flow but plan is still free → the webhook hasn't landed
+        // yet. Poll Supabase (bypassing the cache) until we see a paid
+        // plan or until we hit a 20-second cap. Tracked via cancelled +
+        // pollTimeoutId so unmount cleanly stops the loop.
+        if (
+          searchParams.get("welcome") === "true" &&
+          subData.plan === "free" &&
+          !subData.entitlementUnknown
+        ) {
+          setPendingSync(true)
+          let attempts = 0
+          const maxAttempts = 10
+          const intervalMs = 2000
+          const poll = async () => {
+            if (cancelled) return
+            attempts += 1
+            const fresh = await getSubscription(currentUser.id, {
+              skipCache: true,
+            })
+            if (cancelled) return
+            if (fresh.plan && fresh.plan !== "free") {
+              setSub(fresh)
+              setShowWelcome(true)
+              setPendingSync(false)
+              return
+            }
+            if (attempts < maxAttempts) {
+              pollTimeoutId = setTimeout(poll, intervalMs)
+            } else {
+              // Webhook hasn't landed in 20 seconds. Clear the cache so a
+              // later focus event or refresh does a fresh read instead of
+              // reusing whatever the previous (pre-webhook) state was, and
+              // stop polling.
+              clearSubscriptionCache()
+              setPendingSync(false)
+            }
+          }
+          pollTimeoutId = setTimeout(poll, intervalMs)
+        }
       } catch (err) {
         console.error("Dashboard load error:", err)
       }
@@ -148,6 +206,11 @@ function DashboardContent() {
       setLoading(false)
     }
     load()
+
+    return () => {
+      cancelled = true
+      if (pollTimeoutId) clearTimeout(pollTimeoutId)
+    }
   }, [])
 
   const handleSignOut = async () => {
@@ -186,6 +249,22 @@ function DashboardContent() {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
       <Navbar />
       <div className="flex-1 max-w-4xl mx-auto px-6 pt-28 pb-20 w-full">
+        {/* Activating subscription overlay (shown while polling for the
+            post-checkout webhook to land) */}
+        {pendingSync && (
+          <div className="mb-6 rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5 flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-[#0F172A]">
+                Activating your subscription...
+              </p>
+              <p className="text-xs text-[#475569]">
+                Stripe is processing your payment. This usually takes just a few seconds.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Banner */}
         <AnimatePresence>
           {showWelcome && (

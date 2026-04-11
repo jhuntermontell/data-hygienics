@@ -17,6 +17,7 @@ export default function sitemap() {
     { url: `${baseUrl}/tools`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/tools/cyber-audit`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/tools/policies`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/tools/ir-plan`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/controls`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/vendors`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/vendor-reviews`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },

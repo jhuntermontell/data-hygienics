@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 
 const primaryLinks = [
@@ -14,6 +14,7 @@ const primaryLinks = [
 ]
 
 const resourceLinks = [
+  { href: "/tools/ir-plan", label: "Incident Response" },
   { href: "/controls", label: "Controls Library" },
   { href: "/threats", label: "Threat Library" },
   { href: "/glossary", label: "Glossary" },
@@ -21,7 +22,7 @@ const resourceLinks = [
 ]
 
 export default function Navbar() {
-  const supabase = createClient()
+  const supabase = getSupabaseBrowserClient()
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
   const [ready, setReady] = useState(false)
@@ -33,19 +34,34 @@ export default function Navbar() {
   const [showNameModal, setShowNameModal] = useState(false)
   const [nameInput, setNameInput] = useState("")
   const [savingName, setSavingName] = useState(false)
+  const [nameError, setNameError] = useState("")
   const resourcesRef = useRef(null)
   const userRef = useRef(null)
+  // Tracks the user ID we currently care about. Profile queries that finish
+  // after the user signs out or switches accounts compare against this and
+  // discard their results, preventing stale data from leaking into UI.
+  const currentUserIdRef = useRef(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       setSession(s)
       setReady(true)
+      currentUserIdRef.current = s?.user?.id || null
       if (s?.user) loadProfile(s.user.id)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+      if (event === "SIGNED_OUT") {
+        currentUserIdRef.current = null
+        setSession(null)
+        setProfile(null)
+        setShowNameModal(false)
+        setReady(true)
+        return
+      }
       setSession(s)
       setReady(true)
+      currentUserIdRef.current = s?.user?.id || null
       if (s?.user) loadProfile(s.user.id)
       else setProfile(null)
     })
@@ -54,11 +70,23 @@ export default function Navbar() {
   }, [])
 
   async function loadProfile(userId) {
-    const { data } = await supabase
+    const requestUserId = userId
+    const { data, error } = await supabase
       .from("profiles")
       .select("full_name")
       .eq("id", userId)
       .maybeSingle()
+
+    // Stale-result guard: if auth changed (sign-out, account switch) while
+    // this query was in flight, discard the result.
+    if (currentUserIdRef.current !== requestUserId) return
+
+    if (error) {
+      // A failed query is NOT the same as "no profile exists". Don't trigger
+      // the name modal in this case; greet generically and move on.
+      console.error("Failed to load profile:", error)
+      return
+    }
     setProfile(data)
     if (!data?.full_name) {
       setShowNameModal(true)
@@ -68,10 +96,20 @@ export default function Navbar() {
   async function saveFirstName() {
     if (!nameInput.trim() || !session?.user) return
     setSavingName(true)
-    await supabase.from("profiles").upsert({
-      id: session.user.id,
-      full_name: nameInput.trim(),
-    }, { onConflict: "id" })
+    setNameError("")
+    const { error } = await supabase.from("profiles").upsert(
+      {
+        id: session.user.id,
+        full_name: nameInput.trim(),
+      },
+      { onConflict: "id" }
+    )
+    if (error) {
+      console.error("Failed to save profile name:", error)
+      setNameError("Could not save your name. Please try again.")
+      setSavingName(false)
+      return
+    }
     setProfile({ full_name: nameInput.trim() })
     setShowNameModal(false)
     setSavingName(false)
@@ -338,9 +376,12 @@ export default function Navbar() {
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="First name"
                 autoFocus
-                className="w-full h-11 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] mb-4"
+                className="w-full h-11 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8] mb-3"
                 onKeyDown={(e) => e.key === "Enter" && saveFirstName()}
               />
+              {nameError && (
+                <p className="text-[#DC2626] text-xs mb-3">{nameError}</p>
+              )}
               <button
                 onClick={saveFirstName}
                 disabled={!nameInput.trim() || savingName}

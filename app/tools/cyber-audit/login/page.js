@@ -1,25 +1,50 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import Navbar from "@/app/components/Navbar"
 import AuthForm from "../components/AuthForm"
 import { Shield } from "lucide-react"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
+import { safeNext } from "@/lib/utils/safe-redirect"
 
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginPageInner />
+    </Suspense>
+  )
+}
+
+function LoginPageInner() {
+  const searchParams = useSearchParams()
+  const redirectTo = safeNext(searchParams.get("next"))
   const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    const supabase = createClient()
+    let cancelled = false
+    const supabase = getSupabaseBrowserClient()
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return
       if (session) {
-        window.location.href = "/tools/cyber-audit/dashboard"
+        // Already authenticated: send the user to the requested destination
+        // (or the dashboard if no/invalid next was provided).
+        window.location.href = redirectTo
       } else {
         setChecking(false)
       }
     })
-  }, [])
+    return () => {
+      cancelled = true
+    }
+  }, [redirectTo])
 
   if (checking) {
     return (
@@ -40,7 +65,7 @@ export default function LoginPage() {
               <span className="text-sm font-semibold tracking-wide uppercase">Cyber Audit</span>
             </Link>
           </div>
-          <AuthForm mode="login" />
+          <AuthForm mode="login" redirectTo={redirectTo} />
         </div>
       </div>
     </div>

@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Navbar from "@/app/components/Navbar"
-import { createClient } from "@/lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -21,33 +21,69 @@ function passwordStrength(pw) {
 }
 
 export default function ResetPasswordPage() {
-  const supabase = createClient()
+  const supabase = getSupabaseBrowserClient()
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [checking, setChecking] = useState(true)
-  const [hasSession, setHasSession] = useState(false)
+  // recoveryAllowed flips true ONLY when we have positive evidence the user
+  // arrived from a recovery email link: the URL carries Supabase recovery
+  // params AND the client emits PASSWORD_RECOVERY (or SIGNED_IN immediately
+  // after, which is the same on newer Supabase versions).
+  const [recoveryAllowed, setRecoveryAllowed] = useState(false)
+  // The URL had no recovery params at all → not a reset link.
+  const [notARecoveryLink, setNotARecoveryLink] = useState(false)
+  // The URL had recovery params but Supabase did not finish processing them
+  // within the safety window → likely expired or invalid token.
+  const [timeoutError, setTimeoutError] = useState(false)
+  // Synchronous in-flight guard. setLoading(true) only takes effect after
+  // React's next render, so a rapid double-click or Enter press in the same
+  // event burst can fire updateUser twice. The ref blocks the second call
+  // immediately.
+  const submitInFlight = useRef(false)
 
   useEffect(() => {
-    // Supabase auto-exchanges the recovery token in the URL hash for a session.
-    // Give it a moment, then check whether we have a valid session.
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || session) {
-        setHasSession(true)
+    // Inspect the URL deterministically. Supabase recovery links land here
+    // with `?type=recovery` (newer flow) or with the token in the hash
+    // fragment as `#access_token=...&type=recovery&...` (older flow).
+    const search = new URLSearchParams(window.location.search)
+    const hash = window.location.hash || ""
+    const hashParams = new URLSearchParams(hash.replace(/^#/, ""))
+    const isRecoveryURL =
+      search.get("type") === "recovery" || hashParams.get("type") === "recovery"
+
+    if (!isRecoveryURL) {
+      // No recovery params at all. This is someone navigating to
+      // /reset-password directly, not a real reset link.
+      setNotARecoveryLink(true)
+      setChecking(false)
+      return
+    }
+
+    // Recovery params present. Wait for Supabase to finish exchanging the
+    // token and emit an auth event. No arbitrary short timeout — we wait
+    // as long as the network needs.
+    let settled = false
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+        settled = true
+        setRecoveryAllowed(true)
         setChecking(false)
       }
     })
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setHasSession(true)
-      }
+    // Safety net: if Supabase has not finished after 10s something is
+    // wrong. Show a retryable error rather than redirecting away.
+    const safetyTimeout = setTimeout(() => {
+      if (settled) return
       setChecking(false)
-    })
+      setTimeoutError(true)
+    }, 10000)
 
     return () => {
+      clearTimeout(safetyTimeout)
       listener.subscription.unsubscribe()
     }
   }, [])
@@ -65,13 +101,19 @@ export default function ResetPasswordPage() {
       return
     }
 
+    if (submitInFlight.current) return
+    submitInFlight.current = true
     setLoading(true)
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) throw updateError
       setSuccess(true)
+      // On success the form is replaced by the success view, so the ref
+      // can stay locked — no second submit is possible from this page.
     } catch (err) {
       setError(err.message || "Something went wrong. Please try the reset link again.")
+      // Release the lock so the user can retry after fixing the issue.
+      submitInFlight.current = false
     } finally {
       setLoading(false)
     }
@@ -122,15 +164,31 @@ export default function ResetPasswordPage() {
                   <Button className="w-full">Sign in</Button>
                 </Link>
               </div>
-            ) : !hasSession ? (
+            ) : timeoutError ? (
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Reset link expired</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A] mb-3">
+                  This reset link may have expired
+                </h1>
                 <p className="text-[#475569] text-sm leading-relaxed mb-6">
-                  This password reset link is no longer valid. Request a new one to continue.
+                  We could not verify your password reset link. It may have expired or already been used. Please request a new password reset to continue.
                 </p>
                 <Link href="/tools/cyber-audit/forgot-password">
-                  <Button className="w-full">Request new link</Button>
+                  <Button className="w-full">Request a new reset link</Button>
                 </Link>
+              </div>
+            ) : notARecoveryLink ? (
+              <div className="text-center">
+                <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Use the email link</h1>
+                <p className="text-[#475569] text-sm leading-relaxed mb-6">
+                  This page is for resetting your password via email link. If you want to change your password, please use the account settings.
+                </p>
+                <Link href="/tools/cyber-audit/forgot-password">
+                  <Button className="w-full">Request a reset link</Button>
+                </Link>
+              </div>
+            ) : !recoveryAllowed ? (
+              <div className="min-h-[200px] flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin" />
               </div>
             ) : (
               <>

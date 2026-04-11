@@ -1,24 +1,29 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Navbar from "@/app/components/Navbar"
-import { createClient } from "@/lib/supabase/client"
+import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Mail, Shield, ArrowLeft, CheckCircle, Loader2 } from "lucide-react"
 
 export default function ForgotPasswordPage() {
-  const supabase = createClient()
+  const supabase = getSupabaseBrowserClient()
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  // Synchronous in-flight guard so a rapid double-click cannot send two
+  // password reset emails before setLoading(true) takes effect.
+  const submitInFlight = useRef(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
     if (!email.trim()) return
+    if (submitInFlight.current) return
+    submitInFlight.current = true
     setLoading(true)
     try {
       await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -28,9 +33,14 @@ export default function ForgotPasswordPage() {
       // Swallow errors - we show the same message regardless of success for
       // security reasons (don't leak which emails are registered).
       console.error("Password reset error:", err)
+    } finally {
+      setSubmitted(true)
+      setLoading(false)
+      // Leave submitInFlight locked: the form is now in the "submitted"
+      // state and the input is no longer rendered, so there's nothing to
+      // click again. This also prevents a second submit if the user
+      // somehow re-enters the form.
     }
-    setSubmitted(true)
-    setLoading(false)
   }
 
   return (

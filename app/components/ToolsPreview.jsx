@@ -35,6 +35,15 @@ export const activeTools = [
     href: "/tools/policies",
   },
   {
+    icon: LifeBuoy,
+    name: "Incident Response Planner",
+    badge: "Interactive",
+    headline: "A real plan for when things go wrong",
+    body: "Build a personalized incident response plan with step-by-step guided workflows, real-time action logging, and tabletop exercises your insurance broker will recognize.",
+    cta: "Build Your Plan",
+    href: "/tools/ir-plan",
+  },
+  {
     icon: BookOpen,
     name: "Controls Library",
     badge: "Free forever",
@@ -60,12 +69,6 @@ export const comingSoonTools = [
     name: "Vendor Reviews",
     headline: "Is your software actually secure?",
     body: "Plain-English security reviews of the tools your business already uses. No sponsorships or affiliate links.",
-  },
-  {
-    icon: LifeBuoy,
-    name: "Incident Response Planner",
-    headline: "A real plan for when things go wrong",
-    body: "An interactive, role-aware incident response plan your team can rehearse and your insurance broker will accept.",
   },
   {
     icon: FileCheck2,

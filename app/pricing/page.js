@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { motion } from "framer-motion"
@@ -9,7 +9,8 @@ import { getActivePrices } from "@/lib/stripe/prices"
 
 const PRICES = getActivePrices()
 import { createClient } from "@/lib/supabase/client"
-import { getSubscription } from "@/lib/stripe/subscription"
+import { getSubscription, clearSubscriptionCache } from "@/lib/stripe/subscription"
+import { isSubscriptionPaid } from "@/lib/stripe/entitlement"
 import { useRouter } from "next/navigation"
 import PromoCodeInput from "@/app/components/PromoCodeInput"
 
@@ -93,6 +94,12 @@ export default function PricingPage() {
   const [checkingOut, setCheckingOut] = useState(null)
   const [session, setSession] = useState(null)
   const [hasActiveSub, setHasActiveSub] = useState(false)
+  // Synchronous in-flight guard. setCheckingOut takes effect after React's
+  // next render, so a rapid double-click can fire two checkout requests
+  // before the disabled state applies. The ref blocks the second call
+  // immediately. Shared across the subscription, billing-portal, and
+  // one-time paths because a user should only have one checkout in flight.
+  const checkoutInFlightRef = useRef(false)
 
   useEffect(() => {
     const supabase = createClient()
@@ -100,7 +107,7 @@ export default function PricingPage() {
       setSession(s)
       if (s?.user) {
         const sub = await getSubscription(s.user.id)
-        setHasActiveSub(sub.subscription?.status === "active" && sub.plan !== "free")
+        setHasActiveSub(isSubscriptionPaid(sub.subscription))
       }
     })
   }, [])
@@ -110,10 +117,13 @@ export default function PricingPage() {
       router.push("/tools/cyber-audit/register")
       return
     }
+    if (checkoutInFlightRef.current) return
+    checkoutInFlightRef.current = true
 
     // If user already has an active subscription, send to billing portal
     if (hasActiveSub && mode === "subscription") {
       setCheckingOut(priceId)
+      let willRedirect = false
       try {
         const res = await fetch("/api/stripe/create-portal-session", {
           method: "POST",
@@ -121,37 +131,46 @@ export default function PricingPage() {
         })
         const data = await res.json()
         if (data.url) {
+          willRedirect = true
           window.location.href = data.url
           return
         }
       } catch (err) {
         console.error("Portal error:", err)
       } finally {
-        setCheckingOut(null)
+        if (!willRedirect) {
+          checkoutInFlightRef.current = false
+          setCheckingOut(null)
+        }
       }
       return
     }
 
     setCheckingOut(priceId)
+    let willRedirect = false
     try {
       const res = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId,
-          mode,
-          successUrl: `${window.location.origin}/tools/cyber-audit/dashboard?welcome=true`,
-          cancelUrl: `${window.location.origin}/pricing`,
-        }),
+        body: JSON.stringify({ priceId }),
       })
       const data = await res.json()
       if (data.url) {
+        // Clear the cached subscription so the dashboard reads fresh state
+        // when the user returns from Stripe.
+        clearSubscriptionCache()
+        willRedirect = true
         window.location.href = data.url
       }
     } catch (err) {
       console.error("Checkout error:", err)
     } finally {
-      setCheckingOut(null)
+      // Only release the in-flight ref when we're staying on the page.
+      // If we're navigating to Stripe, leave it locked.
+      if (!willRedirect) {
+        checkoutInFlightRef.current = false
+        setCheckingOut(null)
+      }
     }
   }
 

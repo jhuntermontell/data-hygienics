@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
 import {
   ChevronDown,
   ChevronUp,
@@ -11,6 +12,8 @@ import {
   Clock,
   DollarSign,
   ShieldAlert,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react"
 
 const priorityStyles = {
@@ -164,6 +167,22 @@ export default function RemediationPlan({ plan }) {
                           ))}
                         </ol>
                       </div>
+                    )}
+
+                    {/* Platform link - prominent CTA */}
+                    {item.remediation.platformLink && (
+                      <Link
+                        href={item.remediation.platformLink.href}
+                        className="flex items-center justify-between rounded-xl bg-[#0F766E] hover:bg-[#0E7490] transition-colors p-4 text-white"
+                      >
+                        <span className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          <span className="text-sm font-semibold">
+                            {item.remediation.platformLink.text}
+                          </span>
+                        </span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
                     )}
 
                     {/* Discovery guide - primary for discovery, secondary otherwise */}
