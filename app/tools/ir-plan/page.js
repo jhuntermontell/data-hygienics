@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { getSubscription } from "@/lib/stripe/subscription"
 import { INCIDENT_TYPES } from "@/lib/ir-plan/playbooks"
+import { SCENARIOS } from "@/lib/ir-plan/scenarios"
 import UpgradeModal from "@/app/tools/cyber-audit/components/UpgradeModal"
 import {
   LifeBuoy,
@@ -30,6 +31,8 @@ import {
   FileText,
   Edit3,
   Check,
+  AlertCircle,
+  Clock,
 } from "lucide-react"
 
 const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone }
@@ -284,6 +287,68 @@ export default function IrPlanHubPage() {
           </div>
         </motion.section>
 
+        {/* Test your plan (tabletop exercises) */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl font-bold text-[#0F172A] mb-1">Test your plan</h2>
+          <p className="text-sm text-[#475569] mb-5">
+            Run a tabletop exercise to practice your response and document that your plan has been tested.
+          </p>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+            {INCIDENT_TYPES.map((it) => {
+              const Icon = ICON_MAP[it.icon] || ShieldAlert
+              const scenario = SCENARIOS[it.key]
+              if (!scenario) return null
+              return (
+                <div
+                  key={it.key}
+                  className="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-9 h-9 rounded-lg bg-[#F0FDFA] flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-[#0F766E]" />
+                    </div>
+                    <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wide flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {scenario.estimatedMinutes} min
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-[#0F172A] mb-1">{it.title}</h3>
+                  <p className="text-xs text-[#475569] italic mb-3 flex-1">
+                    &ldquo;{scenario.title}&rdquo;
+                  </p>
+                  <Link
+                    href={`/tools/ir-plan/exercise/${it.key}`}
+                    className="inline-flex items-center justify-center gap-1.5 bg-[#0F766E] text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-[#0E7490] transition-colors"
+                  >
+                    <Play className="w-3.5 h-3.5" /> Start exercise
+                  </Link>
+                </div>
+              )
+            })}
+          </div>
+
+          {plan.last_tested_at ? (
+            <div className="rounded-lg border border-[#0F766E]/30 bg-[#F0FDFA] px-4 py-3 flex items-center gap-2">
+              <Check className="w-4 h-4 text-[#0F766E] shrink-0" />
+              <p className="text-sm text-[#0F766E] font-semibold">
+                Last tested: {new Date(plan.last_tested_at).toLocaleDateString()}
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-[#F59E0B]/40 bg-[#FFFBEB] px-4 py-3 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-[#92400E] shrink-0" />
+              <p className="text-sm text-[#92400E]">
+                Your plan has not been tested yet. Insurance carriers look for documented tabletop exercises.
+              </p>
+            </div>
+          )}
+        </motion.section>
+
         {/* History */}
         <motion.section
           initial={{ opacity: 0, y: 12 }}
@@ -292,14 +357,8 @@ export default function IrPlanHubPage() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-[#0F172A] uppercase tracking-wider">
-              History and Testing
+              History
             </h2>
-            <Link
-              href="/tools/ir-plan/exercise"
-              className="text-xs font-semibold text-[#0F766E] hover:text-[#0E7490] flex items-center gap-1"
-            >
-              Run a tabletop exercise <ArrowRight className="w-3 h-3" />
-            </Link>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-white rounded-xl border border-[#E2E8F0] p-5">
@@ -463,13 +522,13 @@ function IntroductionView({ user, isPaid, onUpgrade, showUpgrade, setShowUpgrade
           />
           <FeatureCard
             icon={Sparkles}
-            title="Usable during a real incident"
-            body="Step-by-step guided workflows with real-time action logging. Built for the moment of crisis, not the filing cabinet."
+            title="Test it before you need it"
+            body="Run interactive tabletop exercises that simulate real incidents. Practice your response, find the gaps, and generate a documented exercise report for your insurance renewal."
           />
           <FeatureCard
             icon={ShieldAlert}
-            title="Insurance-ready documentation"
-            body="Timestamped incident logs and tabletop exercise reports that satisfy carrier requirements."
+            title="Usable during a real incident"
+            body="Step-by-step guided workflows with real-time action logging and timestamped documentation for your carrier and legal team."
           />
         </div>
 

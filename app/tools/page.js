@@ -1,7 +1,7 @@
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import Link from "next/link"
-import { Shield, FileText, ClipboardList, BookOpen, Sparkles, Clock, ArrowRight, AlertTriangle, BarChart3, Building2 } from "lucide-react"
+import { Shield, FileText, ClipboardList, BookOpen, Clock, ArrowRight, Building2 } from "lucide-react"
 
 export const metadata = {
   title: "Security Tools for Small Business | Data Hygienics",
@@ -54,16 +54,6 @@ const activeTools = [
 ]
 
 const comingSoon = [
-  {
-    icon: AlertTriangle,
-    name: "Incident Response Planner",
-    description: "When something goes wrong, the first 60 minutes determine whether an incident becomes a catastrophe. The Incident Response Planner will walk you through building a documented, tested response plan before you need one: who to call, what to preserve, how to notify customers and regulators, and what your insurance policy actually requires of you.",
-  },
-  {
-    icon: BarChart3,
-    name: "Score Tracking Dashboard",
-    description: "Your security posture is not a one-time snapshot. The Score Tracking Dashboard will let you run quarterly reassessments, watch your score improve as you close gaps, and produce trend reports that demonstrate progress to your board, your insurer, and your leadership team.",
-  },
   {
     icon: Building2,
     name: "Client Assessment Portal (MSP / Advisor)",
@@ -131,9 +121,9 @@ export default function ToolsPage() {
       {/* Coming Soon */}
       <section className="py-16 px-6 bg-[#F8FAFC]">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0F172A] mb-2">What We Are Building</h2>
+          <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Coming Soon</h2>
           <p className="text-[#475569] text-sm mb-10 max-w-xl">
-            The security needs of a 12-person law firm are different from a 200-person hospital system. We are building a toolkit that reflects that.
+            More tools are on the way.
           </p>
           <div className="grid md:grid-cols-3 gap-5">
             {comingSoon.map((tool) => {

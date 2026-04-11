@@ -22,15 +22,10 @@ import {
   FileText,
   ClipboardList,
   AlertTriangle,
-  Clock,
   CreditCard,
   Sparkles,
   X,
 } from "lucide-react"
-
-const COMING_SOON_TOOLS = [
-  { icon: AlertTriangle, name: "Incident Response Planner", desc: "Build your IR plan step by step" },
-]
 
 const PLAN_LABELS = {
   free: "Free",
@@ -74,6 +69,7 @@ function DashboardContent() {
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [news, setNews] = useState([])
   const [policies, setPolicies] = useState([])
+  const [irPlan, setIrPlan] = useState(null)
   const [sub, setSub] = useState({ plan: "free", access: { canAccessNewsFeed: false }, subscription: null, purchases: [] })
   const [loading, setLoading] = useState(true)
   const [showWelcome, setShowWelcome] = useState(false)
@@ -117,18 +113,21 @@ function DashboardContent() {
 
       try {
         // Load everything in parallel
-        const [profileResult, assessmentResult, policyResult, subData] = await Promise.all([
+        const [profileResult, assessmentResult, policyResult, irPlanResult, subData] = await Promise.all([
           supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle(),
           supabase.from("assessments").select("*").eq("user_id", currentUser.id)
             .order("created_at", { ascending: false }),
           supabase.from("generated_policies").select("policy_type, company_name, updated_at")
             .eq("user_id", currentUser.id).order("updated_at", { ascending: false }),
+          supabase.from("ir_plans").select("id, updated_at, last_tested_at")
+            .eq("user_id", currentUser.id).maybeSingle(),
           getSubscription(currentUser.id),
         ])
 
         setProfile(profileResult.data)
         setSub(subData)
         setPolicies(policyResult.data || [])
+        setIrPlan(irPlanResult.data || null)
 
         const assessments = assessmentResult.data
         setAllAssessments(assessments || [])
@@ -532,25 +531,41 @@ function DashboardContent() {
               </Link>
             </div>
 
-            {COMING_SOON_TOOLS.map((tool) => {
-              const Icon = tool.icon
-              return (
-                <div key={tool.name} className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm p-6 opacity-60">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#94A3B8]" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-[#475569]">{tool.name}</h3>
-                      <span className="text-[10px] font-semibold text-[#94A3B8] bg-[#F1F5F9] px-1.5 py-0.5 rounded flex items-center gap-1">
-                        <Clock className="w-2.5 h-2.5" /> COMING SOON
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-[#94A3B8] text-xs">{tool.desc}</p>
+            {/* Incident Response Planner */}
+            <div className="rounded-2xl border border-[#DC2626]/20 bg-white shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-[#FEE2E2] border border-[#DC2626]/20 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-[#DC2626]" />
                 </div>
-              )
-            })}
+                <div>
+                  <h3 className="text-sm font-bold text-[#0F172A]">Incident Response Planner</h3>
+                  <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-1.5 py-0.5 rounded">
+                    Active
+                  </span>
+                </div>
+              </div>
+              <p className="text-[#475569] text-xs mb-4">
+                Build, test, and activate your personalized incident response plan.
+              </p>
+              {irPlan ? (
+                <div className="mb-3 flex items-center gap-1.5 text-[11px] text-[#059669] font-semibold">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Plan created
+                  {irPlan.updated_at && (
+                    <span className="text-[#94A3B8] font-normal ml-1">
+                      &middot; Updated {new Date(irPlan.updated_at).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              ) : null}
+              <Link href="/tools/ir-plan">
+                <Button size="sm" variant="outline">
+                  <span className="flex items-center gap-2">
+                    {irPlan ? "Open plan" : "Get started"} <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </motion.div>
 
