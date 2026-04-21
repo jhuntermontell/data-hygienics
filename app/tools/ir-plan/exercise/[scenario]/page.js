@@ -70,7 +70,7 @@ export default function ExerciseFlowPage() {
         getSubscription(session.user.id),
       ])
       setPlan(data || null)
-      setIsPaid(subData.access.canAccessPolicies || subData.plan === "starter")
+      setIsPaid(subData.access.canAccessIRPlan)
       setLoading(false)
     }
     init()
@@ -92,7 +92,7 @@ export default function ExerciseFlowPage() {
           <Shield className="w-12 h-12 text-[#0F766E] mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Tabletop Exercises</h1>
           <p className="text-[#475569] mb-6">
-            Tabletop exercises are available with a Starter subscription or higher.
+            Tabletop exercises are unlocked by the Documentation Pack or Ongoing Protection.
           </p>
           <Button
             onClick={() => router.push("/pricing")}

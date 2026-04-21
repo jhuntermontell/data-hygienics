@@ -71,7 +71,7 @@ function RegisterPageInner() {
 
     if (error) {
       // Real query error (not "no rows found"). Do NOT fall through to the
-      // register form — that would mix two incompatible states. Show a
+      // register form, which would mix two incompatible states. Show a
       // retryable error instead.
       console.error("Profile lookup failed on register page:", error)
       setUser(session.user)
@@ -80,7 +80,7 @@ function RegisterPageInner() {
     }
 
     if (profile) {
-      // Already fully registered — send them on their way.
+      // Already fully registered; send them on their way.
       window.location.href = redirectTo
       return
     }

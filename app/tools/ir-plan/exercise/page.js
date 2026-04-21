@@ -47,7 +47,7 @@ export default function ExerciseSelectionPage() {
         getSubscription(session.user.id),
       ])
       setPlan(planRes.data || null)
-      setIsPaid(subData.access.canAccessPolicies || subData.plan === "starter")
+      setIsPaid(subData.access.canAccessIRPlan)
       setLoading(false)
     }
     load()
@@ -150,7 +150,6 @@ export default function ExerciseSelectionPage() {
         <UpgradeModal
           onClose={() => setShowUpgrade(false)}
           feature="Tabletop Exercises"
-          showOneTime="policies"
         />
       )}
     </div>

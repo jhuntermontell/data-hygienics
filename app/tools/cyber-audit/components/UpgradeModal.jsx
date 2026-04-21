@@ -2,84 +2,78 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Lock, X, Check, Loader2 } from "lucide-react"
+import { Lock, X, Check, Loader2, FileText, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getActivePrices } from "@/lib/stripe/prices"
 import PromoCodeInput from "@/app/components/PromoCodeInput"
 
 const PRICES = getActivePrices()
 
-const subscriptionOptions = [
+// The upgrade modal surfaces the two conversion paths: one-time
+// Documentation Pack or Ongoing Protection subscription. Agency Plan is
+// intentionally not shown here because agency signups go through the full
+// pricing page (seat selection, billing details, etc) rather than a modal.
+const upgradeOptions = [
   {
-    key: "starter",
-    label: "Starter",
-    price: "$49/mo",
-    desc: "For individuals",
-    priceId: PRICES.starter,
-    mode: "subscription",
+    key: "docs_pack",
+    label: "Documentation Pack",
+    price: "$299",
+    priceLabel: "one-time",
+    desc: "Everything you need for your next insurance application.",
+    icon: FileText,
+    priceId: PRICES.docsPack,
+    mode: "payment",
+    popular: true,
+    bullets: [
+      "Full comprehensive assessment",
+      "All 9 customized policies",
+      "Incident Response Plan",
+    ],
   },
   {
-    key: "professional",
-    label: "Professional",
-    price: "$149/mo",
-    desc: "Most popular",
-    popular: true,
-    priceId: PRICES.professional,
+    key: "protection_monthly",
+    label: "Ongoing Protection",
+    price: "$49",
+    priceLabel: "/month",
+    desc: "Stay ready for renewal season, every season.",
+    icon: ShieldCheck,
+    priceId: PRICES.protectionMonthly,
     mode: "subscription",
+    bullets: [
+      "Everything in the Documentation Pack",
+      "Quarterly reassessments",
+      "Policy update workflow",
+    ],
   },
 ]
 
-const oneTimeOptions = {
-  reports: {
-    key: "reports",
-    label: "One-time Assessment Bundle",
-    price: "$149",
-    priceId: PRICES.assessmentBundle,
-    mode: "payment",
-  },
-  policies: {
-    key: "policies",
-    label: "All 9 Policies, One-time",
-    price: "$199",
-    priceId: PRICES.policyBundle,
-    mode: "payment",
-  },
-}
-
-export default function UpgradeModal({ onClose, feature = "Full Report", showOneTime = "reports" }) {
-  const [selected, setSelected] = useState(null)
+export default function UpgradeModal({ onClose, feature = "Full Report" }) {
+  const [selected, setSelected] = useState("docs_pack")
   const [checkingOut, setCheckingOut] = useState(false)
+  const [error, setError] = useState("")
 
-  const oneTime = oneTimeOptions[showOneTime]
-  const allOptions = [
-    ...subscriptionOptions,
-    ...(oneTime ? [oneTime] : []),
-  ]
-
-  const selectedOption = allOptions.find((o) => o.key === selected)
+  const selectedOption = upgradeOptions.find((o) => o.key === selected)
 
   async function handleContinue() {
     if (!selectedOption) return
     setCheckingOut(true)
+    setError("")
     try {
       const res = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId: selectedOption.priceId,
-          mode: selectedOption.mode,
-          successUrl: `${window.location.origin}/tools/cyber-audit/dashboard?welcome=true`,
-          cancelUrl: window.location.href,
-        }),
+        body: JSON.stringify({ priceId: selectedOption.priceId }),
       })
       const data = await res.json()
       if (data.url) {
         window.location.href = data.url
-      } else {
-        setCheckingOut(false)
+        return
       }
+      setError(data.error || "Could not start checkout. Please try again.")
+      setCheckingOut(false)
     } catch (err) {
       console.error("Checkout error:", err)
+      setError("Could not reach Stripe. Please try again.")
       setCheckingOut(false)
     }
   }
@@ -96,7 +90,7 @@ export default function UpgradeModal({ onClose, feature = "Full Report", showOne
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-md rounded-xl border border-[#E2E8F0] bg-white shadow-xl p-8"
+        className="relative w-full max-w-lg rounded-xl border border-[#E2E8F0] bg-white shadow-xl p-8 max-h-[90vh] overflow-y-auto"
       >
         <button
           onClick={onClose}
@@ -113,12 +107,13 @@ export default function UpgradeModal({ onClose, feature = "Full Report", showOne
             Unlock {feature}
           </h2>
           <p className="text-[#475569] text-sm">
-            Choose a plan that works for you
+            Choose how you want to use Data Hygienics.
           </p>
         </div>
 
-        <div className="space-y-3 mb-4">
-          {subscriptionOptions.map((opt) => {
+        <div className="space-y-3 mb-5">
+          {upgradeOptions.map((opt) => {
+            const Icon = opt.icon
             const isSelected = selected === opt.key
             return (
               <button
@@ -133,20 +128,47 @@ export default function UpgradeModal({ onClose, feature = "Full Report", showOne
                     : "border-[#E2E8F0] hover:border-[#CBD5E1]"
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-[#0F172A]">{opt.label}</span>
-                      {opt.popular && (
-                        <span className="text-[10px] font-semibold text-[#1D4ED8] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
-                          Popular
-                        </span>
-                      )}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="w-4 h-4 text-[#1D4ED8]" />
                     </div>
-                    <span className="text-xs text-[#475569]">{opt.desc}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-[#0F172A]">
+                          {opt.label}
+                        </span>
+                        {opt.popular && (
+                          <span className="text-[10px] font-semibold text-[#1D4ED8] bg-[#EFF6FF] px-2 py-0.5 rounded-full">
+                            Popular
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#475569] leading-relaxed mb-2">
+                        {opt.desc}
+                      </p>
+                      <ul className="space-y-0.5">
+                        {opt.bullets.map((b) => (
+                          <li
+                            key={b}
+                            className="text-[11px] text-[#475569] flex items-center gap-1.5"
+                          >
+                            <Check className="w-3 h-3 text-[#0F766E] shrink-0" />
+                            {b}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-[#0F172A]">{opt.price}</span>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg font-bold text-[#0F172A]">
+                        {opt.price}
+                      </span>
+                      <span className="text-[10px] text-[#94A3B8]">
+                        {opt.priceLabel}
+                      </span>
+                    </div>
                     {isSelected && (
                       <div className="w-5 h-5 rounded-full bg-[#1D4ED8] flex items-center justify-center">
                         <Check className="w-3 h-3 text-white" />
@@ -159,31 +181,13 @@ export default function UpgradeModal({ onClose, feature = "Full Report", showOne
           })}
         </div>
 
-        {oneTime && (
-          <button
-            onClick={() => setSelected(oneTime.key)}
-            disabled={checkingOut}
-            className={`w-full text-left rounded-lg border border-dashed p-4 transition-all mb-5 ${
-              selected === oneTime.key
-                ? "border-[#1D4ED8] bg-[#EFF6FF]/60 ring-1 ring-[#1D4ED8]/30"
-                : "border-[#E2E8F0] hover:border-[#CBD5E1]"
-            }`}
+        {error && (
+          <div
+            role="alert"
+            className="mb-4 rounded-lg border border-[#DC2626]/20 bg-[#FEF2F2] px-3 py-2 text-xs text-[#DC2626]"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-semibold text-[#0F172A]">{oneTime.label}</span>
-                <p className="text-xs text-[#475569]">Pay once, keep forever</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-[#0F172A]">{oneTime.price}</span>
-                {selected === oneTime.key && (
-                  <div className="w-5 h-5 rounded-full bg-[#1D4ED8] flex items-center justify-center">
-                    <Check className="w-3 h-3 text-white" />
-                  </div>
-                )}
-              </div>
-            </div>
-          </button>
+            {error}
+          </div>
         )}
 
         <Button
@@ -196,8 +200,8 @@ export default function UpgradeModal({ onClose, feature = "Full Report", showOne
               <Loader2 className="w-4 h-4 animate-spin" />
               Redirecting to checkout...
             </span>
-          ) : selected ? (
-            `Continue with ${selectedOption?.label}`
+          ) : selectedOption ? (
+            `Continue with ${selectedOption.label}`
           ) : (
             "Select a plan"
           )}

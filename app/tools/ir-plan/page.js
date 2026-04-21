@@ -91,8 +91,11 @@ export default function IrPlanHubPage() {
       setExercises(exRes.data || [])
       setIncidents(historyRes.data || [])
       setActiveIncidents(activeRes.data || [])
-      // IR plan builder is gated behind paid plan, similar to policies
-      setIsPaid(subData.access.canAccessPolicies || subData.plan === "starter")
+      // IR plan is unlocked by: any Ongoing Protection / Agency subscription,
+      // legacy Starter / Professional / MSP subscriptions (grandfathered),
+      // and any Documentation Pack purchase. All of those set
+      // access.canAccessIRPlan = true via getPlanAccess.
+      setIsPaid(subData.access.canAccessIRPlan)
       setLoading(false)
     }
     load()
@@ -444,7 +447,6 @@ export default function IrPlanHubPage() {
         <UpgradeModal
           onClose={() => setShowUpgrade(false)}
           feature="Incident Response Plan"
-          showOneTime="policies"
         />
       )}
     </div>
@@ -572,7 +574,6 @@ function IntroductionView({ user, isPaid, onUpgrade, showUpgrade, setShowUpgrade
         <UpgradeModal
           onClose={() => setShowUpgrade(false)}
           feature="Incident Response Plan"
-          showOneTime="policies"
         />
       )}
     </div>

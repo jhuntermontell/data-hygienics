@@ -20,7 +20,7 @@ export default function QuestionRenderer({ question, value, onChange, index }) {
       {question.nistFunction && (
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EFF6FF] text-[#1D4ED8] border border-[#EFF6FF]">
-            NIST {question.nistFunction}
+            NIST CSF 2.0 {question.nistFunction}
           </span>
           {question.cisControl && (
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0F766E] border border-[#F0FDFA]">

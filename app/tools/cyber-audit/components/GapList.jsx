@@ -109,7 +109,7 @@ export default function GapList({ gaps, isPaid = true }) {
                     <span className="text-[#94A3B8] text-xs">{gap.section}</span>
                     {gap.nistFunction && (
                       <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#EFF6FF] text-[#1D4ED8] border border-[#EFF6FF]">
-                        NIST {gap.nistFunction}
+                        NIST CSF 2.0 {gap.nistFunction}
                       </span>
                     )}
                     {gap.cisControl && (

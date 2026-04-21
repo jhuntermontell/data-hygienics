@@ -120,7 +120,7 @@ export default function QuickAssessmentRunnerPage() {
           >
             <div className="flex items-start gap-2 mb-2">
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#EFF6FF] text-[#1D4ED8]">
-                NIST {question.nistFunction}
+                NIST CSF 2.0 {question.nistFunction}
               </span>
               {question.cisControl && (
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F0FDFA] text-[#0F766E]">

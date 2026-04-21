@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
     }
 
     // Recovery params present. Wait for Supabase to finish exchanging the
-    // token and emit an auth event. No arbitrary short timeout — we wait
+    // token and emit an auth event. No arbitrary short timeout: we wait
     // as long as the network needs.
     let settled = false
     const { data: listener } = supabase.auth.onAuthStateChange((event) => {
@@ -109,7 +109,7 @@ export default function ResetPasswordPage() {
       if (updateError) throw updateError
       setSuccess(true)
       // On success the form is replaced by the success view, so the ref
-      // can stay locked — no second submit is possible from this page.
+      // can stay locked; no second submit is possible from this page.
     } catch (err) {
       setError(err.message || "Something went wrong. Please try the reset link again.")
       // Release the lock so the user can retry after fixing the issue.

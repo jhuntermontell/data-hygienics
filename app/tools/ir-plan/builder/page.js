@@ -49,7 +49,7 @@ export default function IrPlanBuilderPage() {
       setUser(session.user)
 
       const subData = await getSubscription(session.user.id)
-      const paid = subData.access.canAccessPolicies || subData.plan === "starter"
+      const paid = subData.access.canAccessIRPlan
       setIsPaid(paid)
       if (!paid) {
         setLoading(false)
@@ -112,7 +112,7 @@ export default function IrPlanBuilderPage() {
             Incident Response Plan Builder
           </h1>
           <p className="text-[#475569] mb-6">
-            The IR Plan Builder is available with a Starter subscription or higher.
+            The IR Plan Builder is unlocked by the Documentation Pack or Ongoing Protection.
           </p>
           <Button onClick={() => router.push("/pricing")} className="bg-[#0F766E] hover:bg-[#0E7490]">
             View Plans

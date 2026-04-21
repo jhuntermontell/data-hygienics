@@ -346,14 +346,13 @@ function ReportDocument({
                 rec?.priority === "medium" && styles.gapItemMedium,
                 rec?.priority === "low" && styles.gapItemLow,
               ]}
-              wrap={false}
             >
               <Text style={styles.gapTitle}>
                 [{(rec?.priority || "medium").toUpperCase()}] {rec?.title || gap.questionText}
               </Text>
               <Text style={styles.gapSection}>
                 {gap.section}
-                {gap.nistFunction ? ` | NIST: ${gap.nistFunction}` : ""}
+                {gap.nistFunction ? ` | NIST CSF 2.0: ${gap.nistFunction}` : ""}
                 {gap.cisControl ? ` | CIS: ${gap.cisControl}` : ""}
               </Text>
 
@@ -382,24 +381,36 @@ function ReportDocument({
   )
 }
 
-export default function PdfReport({ reportType = "insurance", onClose, ...props }) {
+export default function PdfReport({ reportType = "insurance", onClose, onError, ...props }) {
   useEffect(() => {
+    let cancelled = false
     async function generate() {
-      const blob = await pdf(
-        <ReportDocument {...props} reportType={reportType} />
-      ).toBlob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      const prefix = reportType === "insurance" ? "insurance-report" : "remediation-report"
-      a.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      onClose?.()
+      try {
+        const blob = await pdf(
+          <ReportDocument {...props} reportType={reportType} />
+        ).toBlob()
+        if (cancelled) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        const prefix = reportType === "insurance" ? "insurance-report" : "remediation-report"
+        a.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        onClose?.()
+      } catch (err) {
+        console.error("PDF generation failed:", err)
+        if (!cancelled) {
+          onError?.(err)
+        }
+      }
     }
     generate()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return null

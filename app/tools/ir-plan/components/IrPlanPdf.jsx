@@ -384,7 +384,7 @@ function PhoneLine({ label, name, phone }) {
       </Text>
       <Text style={{ flex: 1, fontSize: 10 }}>{name || ""}</Text>
       <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: "#0F766E" }}>
-        {phone || "—"}
+        {phone || "-"}
       </Text>
     </View>
   )

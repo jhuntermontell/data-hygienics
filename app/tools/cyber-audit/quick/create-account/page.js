@@ -151,7 +151,7 @@ export default function QuickCreateAccountPage() {
       }
 
       // Email confirmation is disabled, so signUp returns a session directly.
-      // The user is logged in immediately — proceed to write their assessment.
+      // The user is logged in immediately, proceed to write their assessment.
 
       // 2. Create profile
       await supabase.from("profiles").upsert(
@@ -197,10 +197,23 @@ export default function QuickCreateAccountPage() {
       }))
 
       if (responseRows.length > 0) {
-        await supabase.from("responses").insert(responseRows)
+        const { error: responseError } = await supabase
+          .from("responses")
+          .insert(responseRows)
+        if (responseError) {
+          console.error("Failed to save quick assessment responses:", responseError)
+          // Do NOT clear localStorage; the user's answers are still the
+          // only persisted copy. Do NOT redirect. Surface an error so the
+          // user can retry from the same page with the same local data.
+          setError(
+            "Your answers could not be saved. Please try again. Your responses are still here."
+          )
+          setLoading(false)
+          return
+        }
       }
 
-      // 6. Clear localStorage
+      // 6. Clear localStorage (only after the response insert succeeded)
       try {
         localStorage.removeItem(QUICK_LEAD_KEY)
         localStorage.removeItem(QUICK_ANSWERS_KEY)

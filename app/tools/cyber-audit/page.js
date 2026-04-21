@@ -152,7 +152,7 @@ export default function CyberAuditLanding() {
               </Button>
             </Link>
             <p className="text-[#94A3B8] text-xs text-center mt-3">
-              Requires a Starter plan or higher.
+              Unlocked by the Documentation Pack or Ongoing Protection.
             </p>
           </motion.div>
         </div>
