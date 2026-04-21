@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 
 const functionColors = {
+  Govern: "bg-slate-50 text-slate-700 border-slate-200",
   Identify: "bg-violet-50 text-violet-700 border-violet-200",
   Protect: "bg-[#EFF6FF] text-[#1D4ED8] border-blue-200",
   Detect: "bg-amber-50 text-amber-700 border-amber-200",
@@ -34,30 +35,13 @@ const industryLabels = {
   government: "Government / Defense (CMMC 2.0)",
 }
 
-// Maps control slugs to the industry threat pages that reference them
-const RELATED_THREATS = {
-  "multi-factor-authentication": ["healthcare", "legal", "financial"],
-  "data-backup": ["healthcare", "financial"],
-  "email-filtering": ["healthcare", "legal", "financial"],
-  "email-authentication": ["healthcare", "legal", "financial"],
-  "endpoint-protection": ["healthcare", "financial"],
-  "access-control-policy": ["healthcare", "legal", "financial"],
-  "patch-management": ["healthcare", "financial"],
-  "security-training": ["healthcare", "legal", "financial"],
-  "vendor-risk-management": ["healthcare", "legal", "financial"],
-  "employee-offboarding": ["healthcare", "legal", "financial"],
-  "incident-response-plan": ["legal"],
-  "password-management": ["legal", "financial"],
-  "network-segmentation": ["financial"],
-}
-
 const threatLabels = {
   healthcare: "Healthcare Threats",
   legal: "Legal Threats",
   financial: "Financial Services Threats",
 }
 
-export default function ControlDetailClient({ control, tldr, faqs }) {
+export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay }) {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
@@ -99,7 +83,7 @@ export default function ControlDetailClient({ control, tldr, faqs }) {
                 functionColors[control.nistFunction]
               }`}
             >
-              NIST {control.nistFunction}
+              NIST CSF 2.0 {control.nistFunction}
             </span>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0]">
               {control.nistCategory}
@@ -111,7 +95,7 @@ export default function ControlDetailClient({ control, tldr, faqs }) {
         </motion.div>
 
         {/* Author byline */}
-        <AuthorByline showFull={true} lastReviewed="April 2026" />
+        <AuthorByline showFull={true} lastReviewed={reviewDisplay || "April 2026"} />
 
         {/* TL;DR */}
         <TLDR summary={tldr} />
@@ -231,7 +215,7 @@ export default function ControlDetailClient({ control, tldr, faqs }) {
                   rel="noopener noreferrer"
                   className="text-xs text-[#1D4ED8] hover:text-[#1E40AF] inline-flex items-center gap-1 mt-0.5"
                 >
-                  NIST Cybersecurity Framework <ExternalLink className="w-3 h-3" />
+                  NIST Cybersecurity Framework 2.0 <ExternalLink className="w-3 h-3" />
                 </Link>
               </div>
             </div>
@@ -284,7 +268,7 @@ export default function ControlDetailClient({ control, tldr, faqs }) {
         )}
 
         {/* Related Industry Threats */}
-        {RELATED_THREATS[control.slug]?.length > 0 && (
+        {control.relatedThreats?.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -301,7 +285,7 @@ export default function ControlDetailClient({ control, tldr, faqs }) {
               See how this control stops real-world attacks in industries where it matters most:
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
-              {RELATED_THREATS[control.slug].map((slug) => (
+              {control.relatedThreats.map((slug) => (
                 <Link
                   key={slug}
                   href={`/threats/${slug}`}

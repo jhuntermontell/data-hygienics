@@ -130,16 +130,34 @@ function LogoMark() {
   )
 }
 
-function PolicyDocument({ policyName, companyName, ownerName, ownerTitle, effectiveDate, reviewFrequency, sections }) {
-  const formattedDate = new Date(effectiveDate).toLocaleDateString("en-US", {
-    year: "numeric", month: "long", day: "numeric",
+function formatDate(dateStr) {
+  if (!dateStr) return "Date not set"
+  const d = new Date(dateStr)
+  if (Number.isNaN(d.getTime())) return "Date not set"
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   })
+}
 
-  const nextReview = reviewFrequency === "Annual"
-    ? new Date(new Date(effectiveDate).setFullYear(new Date(effectiveDate).getFullYear() + 1))
-    : reviewFrequency === "Quarterly"
-    ? new Date(new Date(effectiveDate).setMonth(new Date(effectiveDate).getMonth() + 3))
-    : null
+function PolicyDocument({ policyName, companyName, ownerName, ownerTitle, effectiveDate, reviewFrequency, sections }) {
+  const formattedDate = formatDate(effectiveDate)
+
+  // Compute next review only when we have a parseable base date. Otherwise
+  // fall back to "As needed" so the PDF never renders "Invalid Date".
+  const baseDate = effectiveDate ? new Date(effectiveDate) : null
+  const baseOk = baseDate && !Number.isNaN(baseDate.getTime())
+  let nextReview = null
+  if (baseOk) {
+    if (reviewFrequency === "Annual") {
+      nextReview = new Date(baseDate)
+      nextReview.setFullYear(nextReview.getFullYear() + 1)
+    } else if (reviewFrequency === "Quarterly") {
+      nextReview = new Date(baseDate)
+      nextReview.setMonth(nextReview.getMonth() + 3)
+    }
+  }
 
   return (
     <Document>
@@ -161,7 +179,7 @@ function PolicyDocument({ policyName, companyName, ownerName, ownerTitle, effect
         </Text>
 
         {sections.map((section, i) => (
-          <View key={i} wrap={false}>
+          <View key={i}>
             <Text style={styles.sectionHeading}>{i + 1}. {section.title}</Text>
             {section.text.split("\n\n").map((para, pi) => (
               <Text key={pi} style={styles.sectionText}>{para}</Text>
@@ -184,7 +202,13 @@ function PolicyDocument({ policyName, companyName, ownerName, ownerTitle, effect
             <View style={styles.signatureField}>
               <Text style={styles.signatureLabel}>Next Review</Text>
               <Text style={styles.signatureLine}>
-                {nextReview ? nextReview.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "As needed"}
+                {nextReview
+                  ? nextReview.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : "As needed"}
               </Text>
             </View>
           </View>
@@ -198,22 +222,36 @@ function PolicyDocument({ policyName, companyName, ownerName, ownerTitle, effect
   )
 }
 
-export default function PolicyPdf({ onClose, ...props }) {
+export default function PolicyPdf({ onClose, onError, ...props }) {
   useEffect(() => {
+    let cancelled = false
     async function generate() {
-      const blob = await pdf(<PolicyDocument {...props} />).toBlob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      const safeName = props.policyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-      a.download = `${safeName}-${new Date().toISOString().slice(0, 10)}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-      onClose?.()
+      try {
+        const blob = await pdf(<PolicyDocument {...props} />).toBlob()
+        if (cancelled) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        const safeName = (props.policyName || "policy")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+        a.download = `${safeName}-${new Date().toISOString().slice(0, 10)}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+        onClose?.()
+      } catch (err) {
+        console.error("Policy PDF generation failed:", err)
+        if (!cancelled) {
+          onError?.(err)
+        }
+      }
     }
     generate()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return null

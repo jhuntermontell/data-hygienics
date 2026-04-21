@@ -30,7 +30,7 @@ export const activeTools = [
     name: "Policy Library",
     badge: "9 policies",
     headline: "The policies your insurance requires, ready in minutes",
-    body: "Built from NIST and SANS frameworks and customized to your company. Download as a branded PDF.",
+    body: "Built from NIST CSF 2.0 and SANS frameworks and customized to your company. Download as a branded PDF.",
     cta: "Explore Policies",
     href: "/tools/policies",
   },
@@ -61,15 +61,18 @@ export const activeTools = [
     cta: "View Threats",
     href: "/threats",
   },
+  {
+    icon: Store,
+    name: "Vendor Security Scorecards",
+    badge: "Free",
+    headline: "Is your software actually secure?",
+    body: "Independent security scores for the tools your business already uses. No sponsorships or affiliate links.",
+    cta: "View Scorecards",
+    href: "/vendors",
+  },
 ]
 
 export const comingSoonTools = [
-  {
-    icon: Store,
-    name: "Vendor Reviews",
-    headline: "Is your software actually secure?",
-    body: "Plain-English security reviews of the tools your business already uses. No sponsorships or affiliate links.",
-  },
   {
     icon: FileCheck2,
     name: "Insurance Readiness",

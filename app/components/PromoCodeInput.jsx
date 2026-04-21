@@ -7,6 +7,10 @@ import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 
 const PLAN_LABELS = {
   free: "Free",
+  // New catalog
+  protection: "Ongoing Protection",
+  agency: "Agency Plan",
+  // Legacy catalog (grandfathered)
   starter: "Starter",
   professional: "Professional",
   msp: "MSP / Advisor",
@@ -16,9 +20,9 @@ const PLAN_LABELS = {
  * Reusable promo code redemption input.
  *
  * Props:
- *   isAuthenticated: boolean — controls signed-out messaging
- *   loginHref: string — where to send unauthenticated users
- *   onSuccess: () => void — optional callback after successful redemption
+ *   isAuthenticated: boolean. Controls signed-out messaging.
+ *   loginHref: string. Where to send unauthenticated users.
+ *   onSuccess: () => void. Optional callback after successful redemption.
  */
 export default function PromoCodeInput({
   isAuthenticated,

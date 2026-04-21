@@ -1,11 +1,11 @@
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import Link from "next/link"
-import { Shield, FileText, ClipboardList, BookOpen, Clock, ArrowRight, Building2 } from "lucide-react"
+import { Shield, FileText, ClipboardList, BookOpen, Clock, ArrowRight, Building2, LifeBuoy } from "lucide-react"
 
 export const metadata = {
   title: "Security Tools for Small Business | Data Hygienics",
-  description: "Professional-grade cybersecurity tools designed for the CFO, office manager, and firm partner. Cyber Audit, Policy Library, Vendor Scorecards, and Controls Library.",
+  description: "Professional-grade cybersecurity tools designed for the CFO, office manager, and firm partner. Cyber Audit, Policy Library, Incident Response Planner, Vendor Security Scorecards, and Controls Library.",
   alternates: { canonical: "https://datahygienics.com/tools" },
 }
 
@@ -15,7 +15,7 @@ const activeTools = [
     name: "Cyber Audit",
     badge: "Live",
     badgeColor: "bg-[#EFF6FF] text-[#1D4ED8]",
-    description: "Take a 20-minute industry-specific assessment and get a scored report your insurance broker will recognize. The assessment covers 8 security domains, maps to NIST CSF and CIS Controls, and produces two downloadable PDFs: one formatted for your insurance application, one that tells your team exactly what to fix and in what order. The average small business scores a 62 out of 100 on their first assessment. Now you will know where you stand.",
+    description: "Take a 20-minute industry-specific assessment and get a scored report your insurance broker will recognize. The assessment covers 8 security domains, maps to NIST CSF 2.0 and CIS Controls, and produces two downloadable PDFs: one formatted for your insurance application, one that tells your team exactly what to fix and in what order. The average small business scores a 62 out of 100 on their first assessment. Now you will know where you stand.",
     consequence: "Coalition, one of the largest cyber insurers in the U.S., reported that 56% of small business claims in 2023 involved ransomware or funds transfer fraud. Knowing your gaps before a claim is filed changes the conversation with your broker.",
     cta: "Start Free Assessment",
     href: "/tools/cyber-audit",
@@ -25,10 +25,20 @@ const activeTools = [
     name: "Policy Library",
     badge: "Live",
     badgeColor: "bg-[#F0FDFA] text-[#0F766E]",
-    description: "Generate the nine cybersecurity policies your insurance provider wants to see, customized to your organization, in under an hour. Built from NIST, SANS, and ISACA frameworks and translated into plain English. A law firm paying a consultant to draft these policies would spend between $4,500 and $18,000. You can download all nine for $199.",
-    consequence: "The FTC's updated Safeguards Rule, which took effect in 2023, requires financial services firms to maintain a written information security program. Firms without documented policies face civil penalties of up to $100,000 per violation.",
+    description: "Generate the nine cybersecurity policies your insurance provider wants to see, customized to your organization, in under an hour. Built from NIST CSF 2.0, SANS, and ISACA frameworks and translated into plain English. A law firm paying a consultant to draft these policies would spend between $4,500 and $18,000. The Documentation Pack includes all nine.",
+    consequence: "FTC amended the Safeguards Rule in 2021. Portions became effective in January 2022, and the compliance deadline for certain updated requirements was extended to June 9, 2023. The Rule requires covered financial services firms to maintain a written information security program. FTC's maximum civil penalty amount for certain FTC Act violations is $53,088 per violation (2025 adjustment). Citation: https://www.ftc.gov/business-guidance/privacy-security/safeguards-rule",
     cta: "Browse Policies",
     href: "/tools/policies",
+  },
+  {
+    icon: LifeBuoy,
+    name: "Incident Response Planner",
+    badge: "Live",
+    badgeColor: "bg-[#FEE2E2] text-[#DC2626]",
+    description: "Build a personalized incident response plan, test it with interactive tabletop exercises, and generate timestamped documentation your insurance carrier and legal team can use during a real incident.",
+    consequence: "Ransomware, business email compromise, and vendor incidents move fast. A plan that is written, tested, and accessible outside your normal network gives your team a decision path before stress takes over.",
+    cta: "Build Your Plan",
+    href: "/tools/ir-plan",
   },
   {
     icon: ClipboardList,
@@ -46,7 +56,7 @@ const activeTools = [
     name: "Controls Library",
     badge: "Free",
     badgeColor: "bg-[#ECFDF5] text-[#059669]",
-    description: "Every major cybersecurity control explained in plain English. What it means, why insurance underwriters care about it, and how it applies specifically to your industry. Thirty controls mapped to NIST CSF and CIS Controls 18, with industry-specific notes for healthcare, legal, financial services, and government contractors. No account required.",
+    description: "Every major cybersecurity control explained in plain English. What it means, why insurance underwriters care about it, and how it applies specifically to your industry. Thirty controls mapped to NIST CSF 2.0 and CIS Controls v8, with industry-specific notes for healthcare, legal, financial services, and government contractors. No account required.",
     consequence: null,
     cta: "Browse Controls",
     href: "/controls",
@@ -56,8 +66,8 @@ const activeTools = [
 const comingSoon = [
   {
     icon: Building2,
-    name: "Client Assessment Portal (MSP / Advisor)",
-    description: "For IT providers, insurance brokers, and advisors who run assessments on behalf of clients. Manage up to ten client workspaces, track scores across your book, and produce branded reports under your firm name. Built for the MSP who wants to deliver more value without building the infrastructure from scratch.",
+    name: "Client Assessment Portal (Agency Plan)",
+    description: "For IT providers, insurance brokers, and advisors who run assessments on behalf of clients. Manage a client workspace per seat, track scores across your book, and produce branded reports under your firm name. Billed at $29 per client per month starting at 5 clients. Built for the agency who wants to deliver more value without building the infrastructure from scratch.",
   },
 ]
 

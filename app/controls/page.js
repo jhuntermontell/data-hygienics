@@ -9,9 +9,10 @@ import { Input } from "@/components/ui/input"
 import { CONTROLS } from "@/lib/controls"
 import { Search, Shield, ArrowRight, Info } from "lucide-react"
 
-const NIST_FUNCTIONS = ["Identify", "Protect", "Detect", "Respond", "Recover"]
+const NIST_FUNCTIONS = ["Govern", "Identify", "Protect", "Detect", "Respond", "Recover"]
 
 const functionColors = {
+  Govern: "bg-slate-50 text-slate-700 border-slate-200",
   Identify: "bg-violet-50 text-violet-700 border-violet-200",
   Protect: "bg-[#EFF6FF] text-[#1D4ED8] border-blue-200",
   Detect: "bg-amber-50 text-amber-700 border-amber-200",
@@ -25,12 +26,12 @@ const explainers = [
     body: "A cybersecurity control is any practice, process, or technology that reduces your risk of a breach. Think of controls as the locks, alarms, and habits that protect your business. Some are technical (like requiring strong passwords). Some are procedural (like having an incident response plan). Together, they form your security posture.",
   },
   {
-    title: "What is NIST CSF?",
-    body: "The NIST Cybersecurity Framework is a set of best practices developed by the U.S. National Institute of Standards and Technology. It organizes security into five functions: Identify, Protect, Detect, Respond, and Recover. It\u2019s the most widely recognized framework in the U.S. and is what most cyber insurance underwriters reference when evaluating your coverage.",
+    title: "What is NIST CSF 2.0?",
+    body: "The NIST Cybersecurity Framework 2.0 is a set of best practices developed by the U.S. National Institute of Standards and Technology. It organizes security into six functions: Govern, Identify, Protect, Detect, Respond, and Recover. It\u2019s the most widely recognized framework in the U.S. and is what most cyber insurance underwriters reference when evaluating your coverage.",
   },
   {
     title: "What is CIS Controls?",
-    body: "The CIS Controls (formerly CIS Top 18) are a prioritized list of actions developed by the Center for Internet Security. They\u2019re more prescriptive than NIST \u2014 they tell you not just what to do but in what order. CIS Control 1 (know what devices you have) comes before CIS Control 6 (manage user access) because you can\u2019t secure what you haven\u2019t inventoried.",
+    body: "The CIS Critical Security Controls originated as the SANS Critical Security Controls, often referred to as the 'Top 20.' The current version includes 18 Controls organized into three Implementation Groups. They\u2019re more prescriptive than NIST CSF 2.0: they tell you not just what to do but in what order. CIS Control 1 (know what devices you have) comes before CIS Control 6 (manage user access) because you can\u2019t secure what you haven\u2019t inventoried.",
   },
 ]
 
@@ -55,14 +56,31 @@ export default function ControlsIndexPage() {
     }
     if (search.trim()) {
       const q = search.toLowerCase()
-      results = results.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.nistFunction.toLowerCase().includes(q) ||
-          c.nistCategory.toLowerCase().includes(q) ||
-          c.cisControlName.toLowerCase().includes(q) ||
-          String(c.cisControl).includes(q)
-      )
+      results = results.filter((c) => {
+        // Build one searchable blob per control from every field that
+        // carries content the user might type in the search box. This
+        // covers metadata (name, framework, category), the long-form
+        // explanation, insurance relevance, implementation steps, and
+        // industry-specific notes (so "HIPAA", "PCI", "ransomware", etc.
+        // all surface matching controls).
+        const searchable = [
+          c.name,
+          c.nistFunction,
+          c.nistCategory,
+          c.cisControlName,
+          String(c.cisControl),
+          c.explanation,
+          c.insuranceRelevance,
+          c.implementationSteps?.join(" "),
+          c.industryNotes
+            ? Object.values(c.industryNotes).join(" ")
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+        return searchable.includes(q)
+      })
     }
     return results
   }, [search, filterFunction])
@@ -135,7 +153,7 @@ export default function ControlsIndexPage() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
             <Input
               type="text"
-              placeholder="Search controls by name, framework, or keyword..."
+              placeholder="Search controls..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"

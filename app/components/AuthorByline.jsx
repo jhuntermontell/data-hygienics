@@ -15,7 +15,7 @@ export default function AuthorByline({ showFull = false, lastReviewed }) {
         CompTIA Security+
       </Link>
       {showFull && (
-        <>{" · "}NIST CSF{" · "}CIS Controls v8</>
+        <>{" · "}NIST CSF 2.0{" · "}CIS Controls v8</>
       )}
       {" · "}
       <span>Last reviewed: {lastReviewed}</span>

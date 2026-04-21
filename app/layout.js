@@ -41,7 +41,7 @@ export const metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Data Hygienics — Cybersecurity Tools for Business Leaders",
+        alt: "Data Hygienics Cybersecurity Tools for Business Leaders",
       },
     ],
   },

@@ -6,7 +6,7 @@ import { ShieldCheck, Scale, Lightbulb, Briefcase, Building2, Heart, Landmark, D
 
 export const metadata = {
   title: "About Data Hygienics | Hunter Montell, CompTIA Security+",
-  description: "Data Hygienics was built by Hunter Montell, a cybersecurity practitioner with NIST and CIS 18 framework experience from SAIC and Element Technologies. CompTIA Security+ certified.",
+  description: "Data Hygienics was built by Hunter Montell, a cybersecurity practitioner with NIST CSF 2.0 and CIS Controls v8 framework experience from SAIC and Element Technologies. CompTIA Security+ certified.",
 }
 
 const personSchema = {
@@ -53,12 +53,12 @@ const credentials = [
     href: "https://www.credly.com/badges/f70e05cc-50bd-4ce5-b60c-639e4386ea0e/public_url",
   },
   {
-    name: "NIST Cybersecurity Framework",
+    name: "NIST Cybersecurity Framework 2.0",
     detail: "Direct implementation experience via SAIC (US government contractor)",
     href: "https://www.nist.gov/cyberframework",
   },
   {
-    name: "CIS Controls v8 (CIS 18)",
+    name: "CIS Controls v8",
     detail: "Framework deployment experience via Element Technologies, LLC (MSP)",
     href: "https://www.cisecurity.org/controls",
   },
@@ -115,7 +115,7 @@ export default function About() {
 
             <div className="space-y-6 text-[#475569] text-lg leading-relaxed">
               <p>
-                Hunter built Data Hygienics to solve a problem that every non-technical business owner runs into sooner or later: cybersecurity guidance that actually makes sense. He has direct experience implementing NIST Cybersecurity Framework controls for US government contractors at SAIC, and he led CIS Controls v8 deployments at Element Technologies, LLC, a managed service provider. That background means he has seen both sides of the security gap firsthand.
+                Hunter built Data Hygienics to solve a problem that every non-technical business owner runs into sooner or later: cybersecurity guidance that actually makes sense. He has direct experience implementing NIST Cybersecurity Framework 2.0 controls for US government contractors at SAIC, and he led CIS Controls v8 deployments at Element Technologies, LLC, a managed service provider. That background means he has seen both sides of the security gap firsthand.
               </p>
               <p>
                 Early in his career, Hunter worked as an incident response analyst for a Native American tribal nation, responsible for securing federal government infrastructure, casinos, museums, and hospitals. These were communities depending on systems most people never think about. Getting it wrong had real consequences for real people.

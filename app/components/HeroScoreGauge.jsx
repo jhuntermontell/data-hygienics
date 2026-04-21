@@ -37,6 +37,13 @@ export default function HeroScoreGauge() {
   const [reducedMotion, setReducedMotion] = useState(false)
   const rafRef = useRef(null)
   const startTimeRef = useRef(null)
+  // Tracks every metric-reveal setTimeout ID so the cleanup function can
+  // cancel them if the component unmounts before the animation finishes.
+  // Without this, unmounting during the 400-800ms tail would fire
+  // setShowMetrics on an unmounted component and leak memory across route
+  // transitions (HeroScoreGauge lives on the homepage, which users bounce
+  // away from frequently).
+  const metricTimersRef = useRef([])
 
   const animate = useCallback((timestamp) => {
     if (!startTimeRef.current) startTimeRef.current = timestamp
@@ -57,9 +64,11 @@ export default function HeroScoreGauge() {
       // Grade fades in at 1800ms
       setShowGrade(true)
       // Metrics fade in at 2200ms, 2400ms, 2600ms
-      setTimeout(() => setShowMetrics([true, false, false]), 400)
-      setTimeout(() => setShowMetrics([true, true, false]), 600)
-      setTimeout(() => setShowMetrics([true, true, true]), 800)
+      metricTimersRef.current.push(
+        setTimeout(() => setShowMetrics([true, false, false]), 400),
+        setTimeout(() => setShowMetrics([true, true, false]), 600),
+        setTimeout(() => setShowMetrics([true, true, true]), 800),
+      )
     }
   }, [])
 
@@ -81,6 +90,8 @@ export default function HeroScoreGauge() {
     return () => {
       clearTimeout(timeout)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      metricTimersRef.current.forEach(clearTimeout)
+      metricTimersRef.current = []
     }
   }, [animate])
 

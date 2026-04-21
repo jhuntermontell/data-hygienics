@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { VENDORS } from "@/lib/vendors"
+import { VENDORS, getScoreBand } from "@/lib/vendors"
 import SchemaScript from "@/app/components/SchemaScript"
 import AuthorByline from "@/app/components/AuthorByline"
 import TLDR from "@/app/components/TLDR"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
+import VendorMethodology from "@/app/components/VendorMethodology"
 import { articleSchema, faqSchema } from "@/lib/schema"
 import {
   ArrowLeft,
@@ -18,6 +19,7 @@ import {
   Building2,
   ExternalLink,
   HelpCircle,
+  BookOpen,
 } from "lucide-react"
 
 export async function generateStaticParams() {
@@ -69,16 +71,35 @@ export default async function VendorPage({ params }) {
   const vendor = VENDORS.find((v) => v.slug === slug)
   if (!vendor) notFound()
 
+  // Per-vendor review date. Stored on the vendor row in YYYY-MM format so
+  // each vendor can be updated independently. We expand to an ISO date
+  // for the article schema (day = 01 of the review month) and format a
+  // display string for the author byline.
+  const reviewMonth = vendor.lastReviewed || "2026-04"
+  const reviewDate = `${reviewMonth}-01`
+  const reviewDisplay = new Date(reviewDate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+  })
+
+  const visibleFaqs = vendor.faqs || []
+
+  // Derive the band from the numeric score. Single source of truth lives
+  // in lib/vendors.js — see getScoreBand.
+  const band = getScoreBand(vendor.score)
+
   const schemas = [
     articleSchema({
       title: `Is ${vendor.name} Secure for Small Business? 2026 Review`,
       description: vendor.tldr,
       slug: `/vendors/${slug}`,
-      lastReviewed: "2026-04-08",
+      lastReviewed: reviewDate,
       datePublished: "2026-04-08",
     }),
-    faqSchema(vendor.faqs.filter((f) => !f.question.startsWith("PLACEHOLDER"))),
   ]
+  if (visibleFaqs.length > 0) {
+    schemas.push(faqSchema(visibleFaqs))
+  }
 
   return (
     <>
@@ -106,7 +127,7 @@ export default async function VendorPage({ params }) {
           </h1>
           <p className="text-sm text-[#94A3B8] mb-2">2026 Independent Security Review</p>
 
-          <AuthorByline showFull={true} lastReviewed="April 2026" />
+          <AuthorByline showFull={true} lastReviewed={reviewDisplay} />
           <TLDR summary={vendor.tldr} />
 
           {/* Score badge */}
@@ -117,8 +138,8 @@ export default async function VendorPage({ params }) {
                 <p className="text-xs text-[#94A3B8] mt-1">out of 100</p>
               </div>
               <div>
-                <span className={`text-sm font-semibold px-4 py-1.5 rounded-full border ${bandColors[vendor.band]}`}>
-                  {vendor.band}
+                <span className={`text-sm font-semibold px-4 py-1.5 rounded-full border ${bandColors[band]}`}>
+                  {band}
                 </span>
                 <div className="flex items-center gap-3 mt-3">
                   {vendor.hipaa_baa ? (
@@ -253,20 +274,71 @@ export default async function VendorPage({ params }) {
           </div>
 
           {/* FAQ */}
-          <div className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <HelpCircle className="w-5 h-5 text-[#475569]" />
-              <h2 className="text-lg font-bold text-[#0F172A]">Frequently Asked Questions</h2>
+          {visibleFaqs.length > 0 && (
+            <div className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <HelpCircle className="w-5 h-5 text-[#475569]" />
+                <h2 className="text-lg font-bold text-[#0F172A]">Frequently Asked Questions</h2>
+              </div>
+              <div className="space-y-6">
+                {visibleFaqs.map((faq, i) => (
+                  <div key={i}>
+                    <h3 className="text-sm font-semibold text-[#0F172A] mb-2">{faq.question}</h3>
+                    <p className="text-[#475569] text-sm leading-relaxed">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-6">
-              {vendor.faqs.filter((f) => !f.question.startsWith("PLACEHOLDER")).map((faq, i) => (
-                <div key={i}>
-                  <h3 className="text-sm font-semibold text-[#0F172A] mb-2">{faq.question}</h3>
-                  <p className="text-[#475569] text-sm leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
+          )}
+
+          {/* Sources — primary authoritative references for the factual
+              claims on this page. Rendered as a numbered list so readers
+              and auditors can cross-check every assertion against the
+              vendor's own documentation or a public record. */}
+          {Array.isArray(vendor.sources) && vendor.sources.length > 0 && (
+            <div className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <BookOpen className="w-5 h-5 text-[#475569]" />
+                <h2 className="text-lg font-bold text-[#0F172A]">Sources</h2>
+              </div>
+              <p className="text-xs text-[#94A3B8] mb-5">
+                Every factual claim in this scorecard is sourced from the
+                following primary references: the vendor's own trust and
+                security documentation, vendor-authored incident
+                disclosures, and public records such as NVD CVE entries
+                and FedRAMP Marketplace listings. Last verified{" "}
+                {reviewDisplay}.
+              </p>
+              <ol className="space-y-3 list-decimal list-outside pl-5">
+                {vendor.sources.map((source, i) => (
+                  <li
+                    key={i}
+                    className="text-sm text-[#475569] leading-relaxed"
+                  >
+                    <Link
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#1D4ED8] hover:text-[#1E40AF] font-medium inline-flex items-center gap-1"
+                    >
+                      {source.label}
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                    {source.claim && (
+                      <span className="block text-xs text-[#94A3B8] mt-0.5">
+                        {source.claim}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
             </div>
-          </div>
+          )}
+
+          {/* Methodology accordion — how we score, sources used, review
+              cadence, and independence disclosure. Collapsible by default
+              so the rest of the page is not pushed down by process text. */}
+          <VendorMethodology />
 
           {/* CTA */}
           <div className="text-center pt-6">

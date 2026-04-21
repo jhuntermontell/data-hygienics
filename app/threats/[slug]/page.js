@@ -30,12 +30,16 @@ export default async function ThreatDetailPage({ params }) {
     notFound()
   }
 
+  // Per-threat review date stored as YYYY-MM; expand to ISO date (day 01
+  // of the review month) for schema.org dateModified.
+  const reviewDate = `${threat.lastReviewed}-01`
+
   const schemas = [
     articleSchema({
       title: threat.title,
       description: threat.metaDescription,
       slug: `/threats/${slug}`,
-      lastReviewed: "2026-04-08",
+      lastReviewed: reviewDate,
       datePublished: threat.datePublished,
     }),
     faqSchema(threat.faqs),

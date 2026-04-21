@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Navbar from "@/app/components/Navbar"
@@ -11,62 +10,7 @@ import {
   activeTools,
   comingSoonTools,
 } from "@/app/components/ToolsPreview"
-import { createClient } from "@/lib/supabase/client"
-import { getActivePrices } from "@/lib/stripe/prices"
-import { Check, Loader2 } from "lucide-react"
-
-const PRICES = getActivePrices()
-
-const tiers = [
-  {
-    name: "Starter",
-    price: "$49",
-    period: "/month",
-    popular: false,
-    priceId: PRICES.starter,
-    mode: "subscription",
-    features: [
-      "Full cybersecurity assessment",
-      "Insurance-ready PDF report",
-      "Internal remediation report",
-      "Industry news feed",
-      "2 customizable policies",
-    ],
-    cta: "Get Started",
-  },
-  {
-    name: "Professional",
-    price: "$149",
-    period: "/month",
-    popular: true,
-    priceId: PRICES.professional,
-    mode: "subscription",
-    features: [
-      "Everything in Starter",
-      "Unlimited assessments",
-      "All 9 insurance-ready policies",
-      "Score tracking over time",
-      "Priority access to new tools",
-    ],
-    cta: "Subscribe",
-  },
-  {
-    name: "MSP / Advisor",
-    price: "$399",
-    period: "/month",
-    popular: false,
-    priceId: PRICES.msp,
-    mode: "subscription",
-    features: [
-      "Everything in Professional",
-      "Run assessments for up to 10 clients",
-      "Client management dashboard",
-      "Branded reports (coming soon)",
-      "Bulk pricing available",
-    ],
-    cta: "Subscribe",
-  },
-]
+import { ArrowRight, FileText, ShieldCheck, Users } from "lucide-react"
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -75,37 +19,55 @@ const fadeUp = {
   transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
 }
 
+// Pricing tier summaries for the how-it-works overview. Each card links to
+// /pricing where the real checkout flow lives; the pricing numbers are
+// rendered here for context only. Keep the display strings in sync with
+// app/pricing/page.js — if those ever drift, treat /pricing as canonical.
+const tierHighlights = [
+  {
+    name: "Documentation Pack",
+    price: "$299",
+    period: "one-time",
+    icon: FileText,
+    accent: "#1D4ED8",
+    tagline:
+      "Everything you need for your next insurance application or client questionnaire.",
+    bullets: [
+      "Full comprehensive assessment",
+      "All 9 customized policies",
+      "Incident Response Plan",
+    ],
+  },
+  {
+    name: "Ongoing Protection",
+    price: "$49",
+    period: "/month",
+    icon: ShieldCheck,
+    accent: "#1D4ED8",
+    tagline: "Stay ready for renewal season, every season.",
+    bullets: [
+      "Everything in the Documentation Pack",
+      "Quarterly reassessment reminders",
+      "Carrier change alerts (coming soon)",
+    ],
+    popular: true,
+  },
+  {
+    name: "Agency Plan",
+    price: "$29",
+    period: "/client/month",
+    icon: Users,
+    accent: "#0F766E",
+    tagline: "Turn assessments into recurring advisory revenue.",
+    bullets: [
+      "Multi-tenant workspace",
+      "Branded report generation",
+      "Starts at 5 clients",
+    ],
+  },
+]
+
 export default function HowItWorksPage() {
-  const [checkingOut, setCheckingOut] = useState(null)
-
-  async function handleCheckout(priceId, mode) {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      window.location.href = "/tools/cyber-audit/register"
-      return
-    }
-    setCheckingOut(priceId)
-    try {
-      const res = await fetch("/api/stripe/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId,
-          mode,
-          successUrl: `${window.location.origin}/tools/cyber-audit/dashboard?welcome=true`,
-          cancelUrl: `${window.location.origin}/how-it-works`,
-        }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } catch (err) {
-      console.error("Checkout error:", err)
-    } finally {
-      setCheckingOut(null)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -225,55 +187,68 @@ export default function HowItWorksPage() {
         <div className="max-w-6xl mx-auto">
           <motion.div {...fadeUp} className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-[#0F172A] tracking-tight mb-4">
-              Transparent pricing. No surprises.
+              Simple pricing, built for how you use it.
             </h2>
             <p className="text-[#475569] text-base max-w-2xl mx-auto">
-              A cybersecurity consultant charges $150 to $300 per hour. We charge a fraction of that for better output.
+              Buy the docs once, or subscribe to stay ready year-round. Built
+              for the small businesses, advisors, and agencies who have to
+              prove their security posture.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 items-start">
-            {tiers.map((tier, i) => (
-              <motion.div
-                key={tier.name}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`relative bg-white rounded-xl border p-8 flex flex-col shadow-sm ${
-                  tier.popular ? "border-[#1D4ED8] border-t-4 shadow-md" : "border-[#E2E8F0]"
-                }`}
-              >
-                {tier.popular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#1D4ED8] text-white text-xs font-medium px-3 py-1 rounded-full">Popular</span>
-                )}
-                <h3 className="text-lg font-semibold text-[#0F172A] mb-4">{tier.name}</h3>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-[#0F172A]">{tier.price}</span>
-                  <span className="text-[#94A3B8] text-base">{tier.period}</span>
-                </div>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {tier.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-[#475569] text-sm">
-                      <Check className="w-4 h-4 text-[#0F766E] mt-0.5 shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => handleCheckout(tier.priceId, tier.mode)}
-                  disabled={!!checkingOut}
-                  className={`block text-center rounded-lg py-3 px-4 font-semibold text-sm transition-all ${
-                    tier.popular
-                      ? "bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm"
-                      : "bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0F172A]"
-                  } ${checkingOut === tier.priceId ? "opacity-70" : ""}`}
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+            {tierHighlights.map((tier, i) => {
+              const Icon = tier.icon
+              return (
+                <motion.div
+                  key={tier.name}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}
+                  className={`relative bg-white rounded-xl border p-7 flex flex-col shadow-sm ${
+                    tier.popular ? "border-[#1D4ED8] border-2 shadow-md" : "border-[#E2E8F0]"
+                  }`}
                 >
-                  {checkingOut === tier.priceId ? (
-                    <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Redirecting...</span>
-                  ) : tier.cta}
-                </button>
-              </motion.div>
-            ))}
+                  {tier.popular && (
+                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#1D4ED8] text-white text-xs font-semibold px-3 py-1 rounded-full tracking-wide">
+                      Most Popular
+                    </span>
+                  )}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: `${tier.accent}15` }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: tier.accent }} />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#0F172A]">{tier.name}</h3>
+                  </div>
+                  <p className="text-[#475569] text-sm leading-relaxed mb-5">{tier.tagline}</p>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-[#0F172A]">{tier.price}</span>
+                    <span className="text-[#94A3B8] text-base ml-1">{tier.period}</span>
+                  </div>
+                  <ul className="space-y-2.5 mb-7 flex-1">
+                    {tier.bullets.map((b) => (
+                      <li key={b} className="text-sm text-[#475569]">
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )
+            })}
+          </div>
+
+          <div className="flex justify-center mt-10">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-2 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-semibold px-6 py-3 rounded-lg shadow-sm transition-colors text-sm"
+            >
+              See full pricing and start checkout
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

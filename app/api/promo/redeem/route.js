@@ -47,7 +47,7 @@ export async function POST(request) {
       .insert({ user_id: user.id, promo_code_id: promo.id })
 
     if (insertErr) {
-      // 23505 = unique_violation — already redeemed by this user
+      // 23505 = unique_violation (already redeemed by this user)
       if (insertErr.code === "23505") {
         return NextResponse.json({
           ok: true,

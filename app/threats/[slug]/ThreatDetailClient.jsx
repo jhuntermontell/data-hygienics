@@ -63,12 +63,28 @@ export default function ThreatDetailClient({ threat }) {
         </motion.div>
 
         {/* Author byline */}
-        <AuthorByline showFull={true} lastReviewed={threat.lastReviewed} />
+        <AuthorByline
+          showFull={true}
+          lastReviewed={new Date(`${threat.lastReviewed}-01`).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+          })}
+        />
 
         {/* TL;DR */}
         <TLDR summary={threat.tldr} />
 
         {/* Main content */}
+        {/*
+          SECURITY NOTE: threat.content is hand-authored HTML stored in
+          lib/threats.js and shipped as part of the source bundle. It is
+          never user-supplied, never fetched from an external source, and
+          never contains interpolated variables. It passes through exactly
+          the tags/markup the authors typed. If this ever changes — e.g.
+          content gets loaded from a CMS, user submissions, or an LLM —
+          this string MUST be sanitized (isomorphic-dompurify) before
+          rendering, or the page becomes an XSS vector.
+        */}
         <motion.article
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
