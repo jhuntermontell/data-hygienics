@@ -3,7 +3,8 @@ import Link from "next/link"
 const platformLinks = [
   { href: "/tools/cyber-audit", label: "Cyber Audit" },
   { href: "/tools/policies", label: "Policy Library" },
-  { href: "/vendor-reviews", label: "Vendor Reviews" },
+  { href: "/tools/ir-plan", label: "Incident Response Planner" },
+  { href: "/vendors", label: "Vendor Security Scorecards" },
   { href: "/pricing", label: "Pricing" },
 ]
 

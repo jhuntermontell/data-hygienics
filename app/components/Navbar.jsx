@@ -10,11 +10,11 @@ const primaryLinks = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/tools/cyber-audit", label: "Cyber Audit" },
   { href: "/tools/policies", label: "Policy Library" },
-  { href: "/vendor-reviews", label: "Vendor Reviews" },
+  { href: "/vendors", label: "Vendor Security Scorecards" },
 ]
 
 const resourceLinks = [
-  { href: "/tools/ir-plan", label: "Incident Response" },
+  { href: "/tools/ir-plan", label: "Incident Response Planner" },
   { href: "/controls", label: "Controls Library" },
   { href: "/threats", label: "Threat Library" },
   { href: "/glossary", label: "Glossary" },

@@ -4,7 +4,7 @@ import Footer from "@/app/components/Footer"
 import SchemaScript from "@/app/components/SchemaScript"
 import AuthorByline from "@/app/components/AuthorByline"
 import { articleSchema } from "@/lib/schema"
-import { VENDORS } from "@/lib/vendors"
+import { VENDORS, getScoreBand } from "@/lib/vendors"
 import { Shield, ArrowRight, ExternalLink } from "lucide-react"
 
 export const metadata = {
@@ -36,14 +36,14 @@ export default function VendorsIndexPage() {
           <div className="flex items-center gap-2 mb-4">
             <Shield className="w-5 h-5 text-[#1D4ED8]" />
             <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
-              Vendor Reviews
+              Vendor Security Scorecards
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-tight tracking-tight mb-4">
             Vendor Security Scorecards
           </h1>
           <p className="text-[#475569] text-base max-w-xl mb-2">
-            Independent security reviews of the software small businesses actually use. Scored on six categories, grounded in NIST and CIS frameworks.
+            Independent security reviews of the software small businesses actually use. Scored on six categories, grounded in NIST CSF 2.0 and CIS Controls v8.
           </p>
           <AuthorByline showFull={true} lastReviewed="April 2026" />
 
@@ -54,7 +54,11 @@ export default function VendorsIndexPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
-            {VENDORS.map((vendor) => (
+            {VENDORS.map((vendor) => {
+              // Derive the band from the numeric score so it cannot drift
+              // from the category breakdown when a score is updated.
+              const band = getScoreBand(vendor.score)
+              return (
               <Link
                 key={vendor.slug}
                 href={`/vendors/${vendor.slug}`}
@@ -69,8 +73,8 @@ export default function VendorsIndexPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-3xl font-black text-[#0F172A]">{vendor.score}</span>
                   <span className="text-xs text-[#94A3B8]">/ 100</span>
-                  <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${bandColors[vendor.band]}`}>
-                    {vendor.band}
+                  <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${bandColors[band]}`}>
+                    {band}
                   </span>
                 </div>
                 <p className="text-xs text-[#475569] leading-relaxed line-clamp-2">{vendor.tldr}</p>
@@ -85,7 +89,8 @@ export default function VendorsIndexPage() {
                   </span>
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </div>
         </div>
         <Footer />
