@@ -8,14 +8,14 @@ import Footer from "@/app/components/Footer"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { getSubscription } from "@/lib/stripe/subscription"
-import { POLICIES } from "@/lib/policies"
+import { POLICIES, FREE_POLICY_SLUGS } from "@/lib/policies"
+import { STARTER_POLICY_LIMIT, isLegacyPlan } from "@/lib/stripe/access"
 import UpgradeModal from "@/app/tools/cyber-audit/components/UpgradeModal"
 import {
   FileText,
   ArrowRight,
   Lock,
   Check,
-  Shield,
   Clock,
   Sparkles,
 } from "lucide-react"
@@ -24,7 +24,12 @@ export default function PolicyHubPage() {
   const [user, setUser] = useState(null)
   const [completedSlugs, setCompletedSlugs] = useState(new Set())
   const [showUpgrade, setShowUpgrade] = useState(false)
-  const [isPaid, setIsPaid] = useState(false)
+  // Full subscription + purchases snapshot so we can compute per-slug
+  // entitlement (new docs_pack purchase, legacy policy bundle, legacy
+  // individual purchases, legacy Starter policy cap, or Professional / MSP).
+  const [plan, setPlan] = useState("free")
+  const [canAccessFullLibrary, setCanAccessFullLibrary] = useState(false)
+  const [individualPurchaseSlugs, setIndividualPurchaseSlugs] = useState(new Set())
 
   useEffect(() => {
     async function load() {
@@ -34,16 +39,66 @@ export default function PolicyHubPage() {
       setUser(session.user)
 
       const [{ data }, subData] = await Promise.all([
-        supabase.from("generated_policies").select("policy_type").eq("user_id", session.user.id),
+        supabase
+          .from("generated_policies")
+          .select("policy_type")
+          .eq("user_id", session.user.id),
         getSubscription(session.user.id),
       ])
       if (data) setCompletedSlugs(new Set(data.map((p) => p.policy_type)))
-      setIsPaid(subData.access.canAccessPolicies || subData.hasPurchase("policy_bundle"))
+
+      setPlan(subData.plan || "free")
+      // access.canAccessPolicies is now the single merged flag that
+      // accounts for Ongoing Protection / Agency subscriptions, legacy
+      // Professional / MSP subscriptions, Documentation Pack purchase,
+      // and legacy Policy Bundle purchase. Starter's policy cap is
+      // handled separately below.
+      setCanAccessFullLibrary(subData.access.canAccessPolicies)
+
+      // Extract the slugs the user has individually purchased (legacy
+      // $49 per-policy SKU; grandfathered for existing buyers).
+      const individualSlugs = new Set()
+      for (const p of subData.purchases || []) {
+        if (p.purchase_type === "individual_policy" && p.metadata?.policy_slug) {
+          individualSlugs.add(p.metadata.policy_slug)
+        }
+      }
+      setIndividualPurchaseSlugs(individualSlugs)
     }
     load()
   }, [])
 
   const completedCount = POLICIES.filter((p) => completedSlugs.has(p.slug)).length
+
+  // Legacy Starter subscribers get 2 paid policies. No new signup ever
+  // lands in this branch — Starter is grandfathered.
+  const isStarter = plan === "starter"
+  const nonFreeCompletedSlugs = Array.from(completedSlugs).filter(
+    (slug) => !FREE_POLICY_SLUGS.includes(slug)
+  )
+  const starterUsedCount = nonFreeCompletedSlugs.length
+  const starterSlotsLeft = Math.max(0, STARTER_POLICY_LIMIT - starterUsedCount)
+
+  function canAccessPolicy(slug) {
+    if (FREE_POLICY_SLUGS.includes(slug)) return true
+    if (canAccessFullLibrary) return true
+    if (individualPurchaseSlugs.has(slug)) return true
+    if (isStarter) {
+      // Editing an existing policy never counts against the limit; new
+      // policies are gated on remaining slots.
+      if (completedSlugs.has(slug)) return true
+      if (starterSlotsLeft > 0) return true
+    }
+    return false
+  }
+
+  function handleLockedClick() {
+    if (!user) {
+      window.location.href = "/tools/cyber-audit/register"
+      return
+    }
+    setShowUpgrade(true)
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -84,20 +139,49 @@ export default function PolicyHubPage() {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-[#0F172A]">
-                Complete Insurance Package
+                {canAccessFullLibrary
+                  ? "All 9 policies unlocked"
+                  : "Unlock all 9 policies"}
               </h2>
               <p className="text-[#475569] text-sm">
-                All 9 policies, $49 one-time or included in your subscription.
+                {canAccessFullLibrary
+                  ? "You have access to the full library. Generate any policy below."
+                  : "The Documentation Pack ($299, one-time) includes all 9 customized policies plus the full assessment and incident response plan."}
               </p>
             </div>
           </div>
-          <Button onClick={() => isPaid ? null : setShowUpgrade(true)}>
-            <span className="flex items-center gap-2">
-              {isPaid ? "Start with the bundle" : "Unlock all policies"}
-              <ArrowRight className="w-4 h-4" />
-            </span>
-          </Button>
+          {!canAccessFullLibrary && (
+            <Button onClick={() => setShowUpgrade(true)}>
+              <span className="flex items-center gap-2">
+                Unlock all policies
+                <ArrowRight className="w-4 h-4" />
+              </span>
+            </Button>
+          )}
         </motion.div>
+
+        {/* Legacy Starter tier usage indicator */}
+        {isStarter && (
+          <div className="mb-6 rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] px-5 py-3 flex items-center gap-3">
+            <Sparkles className="w-4 h-4 text-[#1D4ED8] shrink-0" />
+            <p className="text-sm text-[#0F172A]">
+              <span className="font-semibold">
+                {starterUsedCount} of {STARTER_POLICY_LIMIT} paid policies used
+              </span>
+              {starterSlotsLeft > 0 ? (
+                <span className="text-[#475569]">
+                  {" "}
+                  &middot; Choose your next policy or upgrade to the Documentation Pack for all 9.
+                </span>
+              ) : (
+                <span className="text-[#475569]">
+                  {" "}
+                  &middot; You can still edit your existing policies. The Documentation Pack unlocks the rest.
+                </span>
+              )}
+            </p>
+          </div>
+        )}
 
         {/* Progress */}
         {user && completedCount > 0 && (
@@ -124,7 +208,9 @@ export default function PolicyHubPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {POLICIES.map((policy, i) => {
             const isCompleted = completedSlugs.has(policy.slug)
-            const isAccessible = policy.free || isPaid
+            const isFree = FREE_POLICY_SLUGS.includes(policy.slug)
+            const isAccessible = canAccessPolicy(policy.slug)
+            const hasIndividual = individualPurchaseSlugs.has(policy.slug)
 
             return (
               <motion.div
@@ -144,11 +230,15 @@ export default function PolicyHubPage() {
                         Done
                       </span>
                     )}
-                    {policy.free ? (
+                    {isFree ? (
                       <span className="text-[10px] font-medium text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
                         Free
                       </span>
-                    ) : !isPaid ? (
+                    ) : hasIndividual ? (
+                      <span className="text-[10px] font-medium text-[#0F766E] bg-[#F0FDFA] px-2 py-0.5 rounded-full">
+                        Purchased
+                      </span>
+                    ) : !isAccessible ? (
                       <Lock className="w-3.5 h-3.5 text-[#94A3B8]" />
                     ) : null}
                   </div>
@@ -157,8 +247,8 @@ export default function PolicyHubPage() {
                 <h3 className="text-sm font-semibold text-[#0F172A] mb-1.5">{policy.name}</h3>
                 <p className="text-xs text-[#475569] leading-relaxed mb-4 flex-1">{policy.description}</p>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-[#94A3B8] flex items-center gap-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-[#94A3B8] flex items-center gap-1 shrink-0">
                     <Clock className="w-3 h-3" /> ~{policy.estimatedMinutes} min
                   </span>
                   {isAccessible ? (
@@ -170,8 +260,8 @@ export default function PolicyHubPage() {
                     </Link>
                   ) : (
                     <button
-                      onClick={() => setShowUpgrade(true)}
-                      className="text-[#94A3B8] text-xs font-semibold hover:text-[#1D4ED8] transition-colors flex items-center gap-1 cursor-pointer"
+                      onClick={handleLockedClick}
+                      className="text-[#1D4ED8] text-xs font-semibold hover:text-[#1E40AF] transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       Unlock <ArrowRight className="w-3 h-3" />
                     </button>
@@ -183,7 +273,7 @@ export default function PolicyHubPage() {
         </div>
       </div>
 
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} feature="All Policies" showOneTime="policies" />}
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} feature="All Policies" />}
       <Footer />
     </div>
   )
