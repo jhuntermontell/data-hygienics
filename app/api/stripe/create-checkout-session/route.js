@@ -3,9 +3,17 @@ import { stripe } from '@/lib/stripe/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import {
+  isConfiguredPriceId,
+  isNewCheckoutPriceId,
   isSubscriptionPriceId,
   isOneTimePriceId,
+  isPerSeatPriceId,
 } from '@/lib/stripe/prices'
+
+// Agency Plan minimum seat count. Enforced server-side so a client cannot
+// talk itself down to fewer seats than the published pricing promises.
+const AGENCY_MIN_SEATS = 5
+const AGENCY_MAX_SEATS = 500
 
 export async function POST(request) {
   try {
@@ -27,15 +35,68 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing priceId' }, { status: 400 })
     }
 
-    // ----- Validate priceId against the active environment's price list -----
-    const isSub = isSubscriptionPriceId(priceId)
-    const isOneTime = isOneTimePriceId(priceId)
-    if (!isSub && !isOneTime) {
+    // ----- Reject placeholders and obviously-malformed IDs up-front ---------
+    // Belt-and-suspenders: lib/stripe/prices.js filters placeholders out of
+    // every allow-list, so this check is almost redundant — but an explicit
+    // reject here keeps the error message crisp ("not configured" vs.
+    // generic "invalid") and survives any future refactor of the helpers.
+    if (!isConfiguredPriceId(priceId)) {
+      return NextResponse.json(
+        { error: 'Price ID is not configured for this environment' },
+        { status: 400 }
+      )
+    }
+
+    // ----- Allow-list: new-catalog SKUs only --------------------------------
+    // Legacy Starter / Professional / MSP / Assessment Bundle / Policy Bundle /
+    // Individual Policy IDs are deliberately NOT reachable through this
+    // route even though isSubscriptionPriceId() / isOneTimePriceId() still
+    // recognize them elsewhere. Grandfathered subscribers update their
+    // existing subscriptions through the Stripe billing portal, not through
+    // a fresh checkout session. Accepting a legacy ID here would let a
+    // crafted POST body resurrect the old catalog for new signups.
+    if (!isNewCheckoutPriceId(priceId)) {
       return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
     }
 
     // ----- Mode is forced based on the priceId, never trusted from client ---
+    // isSubscriptionPriceId / isOneTimePriceId both return true for the
+    // subset we just allow-listed, so this detection is exact.
+    const isSub = isSubscriptionPriceId(priceId)
+    const isOneTime = isOneTimePriceId(priceId)
+    if (!isSub && !isOneTime) {
+      // Defensive: isNewCheckoutPriceId above should guarantee one of
+      // these is true, but fail closed if it ever does not.
+      return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
+    }
     const mode = isSub ? 'subscription' : 'payment'
+
+    // ----- Per-seat quantity for Agency Plan -------------------------------
+    // Only the Agency priceId accepts a quantity; every other SKU is
+    // forced to quantity 1 regardless of what the client sends. The
+    // minimum seat count is enforced server-side so a crafted request
+    // cannot start a $29/mo subscription instead of the $145/mo minimum.
+    let quantity = 1
+    if (isPerSeatPriceId(priceId)) {
+      const requested = Number.parseInt(body.quantity, 10)
+      if (!Number.isFinite(requested) || requested < AGENCY_MIN_SEATS) {
+        return NextResponse.json(
+          {
+            error: `Agency Plan requires at least ${AGENCY_MIN_SEATS} client seats.`,
+          },
+          { status: 400 }
+        )
+      }
+      if (requested > AGENCY_MAX_SEATS) {
+        return NextResponse.json(
+          {
+            error: `Agency Plan is capped at ${AGENCY_MAX_SEATS} client seats per account. Contact us for larger deployments.`,
+          },
+          { status: 400 }
+        )
+      }
+      quantity = requested
+    }
 
     // ----- Whitelist client metadata. Add new keys explicitly here. ---------
     const allowedClientMetadata = {}
@@ -165,7 +226,7 @@ export async function POST(request) {
     // -----------------------------------------------------------------------
     const sessionParams = {
       customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: [{ price: priceId, quantity }],
       mode,
       success_url,
       cancel_url,
@@ -179,6 +240,17 @@ export async function POST(request) {
     if (mode === 'subscription') {
       sessionParams.subscription_data = {
         metadata: { supabase_user_id: userId },
+      }
+      // For Agency Plan, allow the user to adjust seat count from the
+      // Stripe-hosted checkout page. Billing portal updates flow through
+      // the webhook's subscription.updated handler, which re-reads the
+      // current quantity and persists it to our row.
+      if (isPerSeatPriceId(priceId)) {
+        sessionParams.line_items[0].adjustable_quantity = {
+          enabled: true,
+          minimum: AGENCY_MIN_SEATS,
+          maximum: AGENCY_MAX_SEATS,
+        }
       }
     } else {
       // payment_intent_data.metadata is duplicated for Stripe dashboard

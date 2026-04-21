@@ -87,7 +87,7 @@ export async function POST(request) {
         }
 
         // Cross-check: customer must belong to this user (or be brand new).
-        // This is a deliberate security rejection — retrying will not change
+        // This is a deliberate security rejection; retrying will not change
         // the outcome, so we return 200 to stop Stripe from retrying.
         const ownsCustomer = await verifyCustomerOwnership(supabase, customerId, userId)
         if (!ownsCustomer) {
@@ -131,6 +131,13 @@ export async function POST(request) {
           const periodEnd = subscription.current_period_end
             ? new Date(subscription.current_period_end * 1000).toISOString()
             : null
+          // Per-seat billing: Agency Plan subscribers carry a quantity that
+          // determines their client cap. Other plans are always quantity 1.
+          // subscription.items.data[0].quantity is the canonical source.
+          const quantity =
+            subscription.items?.data?.[0]?.quantity ||
+            subscription.quantity ||
+            1
 
           const upsertPayload = {
             user_id: userId,
@@ -140,6 +147,7 @@ export async function POST(request) {
             plan,
             status: subscription.status,
             current_period_end: periodEnd,
+            quantity,
             updated_at: new Date().toISOString(),
           }
 
@@ -176,7 +184,7 @@ export async function POST(request) {
                 )
                 break
               }
-              // Existing subscription is terminal — safe to replace.
+              // Existing subscription is terminal, safe to replace.
             }
             // Same subscription ID → idempotent replay, fall through.
           }
@@ -212,6 +220,13 @@ export async function POST(request) {
             )
           }
 
+          // Preserve the whole session metadata object (which may include
+          // price_id, supabase_user_id, and policy_slug for individual
+          // policy purchases). The hub + server save route read
+          // metadata.policy_slug to grant access to the specific policy
+          // the user paid for.
+          const purchaseMetadata = { ...(session.metadata || {}) }
+
           // Idempotent on payment_intent_id (unique constraint added in
           // 003_subscriptions.sql). Replayed events become no-ops.
           const { error } = await supabase
@@ -222,7 +237,7 @@ export async function POST(request) {
                 stripe_payment_intent_id: paymentIntent,
                 stripe_price_id: priceId || '',
                 purchase_type: purchaseType,
-                metadata: session.metadata || {},
+                metadata: purchaseMetadata,
               },
               {
                 onConflict: 'stripe_payment_intent_id',
@@ -265,6 +280,12 @@ export async function POST(request) {
 
         const priceId = subscription.items?.data?.[0]?.price?.id || null
         const plan = planForPriceId(priceId)
+        // Per-seat billing: persist quantity changes so Agency Plan seat
+        // upgrades/downgrades from the Stripe billing portal reach our DB.
+        const quantity =
+          subscription.items?.data?.[0]?.quantity ||
+          subscription.quantity ||
+          1
 
         const updatePayload = {
           stripe_price_id: priceId,
@@ -273,6 +294,7 @@ export async function POST(request) {
           current_period_end: subscription.current_period_end
             ? new Date(subscription.current_period_end * 1000).toISOString()
             : null,
+          quantity,
           updated_at: new Date().toISOString(),
         }
 
