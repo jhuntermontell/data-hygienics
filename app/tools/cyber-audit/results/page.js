@@ -20,6 +20,7 @@ import SectionBreakdown from "../components/SectionBreakdown"
 import GapList from "../components/GapList"
 import UpgradeModal from "../components/UpgradeModal"
 import RemediationPlan from "../components/RemediationPlan"
+import InsuranceReadinessSection from "../components/InsuranceReadinessSection"
 import { Button } from "@/components/ui/button"
 import {
   Shield,
@@ -70,6 +71,18 @@ export default function ResultsPage() {
   const [showPdf, setShowPdf] = useState(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [isPaid, setIsPaid] = useState(false)
+  // Insurance Readiness feature gating. Dashboard is visible to any user
+  // with canTakeAssessment (which, under the new pricing model, requires
+  // Docs Pack / Ongoing Protection / Agency / legacy Starter+). Proof pack
+  // PDF download requires canAccessPolicies so Docs Pack buyers get it.
+  const [canViewReadiness, setCanViewReadiness] = useState(false)
+  const [canDownloadProofPack, setCanDownloadProofPack] = useState(false)
+  // True when the subscription fetch failed. We do NOT lock paid users out
+  // of gated content (PDF downloads, remediation plan) when this is set;
+  // instead the gated buttons show a retry affordance.
+  const [entitlementUnknown, setEntitlementUnknown] = useState(false)
+  const [refreshingSubscription, setRefreshingSubscription] = useState(false)
+  const [pdfError, setPdfError] = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -86,7 +99,26 @@ export default function ResultsPage() {
         getSubscription(user.id),
       ])
       setProfile(profileResult.data)
-      setIsPaid(subData.access.canDownloadReports || subData.hasPurchase("assessment_bundle"))
+      if (subData.entitlementUnknown) {
+        // Do not treat a failed fetch as "free". Flag it so the gated
+        // buttons can show a retry affordance instead of a locked padlock.
+        setEntitlementUnknown(true)
+        setIsPaid(false)
+        setCanViewReadiness(false)
+        setCanDownloadProofPack(false)
+      } else {
+        setEntitlementUnknown(false)
+        setIsPaid(
+          subData.access.canDownloadReports || subData.hasPurchase("assessment_bundle")
+        )
+        // Insurance Readiness visibility: any user with assessment access
+        // (canTakeAssessment) gets the dashboard. canAccessPolicies gates
+        // the proof pack PDF so Docs Pack / Protection / Agency unlock it
+        // but legacy Starter (which does not include full policy access)
+        // only sees the dashboard without the PDF.
+        setCanViewReadiness(!!subData.access.canTakeAssessment)
+        setCanDownloadProofPack(!!subData.access.canAccessPolicies)
+      }
 
       const { data: assessments } = await supabase
         .from("assessments")
@@ -120,6 +152,32 @@ export default function ResultsPage() {
     load()
   }, [])
 
+  async function refreshSubscription() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    if (!session) return
+    setRefreshingSubscription(true)
+    try {
+      const subData = await getSubscription(session.user.id, { skipCache: true })
+      if (subData.entitlementUnknown) {
+        setEntitlementUnknown(true)
+        setIsPaid(false)
+        setCanViewReadiness(false)
+        setCanDownloadProofPack(false)
+      } else {
+        setEntitlementUnknown(false)
+        setIsPaid(
+          subData.access.canDownloadReports || subData.hasPurchase("assessment_bundle")
+        )
+        setCanViewReadiness(!!subData.access.canTakeAssessment)
+        setCanDownloadProofPack(!!subData.access.canAccessPolicies)
+      }
+    } finally {
+      setRefreshingSubscription(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -137,11 +195,29 @@ export default function ResultsPage() {
     industry,
     assessment.employee_count
   )
-  const sectionScores = assessment.section_scores
-    ? (typeof assessment.section_scores === "string"
-        ? JSON.parse(assessment.section_scores)
-        : assessment.section_scores)
-    : calculateSectionScores(answers, sections)
+  // section_scores may be stored as a JSON string (older rows) or JSONB
+  // (newer rows). Parse defensively: a malformed value or legacy shape must
+  // never crash the report. Fall back to recalculating from the persisted
+  // responses, which is the same data the UI uses for gap analysis.
+  let sectionScores
+  try {
+    if (!assessment.section_scores) {
+      sectionScores = calculateSectionScores(answers, sections)
+    } else if (typeof assessment.section_scores === "string") {
+      sectionScores = JSON.parse(assessment.section_scores)
+    } else {
+      sectionScores = assessment.section_scores
+    }
+  } catch (err) {
+    console.error("Failed to parse section_scores, recalculating:", err)
+    sectionScores = calculateSectionScores(answers, sections)
+  }
+  // Shape validation: scoring.calculateSectionScores returns an ARRAY.
+  // If the parsed value is not an array, recalculate from responses.
+  if (!Array.isArray(sectionScores)) {
+    console.warn("section_scores has unexpected shape, recalculating from responses")
+    sectionScores = calculateSectionScores(answers, sections)
+  }
   const gaps = getGaps(answers, sections)
   const summary = getSummary(score, assessment.has_insurance)
 
@@ -362,7 +438,38 @@ export default function ResultsPage() {
                 <RemediationPlan plan={remediationPlan} answers={answers} />
               </motion.div>
             )}
+
+            {/* Insurance Readiness - translates the assessment into carrier
+                application language. Rendered only for comprehensive
+                assessments (not quick) because the 3-question free preview
+                does not provide enough data to populate carrier questions.
+                entitlementUnknown is forwarded so the section can render a
+                neutral retry state instead of an upsell when the
+                subscription fetch failed transiently. */}
+            <InsuranceReadinessSection
+              assessment={assessment}
+              answers={answers}
+              canViewReadiness={canViewReadiness}
+              canDownloadProofPack={canDownloadProofPack}
+              entitlementUnknown={entitlementUnknown}
+              onRetryEntitlement={refreshSubscription}
+              refreshingEntitlement={refreshingSubscription}
+              businessProfile={{
+                companyName: profile?.company_name,
+                contactName: profile?.full_name,
+                email: userEmail,
+              }}
+            />
           </>
+        )}
+
+        {/* Entitlement-unknown notice */}
+        {!isQuick && entitlementUnknown && (
+          <div className="mb-4 rounded-xl border border-[#F59E0B]/40 bg-[#FFFBEB] p-4">
+            <p className="text-sm text-[#92400E]">
+              We could not verify your subscription status. Your results are safe. Click &quot;Check subscription&quot; below to try again.
+            </p>
+          </div>
         )}
 
         {/* Actions */}
@@ -374,16 +481,47 @@ export default function ResultsPage() {
         >
           {!isQuick && (
             <>
-              <Button onClick={() => (isPaid ? setShowPdf("insurance") : setShowUpgrade(true))}>
+              <Button
+                onClick={() => {
+                  if (isPaid) return setShowPdf("insurance")
+                  if (entitlementUnknown) return refreshSubscription()
+                  return setShowUpgrade(true)
+                }}
+                disabled={refreshingSubscription}
+              >
                 <span className="flex items-center gap-2">
-                  {isPaid ? <Download className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                  Insurance Report
+                  {isPaid ? (
+                    <Download className="w-4 h-4" />
+                  ) : entitlementUnknown ? (
+                    <RotateCcw className="w-4 h-4" />
+                  ) : (
+                    <Lock className="w-4 h-4" />
+                  )}
+                  {entitlementUnknown
+                    ? refreshingSubscription
+                      ? "Checking..."
+                      : "Check subscription"
+                    : "Insurance Report"}
                 </span>
               </Button>
-              <Button variant="outline" onClick={() => (isPaid ? setShowPdf("remediation") : setShowUpgrade(true))}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (isPaid) return setShowPdf("remediation")
+                  if (entitlementUnknown) return refreshSubscription()
+                  return setShowUpgrade(true)
+                }}
+                disabled={refreshingSubscription}
+              >
                 <span className="flex items-center gap-2">
-                  {isPaid ? <FileText className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                  Remediation Report
+                  {isPaid ? (
+                    <FileText className="w-4 h-4" />
+                  ) : entitlementUnknown ? (
+                    <RotateCcw className="w-4 h-4" />
+                  ) : (
+                    <Lock className="w-4 h-4" />
+                  )}
+                  {entitlementUnknown ? "Retry" : "Remediation Report"}
                 </span>
               </Button>
             </>
@@ -407,6 +545,20 @@ export default function ResultsPage() {
           )}
         </motion.div>
 
+        {pdfError && (
+          <div className="mb-4 rounded-xl border border-[#DC2626]/40 bg-[#FEF2F2] p-4 flex items-start justify-between gap-3">
+            <p className="text-sm text-[#B91C1C]">
+              Report could not be generated. Please try again or contact support if this continues.
+            </p>
+            <button
+              onClick={() => setPdfError(null)}
+              className="text-xs font-semibold text-[#B91C1C] hover:underline shrink-0"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {showPdf && (
           <PdfReport
             reportType={showPdf}
@@ -423,6 +575,10 @@ export default function ResultsPage() {
             employeeCount={assessment.employee_count}
             hasInsurance={assessment.has_insurance}
             onClose={() => setShowPdf(null)}
+            onError={() => {
+              setShowPdf(null)
+              setPdfError(true)
+            }}
           />
         )}
 

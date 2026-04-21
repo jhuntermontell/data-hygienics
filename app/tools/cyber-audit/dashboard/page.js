@@ -29,12 +29,28 @@ import {
 
 const PLAN_LABELS = {
   free: "Free",
-  starter: "Starter",
-  professional: "Professional",
-  msp: "MSP / Advisor",
+  // New catalog
+  protection: "Ongoing Protection",
+  agency: "Agency Plan",
+  // Legacy catalog (grandfathered)
+  starter: "Starter (Legacy)",
+  professional: "Professional (Legacy)",
+  msp: "MSP / Advisor (Legacy)",
 }
 
 const PLAN_FEATURES = {
+  protection: [
+    "Full assessment, reports, all 9 policies, and IR plan",
+    "Quarterly reassessment reminders",
+    "Policy review and update workflow",
+  ],
+  agency: [
+    "Everything in Ongoing Protection",
+    "Multi-tenant client workspace",
+    "Branded report generation",
+  ],
+  // Legacy feature bullets so grandfathered subscribers still see an
+  // accurate summary of what their existing plan includes.
   starter: ["Full cybersecurity assessment & reports", "Industry news feed", "2 customizable policies"],
   professional: ["Unlimited assessments & reports", "All 9 insurance-ready policies", "Score tracking over time"],
   msp: ["Everything in Professional", "Up to 10 client assessments", "Client management dashboard"],
@@ -78,6 +94,10 @@ function DashboardContent() {
   // this window so the user does not see locked-state UI before the webhook
   // catches up.
   const [pendingSync, setPendingSync] = useState(false)
+  // User-visible error surfaced when the Stripe billing portal cannot be
+  // opened. Without this, clicking "Manage Billing" silently did nothing
+  // on failure and the user had no idea why.
+  const [portalError, setPortalError] = useState("")
 
   const plan = sub.plan
   const access = sub.access
@@ -219,15 +239,25 @@ function DashboardContent() {
   }
 
   async function handleManageBilling() {
+    setPortalError("")
     try {
       const res = await fetch("/api/stripe/create-portal-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
+      if (data.url) {
+        window.location.href = data.url
+        return
+      }
+      setPortalError(
+        data.error || "Could not open the billing portal. Please try again."
+      )
     } catch (err) {
       console.error("Portal error:", err)
+      setPortalError(
+        "Could not reach the billing portal. Check your connection and try again."
+      )
     }
   }
 
@@ -379,37 +409,47 @@ function DashboardContent() {
           </div>
 
           {isPaid ? (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-[#0F172A]">
-                  {PLAN_LABELS[plan]}
-                  {isPromo ? (
-                    <span className="ml-2 text-[10px] font-semibold text-[#0F766E] bg-[#F0FDFA] border border-[#0F766E]/20 px-2 py-0.5 rounded-full">
-                      Beta Access
-                    </span>
-                  ) : (
-                    <span className="ml-2 text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
-                      Active
-                    </span>
+            <>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-[#0F172A]">
+                    {PLAN_LABELS[plan]}
+                    {isPromo ? (
+                      <span className="ml-2 text-[10px] font-semibold text-[#0F766E] bg-[#F0FDFA] border border-[#0F766E]/20 px-2 py-0.5 rounded-full">
+                        Beta Access
+                      </span>
+                    ) : (
+                      <span className="ml-2 text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+                        Active
+                      </span>
+                    )}
+                  </p>
+                  {!isPromo && subscription?.current_period_end && (
+                    <p className="text-xs text-[#94A3B8] mt-1">
+                      Renews {new Date(subscription.current_period_end).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                    </p>
                   )}
-                </p>
-                {!isPromo && subscription?.current_period_end && (
-                  <p className="text-xs text-[#94A3B8] mt-1">
-                    Renews {new Date(subscription.current_period_end).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                  </p>
-                )}
-                {isPromo && (
-                  <p className="text-xs text-[#94A3B8] mt-1">
-                    Access granted via beta tester code
-                  </p>
+                  {isPromo && (
+                    <p className="text-xs text-[#94A3B8] mt-1">
+                      Access granted via beta tester code
+                    </p>
+                  )}
+                </div>
+                {!isPromo && (
+                  <Button size="sm" variant="outline" onClick={handleManageBilling}>
+                    Manage Billing
+                  </Button>
                 )}
               </div>
-              {!isPromo && (
-                <Button size="sm" variant="outline" onClick={handleManageBilling}>
-                  Manage Billing
-                </Button>
+              {portalError && (
+                <p
+                  role="alert"
+                  className="mt-3 text-xs text-[#DC2626] bg-[#FEF2F2] border border-[#DC2626]/20 rounded-lg px-3 py-2"
+                >
+                  {portalError}
+                </p>
               )}
-            </div>
+            </>
           ) : (
             <div className="flex items-center justify-between">
               <div>
@@ -515,7 +555,7 @@ function DashboardContent() {
                   <ClipboardList className="w-5 h-5 text-[#D97706]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-[#0F172A]">Vendor Scorecards</h3>
+                  <h3 className="text-sm font-bold text-[#0F172A]">Vendor Security Scorecards</h3>
                   <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-1.5 py-0.5 rounded">Free</span>
                 </div>
               </div>
