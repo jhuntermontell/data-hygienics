@@ -60,6 +60,7 @@ export async function POST(request) {
     const [
       { data: sub, error: subError },
       { data: purchases, error: purchaseError },
+      { data: profile, error: profileError },
     ] = await Promise.all([
       service
         .from("subscriptions")
@@ -70,12 +71,17 @@ export async function POST(request) {
         .from("one_time_purchases")
         .select("purchase_type, metadata")
         .eq("user_id", userId),
+      service
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", userId)
+        .maybeSingle(),
     ])
 
-    if (subError || purchaseError) {
+    if (subError || purchaseError || profileError) {
       console.error(
         "Policy entitlement lookup failed:",
-        JSON.stringify(subError || purchaseError)
+        JSON.stringify(subError || purchaseError || profileError)
       )
       return NextResponse.json(
         { error: "Could not verify policy access. Please try again." },
@@ -86,10 +92,12 @@ export async function POST(request) {
     const plan = sub?.plan || "free"
     const status = sub?.status || "inactive"
     const isPaid = isSubscriptionPaid(sub)
+    const isAdmin = profile?.is_admin === true
     // Merged access: plan grants + one-time purchase grants (docs_pack,
     // policy_bundle, etc). access.canAccessPolicies being true here means
-    // the user has full-library access through ANY source.
-    const access = getPlanAccess(plan, status, purchases || [])
+    // the user has full-library access through ANY source. Admin flag
+    // short-circuits to full access.
+    const access = getPlanAccess(plan, status, purchases || [], isAdmin)
 
     const isFreePolicy = FREE_POLICY_SLUGS.includes(policySlug)
     const hasIndividualPurchase = (purchases || []).some(
