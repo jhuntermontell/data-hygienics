@@ -224,9 +224,31 @@ export default function AssessmentPage() {
     async (questionKey, answer) => {
       if (!assessmentId) return { error: null }
       setSaveStatus("saving")
-      const sectionKey = sections?.find((s) =>
-        s.questions.some((q) => q.key === questionKey)
-      )?.id
+      // Resolve section id for both main questions and drill-downs.
+      // Drill-down keys are scoped as `${parentKey}_dd_${drillKey}` by the
+      // renderer, so a drill-down belongs to the same section as its parent.
+      const resolveSection = (key) => {
+        if (!sections) return null
+        // Direct match: main question
+        const direct = sections.find((s) =>
+          s.questions.some((q) => q.key === key)
+        )
+        if (direct) return direct.id
+        // Drill-down: strip `_dd_...` suffix and look up the parent
+        const ddIndex = key.indexOf("_dd_")
+        if (ddIndex === -1) return null
+        const parentKey = key.slice(0, ddIndex)
+        const parentSection = sections.find((s) =>
+          s.questions.some((q) => q.key === parentKey)
+        )
+        return parentSection?.id ?? null
+      }
+
+      const sectionKey = resolveSection(questionKey)
+
+      if (!sectionKey && process.env.NODE_ENV !== "production") {
+        console.warn("[autosave] Could not resolve section for key:", questionKey)
+      }
       try {
         const result = await supabase.from("responses").upsert(
           {
