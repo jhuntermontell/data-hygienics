@@ -2,6 +2,7 @@ import { Inter } from "next/font/google"
 import { Providers } from "./providers"
 import SchemaScript from "./components/SchemaScript"
 import { organizationSchema } from "@/lib/schema"
+import { SITE } from "@/lib/site"
 import "./globals.css"
 
 const inter = Inter({
@@ -10,11 +11,17 @@ const inter = Inter({
   display: "swap",
 })
 
+const siteTitle = `${SITE.name} | ${SITE.tagline.replace(/\.$/, "")}`
+// The OG image still carries the old subtitle; this alt text describes only
+// what stays true (logo and wordmark) until the asset is refreshed.
+const ogImage = { url: "/og-image.png", width: 1200, height: 630, alt: "Data Hygienics logo and wordmark" }
+const socialDescription =
+  "The independent field guide to living and working securely alongside AI, for households and small businesses."
+
 export const metadata = {
-  metadataBase: new URL("https://datahygienics.com"),
-  title: "Data Hygienics - The Cybersecurity Platform for Small Business",
-  description:
-    "Data Hygienics gives small businesses and their leaders the same cybersecurity clarity that Fortune 500 companies pay millions for.",
+  metadataBase: new URL(SITE.url),
+  title: siteTitle,
+  description: SITE.description,
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -30,27 +37,18 @@ export const metadata = {
     ],
   },
   openGraph: {
-    siteName: "Data Hygienics",
-    title: "Data Hygienics - The Cybersecurity Platform for Small Business",
-    description:
-      "Cybersecurity tools for business leaders. The same clarity Fortune 500 companies pay millions for.",
-    url: "https://datahygienics.com",
+    siteName: SITE.name,
+    title: siteTitle,
+    description: socialDescription,
+    url: SITE.url,
     type: "website",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Data Hygienics Cybersecurity Tools for Business Leaders",
-      },
-    ],
+    images: [ogImage],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Data Hygienics - The Cybersecurity Platform for Small Business",
-    description:
-      "Cybersecurity tools for business leaders. The same clarity Fortune 500 companies pay millions for.",
-    images: ["/og-image.png"],
+    title: siteTitle,
+    description: socialDescription,
+    images: [ogImage],
   },
   robots: {
     index: true,

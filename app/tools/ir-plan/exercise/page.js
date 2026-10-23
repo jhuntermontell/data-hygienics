@@ -7,8 +7,8 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { createClient } from "@/lib/supabase/client"
 import { getSubscription } from "@/lib/stripe/subscription"
-import { INCIDENT_TYPES } from "@/lib/ir-plan/playbooks"
-import { SCENARIOS } from "@/lib/ir-plan/scenarios"
+import { getIncidentType } from "@/lib/ir-plan/playbooks"
+import { SCENARIOS, getScenarioIncidentType } from "@/lib/ir-plan/scenarios"
 import UpgradeModal from "@/app/tools/cyber-audit/components/UpgradeModal"
 import {
   ArrowLeft,
@@ -18,11 +18,13 @@ import {
   ShieldAlert,
   Fish,
   Smartphone,
+  Mic,
+  Bot,
   Sparkles,
   Play,
 } from "lucide-react"
 
-const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone }
+const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone, Mic, Bot }
 
 export default function ExerciseSelectionPage() {
   const [user, setUser] = useState(null)
@@ -87,18 +89,18 @@ export default function ExerciseSelectionPage() {
             Rehearse your response
           </h1>
           <p className="text-[#475569] text-base max-w-2xl">
-            A tabletop exercise walks you through a realistic scenario, decision by decision. You learn what works in your plan and what does not, in a low-risk environment your insurance broker will recognize.
+            A tabletop exercise walks you through a realistic scenario, decision by decision. You learn what works in your plan and what does not, in a low-risk setting, and you get a dated record your team, your lawyer, and your insurer (if you have one) will ask for.
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-5">
-          {INCIDENT_TYPES.map((it) => {
-            const Icon = ICON_MAP[it.icon] || ShieldAlert
-            const scenario = SCENARIOS[it.key]
-            if (!scenario) return null
+          {Object.keys(SCENARIOS).map((scenarioKey) => {
+            const scenario = SCENARIOS[scenarioKey]
+            const it = getIncidentType(getScenarioIncidentType(scenarioKey))
+            const Icon = ICON_MAP[it?.icon] || ShieldAlert
             return (
               <motion.div
-                key={it.key}
+                key={scenarioKey}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
@@ -111,7 +113,7 @@ export default function ExerciseSelectionPage() {
                     <Clock className="w-3 h-3" /> {scenario.estimatedMinutes} min
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-[#0F172A] mb-1.5">{it.title}</h3>
+                <h3 className="text-lg font-bold text-[#0F172A] mb-1.5">{it?.title || scenario.title}</h3>
                 <p className="text-xs text-[#475569] leading-relaxed mb-2 italic">
                   &ldquo;{scenario.title}&rdquo;
                 </p>
@@ -120,7 +122,7 @@ export default function ExerciseSelectionPage() {
                 </p>
                 {plan && isPaid ? (
                   <Link
-                    href={`/tools/ir-plan/exercise/${it.key}`}
+                    href={`/tools/ir-plan/exercise/${scenarioKey}`}
                     className="inline-flex items-center justify-center gap-2 bg-[#0F766E] text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#0E7490]"
                   >
                     <Play className="w-4 h-4" /> Start exercise

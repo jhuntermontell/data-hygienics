@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     textAlign: "center",
   },
-  insuranceWarning: {
+  coverageNote: {
     backgroundColor: "#fff7ed",
     border: "1px solid #fed7aa",
     borderRadius: 6,
@@ -258,9 +258,11 @@ function ReportDocument({
     return (priorityOrder[recA?.priority] ?? 3) - (priorityOrder[recB?.priority] ?? 3)
   })
 
-  const isInsurance = reportType === "insurance"
-  const titleText = isInsurance
-    ? "Cybersecurity Assessment Report"
+  // "summary" is the shareable report (score, sections, gaps). Anything
+  // else renders the internal remediation report with fix steps.
+  const isSummary = reportType === "summary"
+  const titleText = isSummary
+    ? "Cybersecurity Summary Report"
     : "Internal Remediation Report"
 
   return (
@@ -291,12 +293,12 @@ function ReportDocument({
         </View>
 
         {hasInsurance === "No" && (
-          <View style={styles.insuranceWarning}>
+          <View style={styles.coverageNote}>
             <Text style={[styles.warningText, { fontFamily: "Helvetica-Bold" }]}>
-              No Cyber Insurance Detected
+              No Cyber Insurance Reported
             </Text>
             <Text style={styles.warningText}>
-              This report can be used to support your cyber insurance application. We strongly recommend obtaining coverage to protect your business from breach costs.
+              Without cyber insurance, your business carries the full cost of an incident. Consider coverage as you close the gaps in this report.
             </Text>
           </View>
         )}
@@ -333,7 +335,7 @@ function ReportDocument({
         ))}
 
         <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
-          {isInsurance ? "Identified Gaps" : "Identified Gaps & Remediation Plan"}
+          {isSummary ? "Identified Gaps" : "Identified Gaps & Remediation Plan"}
         </Text>
         {sortedGaps.map((gap) => {
           const rec = RECOMMENDATIONS[gap.questionKey]
@@ -356,7 +358,7 @@ function ReportDocument({
                 {gap.cisControl ? ` | CIS: ${gap.cisControl}` : ""}
               </Text>
 
-              {!isInsurance && (
+              {!isSummary && (
                 <>
                   <View style={styles.remediationBox}>
                     <Text style={styles.remediationTitle}>Remediation Steps</Text>
@@ -381,7 +383,7 @@ function ReportDocument({
   )
 }
 
-export default function PdfReport({ reportType = "insurance", onClose, onError, ...props }) {
+export default function PdfReport({ reportType = "summary", onClose, onError, ...props }) {
   useEffect(() => {
     let cancelled = false
     async function generate() {
@@ -393,7 +395,7 @@ export default function PdfReport({ reportType = "insurance", onClose, onError, 
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        const prefix = reportType === "insurance" ? "insurance-report" : "remediation-report"
+        const prefix = reportType === "summary" ? "summary-report" : "remediation-report"
         a.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`
         document.body.appendChild(a)
         a.click()

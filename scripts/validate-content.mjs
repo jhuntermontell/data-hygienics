@@ -1,0 +1,278 @@
+#!/usr/bin/env node
+// Content validator for the research library (lib/content/**).
+//
+//   node scripts/validate-content.mjs           errors fail, warnings print
+//   node scripts/validate-content.mjs --strict  warnings fail too
+//
+// Checks: required fields, unique slugs, date formats, every citation marker
+// and sourceId resolves, published entries rest on tier 1-2 sources, related
+// links resolve, no tracking/affiliate parameters, duplicate source ids
+// agree, uncited statistics, banned tone words, and stray "SI" usage.
+
+import { fileURLToPath, pathToFileURL } from "node:url"
+import path from "node:path"
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
+const load = (rel) => import(pathToFileURL(path.join(root, rel)).href)
+
+const strict = process.argv.includes("--strict")
+const errors = []
+const warnings = []
+const err = (where, msg) => errors.push(`${where}: ${msg}`)
+const warn = (where, msg) => warnings.push(`${where}: ${msg}`)
+
+const { SOURCES, SOURCE_GROUPS } = await load("lib/sources.js")
+const { ALL_THREATS } = await load("lib/threats.js")
+const { ALL_GUIDES } = await load("lib/guides.js")
+const { ALL_EXPLAINERS, PRINCIPLES } = await load("lib/sovereignty.js")
+const { ALL_TOOLS, TOOLKIT_CATEGORIES } = await load("lib/toolkit.js")
+const { GLOSSARY } = await load("lib/content/glossary.js")
+const { WHAT_CHANGED } = await load("lib/content/home.js")
+const { CONTROLS } = await load("lib/controls.js")
+const { CITATION_FIELD_ORDER, CITATION_MARKER } = await load("lib/content.js")
+
+const HAS_MARKER = /\[\^[a-z0-9][a-z0-9-]*\]/
+const TRACKING = /[?&](utm_[a-z]+|ref|aff|aff_?id|affid|affiliate|tag|irclickid|clickid|gclid|fbclid|msclkid|partner|via)=|\/ref=/i
+const DATE_DAY = /^\d{4}-\d{2}-\d{2}$/
+const DATE_MONTH = /^\d{4}-\d{2}$/
+const BANNED = [
+  /\blurking\b/i,
+  /\bunprecedented\b/i,
+  /rapidly evolving/i,
+  /\b(we|this|it will) guarantee/i,
+  /\bguaranteed (safe|secure|protection|results)\b/i,
+  /100% (safe|secure|protected)/i,
+  /you will be hacked/i,
+]
+const SOURCE_TYPES = ["government", "standards", "regulation", "incident-report", "research", "vendor-doc", "journalism"]
+const SI_ALLOWED = new Set(["ai-or-si-what-we-call-it"])
+
+// ── Sources ──────────────────────────────────────────────────────────────
+const seenUrl = {}
+for (const [group, sources] of Object.entries(SOURCE_GROUPS)) {
+  for (const [id, s] of Object.entries(sources)) {
+    const where = `source ${id} (${group})`
+    if (s.id !== id) err(where, `id field "${s.id}" does not match key`)
+    for (const f of ["label", "publisher", "url", "published", "type", "tier", "accessed"]) {
+      if (s[f] === undefined || s[f] === "") err(where, `missing ${f}`)
+    }
+    if (s.url && !/^https:\/\//.test(s.url)) warn(where, `non-https url ${s.url}`)
+    if (s.url && TRACKING.test(s.url)) err(where, `tracking parameter in url ${s.url}`)
+    if (s.published && !DATE_DAY.test(s.published) && !DATE_MONTH.test(s.published) && !/^\d{4}$/.test(s.published))
+      err(where, `bad published date ${s.published}`)
+    if (s.accessed && !DATE_DAY.test(s.accessed)) err(where, `bad accessed date ${s.accessed}`)
+    if (s.type && !SOURCE_TYPES.includes(s.type)) err(where, `unknown type ${s.type}`)
+    if (s.tier && ![1, 2, 3].includes(s.tier)) err(where, `tier must be 1, 2, or 3`)
+    if (seenUrl[id] && seenUrl[id].url !== s.url)
+      err(where, `duplicate id with different url (also in ${seenUrl[id].group}): ${s.url} vs ${seenUrl[id].url}`)
+    seenUrl[id] = seenUrl[id] || { url: s.url, group }
+  }
+}
+
+// ── Entries ──────────────────────────────────────────────────────────────
+const SHARED = ["kind", "slug", "title", "metaTitle", "metaDescription", "audience", "pillars", "tldr", "datePublished", "lastReviewed", "status", "faqs", "sourceIds", "related"]
+const BY_KIND = {
+  threat: ["severity", "aiRole", "whatItIs", "howItLooks", "howItGetsIn", "whatStopsIt", "ifItHappens", "stats"],
+  "industry-brief": ["industry", "content"],
+  guide: ["timeToComplete", "difficulty", "why", "steps"],
+  explainer: ["question", "shortAnswer", "sections", "actions"],
+}
+
+const entries = [...ALL_THREATS, ...ALL_GUIDES, ...ALL_EXPLAINERS]
+const slugIndex = {
+  threats: new Set(ALL_THREATS.map((e) => e.slug)),
+  guides: new Set(ALL_GUIDES.map((e) => e.slug)),
+  explainers: new Set(ALL_EXPLAINERS.map((e) => e.slug)),
+  toolkit: new Set(ALL_TOOLS.map((t) => t.slug)),
+  glossary: new Set(GLOSSARY.map((g) => g.slug)),
+  controls: new Set(CONTROLS.map((c) => c.slug)),
+}
+const toolkitCategories = new Set(TOOLKIT_CATEGORIES.map((c) => c.slug))
+
+function walkStrings(value, fn, trail = "") {
+  if (typeof value === "string") fn(value, trail)
+  else if (Array.isArray(value)) value.forEach((v, i) => walkStrings(v, fn, `${trail}[${i}]`))
+  else if (value && typeof value === "object")
+    for (const [k, v] of Object.entries(value)) walkStrings(v, fn, trail ? `${trail}.${k}` : k)
+}
+
+function markersIn(value) {
+  const ids = []
+  walkStrings(value, (s) => {
+    for (const m of s.matchAll(CITATION_MARKER)) ids.push(m[1])
+  })
+  return ids
+}
+
+// A sentence "has a statistic" if it contains a %, a currency amount, or a
+// number of 2+ digits that is not just a year.
+function uncitedStats(text) {
+  const plain = text.replace(/<[^>]+>/g, " ").replace(/\b([ap])\.m\./gi, "$1m")
+  return plain
+    .split(/(?<=[.!?])\s+/)
+    .filter((sentence) => {
+      const scrubbed = sentence
+        .replace(CITATION_MARKER, "")
+        .replace(/\b(19|20)\d{2}(-\d{2}){0,2}\b/g, "")
+        .replace(/\b(ages?\s+)?\d{2}\s*(\+|and older|or older|and over|or over|and up)/gi, "")
+        .replace(/\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b|\b\d{3}-[A-Z]+-\d+\b/g, "")
+        .replace(/\b(Microsoft|Office|Google Workspace|Windows|iOS|Android|macOS)\s+\d+/g, "")
+        .replace(/\b(Article|Art\.|Section|SP|NIST|ISO\/IEC|CIS|Control|Top|Part|CFR|IG)\s*[\d.-]+/gi, "")
+      const hasStat = /\d+(\.\d+)?\s?%|[$€£]\s?\d|\b\d{2,}\b|\b\d+(\.\d+)?\s?(million|billion|thousand)\b/i.test(scrubbed)
+      return hasStat && !HAS_MARKER.test(sentence)
+    })
+}
+
+const allSlugs = {}
+for (const e of entries) {
+  const where = `${e.kind || "?"} ${e.slug || "?"}`
+  for (const f of [...SHARED, ...(BY_KIND[e.kind] || [])]) {
+    if (e[f] === undefined) err(where, `missing ${f}`)
+  }
+  if (!BY_KIND[e.kind]) err(where, `unknown kind ${e.kind}`)
+  if (allSlugs[e.slug]) err(where, `slug collides with ${allSlugs[e.slug]}`)
+  allSlugs[e.slug] = where
+  if (e.datePublished && !DATE_DAY.test(e.datePublished)) err(where, `datePublished must be YYYY-MM-DD`)
+  if (e.lastReviewed && !DATE_MONTH.test(e.lastReviewed)) err(where, `lastReviewed must be YYYY-MM`)
+  if (!["draft", "published"].includes(e.status)) err(where, `status must be draft or published`)
+  if (e.metaTitle && e.metaTitle.length > 60) warn(where, `metaTitle is ${e.metaTitle.length} chars (max 60)`)
+  if (e.metaDescription && e.metaDescription.length > 155)
+    warn(where, `metaDescription is ${e.metaDescription.length} chars (max 155)`)
+  for (const a of e.audience || []) if (!["home", "business"].includes(a)) err(where, `bad audience ${a}`)
+
+  // Citations
+  const cited = []
+  for (const field of CITATION_FIELD_ORDER[e.kind] || []) {
+    cited.push(...markersIn(e[field]))
+  }
+  for (const stat of e.stats || []) {
+    if (!stat.sourceId) err(where, `stat "${stat.figure}" has no sourceId`)
+    else cited.push(stat.sourceId)
+    if (!stat.locator) warn(where, `stat "${stat.figure}" has no locator`)
+  }
+  const listed = new Set(e.sourceIds || [])
+  for (const id of new Set(cited)) {
+    if (!SOURCES[id]) err(where, `cites unknown source ${id}`)
+    if (!listed.has(id)) warn(where, `cites ${id} but it is missing from sourceIds`)
+  }
+  for (const id of listed) if (!SOURCES[id]) err(where, `sourceIds has unknown source ${id}`)
+  for (const field of ["faqs", "metaDescription", "title"]) {
+    if (markersIn(e[field]).length) err(where, `${field} must not contain citation markers`)
+  }
+
+  const strong = [...listed].filter((id) => SOURCES[id] && SOURCES[id].tier <= 2)
+  if (strong.length < 2) (e.status === "published" ? err : warn)(where, `only ${strong.length} tier 1-2 sources`)
+
+  // stats[] cite through their sourceId field, not inline markers.
+  for (const field of (CITATION_FIELD_ORDER[e.kind] || []).filter((f) => f !== "stats")) {
+    walkStrings(e[field], (s, trail) => {
+      for (const sentence of uncitedStats(s)) warn(where, `uncited statistic in ${field}${trail ? "." + trail : ""}: "${sentence.slice(0, 110)}"`)
+    })
+  }
+
+  // Related links
+  for (const [type, slugs] of Object.entries(e.related || {})) {
+    if (!slugIndex[type]) {
+      err(where, `unknown related type ${type}`)
+      continue
+    }
+    for (const slug of slugs) if (!slugIndex[type].has(slug)) err(where, `related.${type} -> missing ${slug}`)
+  }
+  for (const item of e.whatStopsIt || []) {
+    if (item.controlSlug && !slugIndex.controls.has(item.controlSlug)) err(where, `whatStopsIt control ${item.controlSlug} missing`)
+    if (item.guideSlug && !slugIndex.guides.has(item.guideSlug)) err(where, `whatStopsIt guide ${item.guideSlug} missing`)
+    if (item.toolkitCategory && !toolkitCategories.has(item.toolkitCategory))
+      err(where, `whatStopsIt toolkitCategory ${item.toolkitCategory} missing`)
+  }
+  for (const list of Object.values(e.actions || {}))
+    for (const a of list) if (a.guideSlug && !slugIndex.guides.has(a.guideSlug)) err(where, `action guide ${a.guideSlug} missing`)
+
+  // Tone and terminology
+  walkStrings(e, (s, trail) => {
+    for (const re of BANNED) if (re.test(s)) warn(where, `tone: ${re} in ${trail}`)
+    if (/\bSI\b/.test(s.replace(CITATION_MARKER, "")) && !SI_ALLOWED.has(e.slug)) warn(where, `"SI" used in ${trail}`)
+    if (/\bMSPs?\b/.test(s)) err(where, `"MSP" in ${trail}; say "IT provider"`)
+    if (/coalition|cowbell|travelers|beazley/i.test(s)) warn(where, `insurance carrier name in ${trail}`)
+  })
+}
+
+// Internal links inside industry-brief HTML must point at real, known pages.
+const ROUTE_SETS = {
+  threats: slugIndex.threats,
+  guides: slugIndex.guides,
+  "digital-sovereignty": slugIndex.explainers,
+  controls: slugIndex.controls,
+}
+for (const e of entries.filter((x) => x.kind === "industry-brief")) {
+  for (const m of (e.content || "").matchAll(/href="(\/[^"#?]*)/g)) {
+    const [, section, slug] = m[1].split("/")
+    if (slug && ROUTE_SETS[section] && !ROUTE_SETS[section].has(slug))
+      err(`industry-brief ${e.slug}`, `content links to missing ${m[1]}`)
+    if (slug && ROUTE_SETS[section] && e.status === "published") {
+      const target = [...ALL_THREATS, ...ALL_GUIDES, ...ALL_EXPLAINERS].find((x) => x.slug === slug)
+      if (target && target.status !== "published") err(`industry-brief ${e.slug}`, `published brief links to draft ${m[1]}`)
+    }
+  }
+}
+
+// Controls link to threat pages; those slugs must exist.
+for (const c of CONTROLS) {
+  for (const slug of c.relatedThreats || [])
+    if (!slugIndex.threats.has(slug)) err(`control ${c.slug}`, `relatedThreats -> missing ${slug}`)
+}
+
+// Citation markers outside article entries (glossary, toolkit, homepage).
+function checkMarkers(where, value) {
+  for (const id of markersIn(value)) if (!SOURCES[id]) err(where, `marker cites unknown source ${id}`)
+}
+
+// ── Toolkit ──────────────────────────────────────────────────────────────
+const toolSlugs = new Set()
+for (const t of ALL_TOOLS) {
+  const where = `tool ${t.slug}`
+  for (const f of ["slug", "name", "category", "audience", "whatItsFor", "whyWeLikeIt", "cost", "url", "status"])
+    if (t[f] === undefined) err(where, `missing ${f}`)
+  if (toolSlugs.has(t.slug)) err(where, "duplicate slug")
+  checkMarkers(where, t)
+  toolSlugs.add(t.slug)
+  if (!toolkitCategories.has(t.category)) err(where, `unknown category ${t.category}`)
+  if (t.url && TRACKING.test(t.url)) err(where, `tracking/affiliate parameter in url ${t.url}`)
+  for (const id of t.sourceIds || []) if (!SOURCES[id]) err(where, `unknown source ${id}`)
+  if (t.pricingVerified && !DATE_DAY.test(t.pricingVerified)) err(where, "pricingVerified must be YYYY-MM-DD")
+}
+
+// ── Glossary ─────────────────────────────────────────────────────────────
+const termSlugs = new Set()
+for (const g of GLOSSARY) {
+  const where = `glossary ${g.slug}`
+  for (const f of ["term", "slug", "shortDef", "longDef"]) if (!g[f]) err(where, `missing ${f}`)
+  if (termSlugs.has(g.slug)) err(where, "duplicate slug")
+  checkMarkers(where, g)
+  termSlugs.add(g.slug)
+  if (g.shortDef && g.shortDef.split(/\s+/).length > 30) warn(where, `shortDef is ${g.shortDef.split(/\s+/).length} words (max 30)`)
+  for (const id of g.sourceIds || []) if (!SOURCES[id]) err(where, `unknown source ${id}`)
+  for (const [type, slugs] of Object.entries(g.seeAlso || {})) {
+    if (!slugIndex[type]) {
+      err(where, `unknown seeAlso type ${type}`)
+      continue
+    }
+    for (const slug of slugs) if (!slugIndex[type].has(slug)) err(where, `seeAlso.${type} -> missing ${slug}`)
+  }
+}
+
+// ── Homepage facts and principles ────────────────────────────────────────
+for (const [i, item] of (WHAT_CHANGED || []).entries()) {
+  const where = `WHAT_CHANGED[${i}]`
+  if (!item.text || !item.sourceId) err(where, "needs text and sourceId")
+  checkMarkers(where, item)
+  if (item.sourceId && !SOURCES[item.sourceId]) err(where, `unknown source ${item.sourceId}`)
+  else if (item.sourceId && SOURCES[item.sourceId].tier > 2) err(where, "homepage facts need a tier 1-2 source")
+}
+for (const [i, p] of (PRINCIPLES || []).entries()) if (!p.title || !p.detail) err(`PRINCIPLES[${i}]`, "needs title and detail")
+
+// ── Report ───────────────────────────────────────────────────────────────
+const counts = `${entries.length} entries, ${ALL_TOOLS.length} tools, ${GLOSSARY.length} terms, ${Object.keys(SOURCES).length} sources`
+for (const w of warnings) console.log(`warn  ${w}`)
+for (const e of errors) console.log(`ERROR ${e}`)
+console.log(`\n${counts}: ${errors.length} errors, ${warnings.length} warnings`)
+process.exit(errors.length || (strict && warnings.length) ? 1 : 0)

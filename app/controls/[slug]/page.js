@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { CONTROLS } from "@/lib/controls"
+import { getThreatBySlug } from "@/lib/threats"
 import ControlDetailClient from "./ControlDetailClient"
 import SchemaScript from "@/app/components/SchemaScript"
 import { articleSchema, faqSchema, howToSchema } from "@/lib/schema"
@@ -23,6 +24,11 @@ export async function generateMetadata({ params }) {
     alternates: {
       canonical: `https://datahygienics.com/controls/${slug}`,
     },
+    openGraph: {
+      title: `${control.name} for Small Business`,
+      description: description.slice(0, 160),
+      url: `https://datahygienics.com/controls/${slug}`,
+    },
   }
 }
 
@@ -34,7 +40,7 @@ export default async function ControlDetailPage({ params }) {
     notFound()
   }
 
-  const tldr = `${control.name} is a security control mapped to NIST CSF 2.0 ${control.nistCategory} and CIS Control ${control.cisControl} (${control.cisControlName}). It helps small businesses reduce breach risk and meet cyber insurance requirements.`
+  const tldr = `${control.name} is a security control mapped to NIST CSF 2.0 ${control.nistCategory} and CIS Control ${control.cisControl} (${control.cisControlName}). It helps small businesses reduce breach risk, including from AI-enabled attacks, and answer the security questions that insurers and clients ask.`
 
   const faqs = [
     {
@@ -42,7 +48,7 @@ export default async function ControlDetailPage({ params }) {
       answer: control.explanation.split("\n\n")[0],
     },
     {
-      question: `Why do cyber insurance providers care about ${control.name}?`,
+      question: `Do cyber insurers ask about ${control.name}?`,
       answer: control.insuranceRelevance.split("\n\n")[0],
     },
     {
@@ -92,7 +98,8 @@ export default async function ControlDetailPage({ params }) {
     <>
       <SchemaScript schema={schemas} />
       <ControlDetailClient
-        control={control}
+        // Link only threat entries that are published (drafts would 404).
+        control={{ ...control, relatedThreats: (control.relatedThreats || []).filter(getThreatBySlug) }}
         tldr={tldr}
         faqs={faqs}
         reviewDisplay={reviewDisplay}

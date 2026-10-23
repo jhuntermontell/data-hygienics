@@ -13,7 +13,6 @@ const STEPS = [
     description: "We will tailor the assessment to your regulatory environment.",
     options: [
       "Healthcare",
-      "Legal",
       "Financial Services",
       "Retail / E-commerce",
       "Government / Defense Contractor",

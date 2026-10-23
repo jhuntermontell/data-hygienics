@@ -6,7 +6,12 @@ import { motion } from "framer-motion"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
-import { getQuestionsForIndustry, QUICK_SECTIONS, QUICK_DISCOVERY_GUIDES } from "@/lib/questions"
+import {
+  getQuestionsForIndustry,
+  isRetiredIndustry,
+  QUICK_SECTIONS,
+  QUICK_DISCOVERY_GUIDES,
+} from "@/lib/questions"
 import {
   calculateSectionScores,
   getLetterGrade,
@@ -20,7 +25,6 @@ import SectionBreakdown from "../components/SectionBreakdown"
 import GapList from "../components/GapList"
 import UpgradeModal from "../components/UpgradeModal"
 import RemediationPlan from "../components/RemediationPlan"
-import InsuranceReadinessSection from "../components/InsuranceReadinessSection"
 import { Button } from "@/components/ui/button"
 import {
   Shield,
@@ -34,6 +38,7 @@ import {
   Lightbulb,
   ArrowRight,
   CheckCircle,
+  Info,
 } from "lucide-react"
 
 const PdfReport = dynamic(() => import("../components/PdfReport"), {
@@ -54,7 +59,7 @@ function getSummary(score, hasInsurance) {
     summary = "Your business is at critical risk. Multiple fundamental security controls are missing. We strongly recommend addressing the high-priority gaps immediately."
 
   if (hasInsurance === "No" && score < 80) {
-    summary += " Without cyber insurance, your business bears the full financial cost of any breach. We strongly recommend obtaining coverage alongside addressing these gaps."
+    summary += " Without cyber insurance, your business carries the full cost of an incident. Consider coverage as you close these gaps."
   }
 
   return summary
@@ -71,12 +76,6 @@ export default function ResultsPage() {
   const [showPdf, setShowPdf] = useState(null)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [isPaid, setIsPaid] = useState(false)
-  // Insurance Readiness feature gating. Dashboard is visible to any user
-  // with canTakeAssessment (which, under the new pricing model, requires
-  // Docs Pack / Ongoing Protection / Agency / legacy Starter+). Proof pack
-  // PDF download requires canAccessPolicies so Docs Pack buyers get it.
-  const [canViewReadiness, setCanViewReadiness] = useState(false)
-  const [canDownloadProofPack, setCanDownloadProofPack] = useState(false)
   // True when the subscription fetch failed. We do NOT lock paid users out
   // of gated content (PDF downloads, remediation plan) when this is set;
   // instead the gated buttons show a retry affordance.
@@ -104,20 +103,11 @@ export default function ResultsPage() {
         // buttons can show a retry affordance instead of a locked padlock.
         setEntitlementUnknown(true)
         setIsPaid(false)
-        setCanViewReadiness(false)
-        setCanDownloadProofPack(false)
       } else {
         setEntitlementUnknown(false)
         setIsPaid(
           subData.access.canDownloadReports || subData.hasPurchase("assessment_bundle")
         )
-        // Insurance Readiness visibility: any user with assessment access
-        // (canTakeAssessment) gets the dashboard. canAccessPolicies gates
-        // the proof pack PDF so Docs Pack / Protection / Agency unlock it
-        // but legacy Starter (which does not include full policy access)
-        // only sees the dashboard without the PDF.
-        setCanViewReadiness(!!subData.access.canTakeAssessment)
-        setCanDownloadProofPack(!!subData.access.canAccessPolicies)
       }
 
       const { data: assessments } = await supabase
@@ -163,15 +153,11 @@ export default function ResultsPage() {
       if (subData.entitlementUnknown) {
         setEntitlementUnknown(true)
         setIsPaid(false)
-        setCanViewReadiness(false)
-        setCanDownloadProofPack(false)
       } else {
         setEntitlementUnknown(false)
         setIsPaid(
           subData.access.canDownloadReports || subData.hasPurchase("assessment_bundle")
         )
-        setCanViewReadiness(!!subData.access.canTakeAssessment)
-        setCanDownloadProofPack(!!subData.access.canAccessPolicies)
       }
     } finally {
       setRefreshingSubscription(false)
@@ -188,6 +174,10 @@ export default function ResultsPage() {
 
   const isQuick = assessment.assessment_type === "quick"
   const industry = assessment.industry || "Other / General Business"
+  // Assessments taken on an industry track that has since been retired (for
+  // example "Legal") still show their stored score, but their answers no
+  // longer line up with a current question bank.
+  const usedRetiredTrack = !isQuick && isRetiredIndustry(assessment.industry)
   const sections = isQuick ? QUICK_SECTIONS : getQuestionsForIndustry(industry)
   const score = assessment.score
   const { grade, label, color } = getLetterGrade(
@@ -285,7 +275,24 @@ export default function ResultsPage() {
           </div>
         </motion.div>
 
-        {/* Insurance warning (comprehensive only) */}
+        {/* Retired industry track notice */}
+        {usedRetiredTrack && (
+          <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 mb-8 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-[#475569] shrink-0 mt-0.5" />
+            <p className="text-[#475569] text-sm leading-relaxed">
+              This assessment used a retired industry track.{" "}
+              <Link
+                href="/tools/cyber-audit/assessment"
+                className="text-[#1D4ED8] font-semibold hover:underline"
+              >
+                Start a new assessment
+              </Link>{" "}
+              to get current AI-era questions.
+            </p>
+          </div>
+        )}
+
+        {/* No-insurance note (comprehensive only) */}
         {!isQuick && assessment.has_insurance === "No" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -295,9 +302,9 @@ export default function ResultsPage() {
           >
             <AlertTriangle className="w-5 h-5 text-[#D97706] shrink-0 mt-0.5" />
             <div>
-              <p className="text-[#D97706] text-sm font-semibold mb-1">No Cyber Insurance Detected</p>
+              <p className="text-[#D97706] text-sm font-semibold mb-1">No Cyber Insurance Reported</p>
               <p className="text-[#D97706]/70 text-xs leading-relaxed">
-                Your business does not currently have cyber insurance. This report can be used to support your application. We strongly recommend obtaining coverage. The average cost of a data breach for small businesses exceeds $120,000.
+                You told us your business does not have cyber insurance, so it would carry the full cost of an incident. Insurers often ask about the controls in this report, so closing these gaps also helps if you decide to apply for coverage.
               </p>
             </div>
           </motion.div>
@@ -351,7 +358,7 @@ export default function ResultsPage() {
                     You have {gaps.length} gaps identified.
                   </h4>
                   <p className="text-[#475569] text-sm leading-relaxed mb-5 max-w-md mx-auto">
-                    The comprehensive assessment digs deeper into each of these areas with product-specific questions, configuration checks, and a prioritized remediation plan your insurance broker will recognize.
+                    The comprehensive assessment digs deeper into each of these areas with product-specific questions, configuration checks, a section on how your team uses AI tools, and a prioritized remediation plan.
                   </p>
                   <Link href="/pricing">
                     <Button>
@@ -439,27 +446,6 @@ export default function ResultsPage() {
               </motion.div>
             )}
 
-            {/* Insurance Readiness - translates the assessment into carrier
-                application language. Rendered only for comprehensive
-                assessments (not quick) because the 3-question free preview
-                does not provide enough data to populate carrier questions.
-                entitlementUnknown is forwarded so the section can render a
-                neutral retry state instead of an upsell when the
-                subscription fetch failed transiently. */}
-            <InsuranceReadinessSection
-              assessment={assessment}
-              answers={answers}
-              canViewReadiness={canViewReadiness}
-              canDownloadProofPack={canDownloadProofPack}
-              entitlementUnknown={entitlementUnknown}
-              onRetryEntitlement={refreshSubscription}
-              refreshingEntitlement={refreshingSubscription}
-              businessProfile={{
-                companyName: profile?.company_name,
-                contactName: profile?.full_name,
-                email: userEmail,
-              }}
-            />
           </>
         )}
 
@@ -483,7 +469,7 @@ export default function ResultsPage() {
             <>
               <Button
                 onClick={() => {
-                  if (isPaid) return setShowPdf("insurance")
+                  if (isPaid) return setShowPdf("summary")
                   if (entitlementUnknown) return refreshSubscription()
                   return setShowUpgrade(true)
                 }}
@@ -501,7 +487,7 @@ export default function ResultsPage() {
                     ? refreshingSubscription
                       ? "Checking..."
                       : "Check subscription"
-                    : "Insurance Report"}
+                    : "Summary Report"}
                 </span>
               </Button>
               <Button

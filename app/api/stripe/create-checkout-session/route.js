@@ -7,13 +7,7 @@ import {
   isNewCheckoutPriceId,
   isSubscriptionPriceId,
   isOneTimePriceId,
-  isPerSeatPriceId,
 } from '@/lib/stripe/prices'
-
-// Agency Plan minimum seat count. Enforced server-side so a client cannot
-// talk itself down to fewer seats than the published pricing promises.
-const AGENCY_MIN_SEATS = 5
-const AGENCY_MAX_SEATS = 500
 
 export async function POST(request) {
   try {
@@ -26,8 +20,8 @@ export async function POST(request) {
 
     const userId = user.id
 
-    // Parse the body but only trust priceId. mode/successUrl/cancelUrl are
-    // ignored. Any client-supplied metadata is whitelisted below.
+    // Parse the body but only trust priceId. mode/successUrl/cancelUrl/quantity
+    // are ignored. Any client-supplied metadata is whitelisted below.
     const body = await request.json().catch(() => ({}))
     const priceId = typeof body.priceId === 'string' ? body.priceId : null
 
@@ -47,14 +41,15 @@ export async function POST(request) {
       )
     }
 
-    // ----- Allow-list: new-catalog SKUs only --------------------------------
-    // Legacy Starter / Professional / MSP / Assessment Bundle / Policy Bundle /
-    // Individual Policy IDs are deliberately NOT reachable through this
-    // route even though isSubscriptionPriceId() / isOneTimePriceId() still
-    // recognize them elsewhere. Grandfathered subscribers update their
-    // existing subscriptions through the Stripe billing portal, not through
-    // a fresh checkout session. Accepting a legacy ID here would let a
-    // crafted POST body resurrect the old catalog for new signups.
+    // ----- Allow-list: current-catalog SKUs only ----------------------------
+    // Every LEGACY_PRICES ID (grandfathered subscription plans, including
+    // retired ones, and the old one-time bundles) is deliberately NOT
+    // reachable through this route even though isSubscriptionPriceId() /
+    // isOneTimePriceId() still recognize them elsewhere. Grandfathered
+    // subscribers update their existing subscriptions through the Stripe
+    // billing portal, not through a fresh checkout session. Accepting a
+    // legacy ID here would let a crafted POST body resurrect a retired plan
+    // for new signups.
     if (!isNewCheckoutPriceId(priceId)) {
       return NextResponse.json({ error: 'Invalid price' }, { status: 400 })
     }
@@ -71,32 +66,10 @@ export async function POST(request) {
     }
     const mode = isSub ? 'subscription' : 'payment'
 
-    // ----- Per-seat quantity for Agency Plan -------------------------------
-    // Only the Agency priceId accepts a quantity; every other SKU is
-    // forced to quantity 1 regardless of what the client sends. The
-    // minimum seat count is enforced server-side so a crafted request
-    // cannot start a $29/mo subscription instead of the $145/mo minimum.
-    let quantity = 1
-    if (isPerSeatPriceId(priceId)) {
-      const requested = Number.parseInt(body.quantity, 10)
-      if (!Number.isFinite(requested) || requested < AGENCY_MIN_SEATS) {
-        return NextResponse.json(
-          {
-            error: `Agency Plan requires at least ${AGENCY_MIN_SEATS} client seats.`,
-          },
-          { status: 400 }
-        )
-      }
-      if (requested > AGENCY_MAX_SEATS) {
-        return NextResponse.json(
-          {
-            error: `Agency Plan is capped at ${AGENCY_MAX_SEATS} client seats per account. Contact us for larger deployments.`,
-          },
-          { status: 400 }
-        )
-      }
-      quantity = requested
-    }
+    // ----- Quantity is always 1 ---------------------------------------------
+    // No SKU in the current catalog is billed per unit, so any client-sent
+    // quantity is ignored.
+    const quantity = 1
 
     // ----- Whitelist client metadata. Add new keys explicitly here. ---------
     const allowedClientMetadata = {}
@@ -240,17 +213,6 @@ export async function POST(request) {
     if (mode === 'subscription') {
       sessionParams.subscription_data = {
         metadata: { supabase_user_id: userId },
-      }
-      // For Agency Plan, allow the user to adjust seat count from the
-      // Stripe-hosted checkout page. Billing portal updates flow through
-      // the webhook's subscription.updated handler, which re-reads the
-      // current quantity and persists it to our row.
-      if (isPerSeatPriceId(priceId)) {
-        sessionParams.line_items[0].adjustable_quantity = {
-          enabled: true,
-          minimum: AGENCY_MIN_SEATS,
-          maximum: AGENCY_MAX_SEATS,
-        }
       }
     } else {
       // payment_intent_data.metadata is duplicated for Stripe dashboard

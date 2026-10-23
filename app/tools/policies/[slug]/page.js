@@ -34,7 +34,7 @@ const STEPS = ["Company Info", "Customize Sections", "Review", "Download"]
 
 const TIER_TOOLTIP = `Simplified: Shorter, plain-English language. Good for very small teams or organizations just getting started with formal policies.
 
-Standard: The recommended baseline. Matches what most cyber insurance underwriters expect to see. Appropriate for most small and mid-sized businesses.
+Standard: The recommended baseline for most small and mid-sized businesses. Complete enough to answer the questions clients, auditors, and insurers usually ask, and short enough that people will read it.
 
 Comprehensive: Enterprise-grade language with detailed procedures and accountability structures. Best for regulated industries or organizations with dedicated compliance staff.`
 
@@ -108,8 +108,8 @@ export default function PolicyWizardPage() {
       }
 
       const plan = subData.plan || "free"
-      // Merged access: covers Ongoing Protection / Agency / Documentation
-      // Pack / legacy Professional / legacy MSP / legacy Policy Bundle in
+      // Merged access: covers Ongoing Protection, Documentation Pack,
+      // grandfathered legacy plans, and legacy Policy Bundle in
       // a single boolean. Starter's 2-policy cap is evaluated separately
       // below since it is the only remaining per-slug entitlement.
       const hasFullLibrary = subData.access.canAccessPolicies

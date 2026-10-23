@@ -107,13 +107,16 @@ export default function HeroScoreGauge() {
 
   return (
     <div className="w-full h-full flex items-center justify-center p-4">
+      {/* The label is static so assistive tech and crawlers never read the
+          animation's starting frame ("0 out of 100"). Everything inside is
+          decorative. */}
       <div
         className="bg-white border border-[#E2E8F0] rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] p-8 sm:p-12 flex flex-col items-center"
-        aria-label={`Cybersecurity score: ${SCORE} out of 100, grade ${GRADE}`}
+        aria-label={`Sample score: ${GRADE}, ${SCORE} out of 100`}
         role="img"
       >
         {/* Gauge */}
-        <div className="relative w-[260px] h-[260px] sm:w-[320px] sm:h-[320px]">
+        <div aria-hidden="true" className="relative w-[260px] h-[260px] sm:w-[320px] sm:h-[320px]">
           <svg
             viewBox="0 0 360 360"
             className="w-full h-full"
@@ -184,7 +187,7 @@ export default function HeroScoreGauge() {
         </div>
 
         {/* Metric pills */}
-        <div className="flex items-center gap-2 mt-6">
+        <div aria-hidden="true" className="flex items-center gap-2 mt-6">
           {METRICS.map((m, i) => (
             <div
               key={m.label}

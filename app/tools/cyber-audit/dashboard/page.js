@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
-import { getQuestionsForIndustry } from "@/lib/questions"
+import { getQuestionsForIndustry, RETIRED_INDUSTRIES } from "@/lib/questions"
 import { getSubscription, clearSubscriptionCache } from "@/lib/stripe/subscription"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
@@ -20,7 +20,6 @@ import {
   Newspaper,
   Lock,
   FileText,
-  ClipboardList,
   AlertTriangle,
   CreditCard,
   Sparkles,
@@ -29,31 +28,29 @@ import {
 
 const PLAN_LABELS = {
   free: "Free",
-  // New catalog
+  // Current catalog
   protection: "Ongoing Protection",
-  agency: "Agency Plan",
-  // Legacy catalog (grandfathered)
+  // Legacy catalog (grandfathered, no longer sold)
   starter: "Starter (Legacy)",
   professional: "Professional (Legacy)",
-  msp: "MSP / Advisor (Legacy)",
+  msp: "IT Provider / Advisor (Legacy)",
+  agency: "Agency Plan (Legacy)",
 }
 
 const PLAN_FEATURES = {
   protection: [
     "Full assessment, reports, all 9 policies, and IR plan",
-    "Quarterly reassessment reminders",
+    "Quarterly reassessment with new AI-era questions",
     "Policy review and update workflow",
   ],
-  agency: [
-    "Everything in Ongoing Protection",
-    "Multi-tenant client workspace",
-    "Branded report generation",
-  ],
   // Legacy feature bullets so grandfathered subscribers still see an
-  // accurate summary of what their existing plan includes.
+  // accurate summary of what their existing plan includes. The retired
+  // Agency and MSP plans grant the same access as Ongoing Protection and
+  // Professional respectively (see lib/stripe/access.js).
   starter: ["Full cybersecurity assessment & reports", "Industry news feed", "2 customizable policies"],
-  professional: ["Unlimited assessments & reports", "All 9 insurance-ready policies", "Score tracking over time"],
-  msp: ["Everything in Professional", "Up to 10 client assessments", "Client management dashboard"],
+  professional: ["Unlimited assessments & reports", "All 9 policies", "Score tracking over time"],
+  msp: ["Everything in Professional", "Grandfathered: your access continues unchanged"],
+  agency: ["Everything in Ongoing Protection", "Grandfathered: your access continues unchanged"],
 }
 
 function getFirstName(profile, user) {
@@ -168,7 +165,8 @@ function DashboardContent() {
 
           if (latest.industry) {
             const { data: newsData } = await supabase.from("news_cache")
-              .select("*").eq("industry", latest.industry)
+              // Retired tracks read the feed of the track that replaced them.
+              .select("*").eq("industry", RETIRED_INDUSTRIES[latest.industry] ?? latest.industry)
               .order("cached_at", { ascending: false }).limit(5)
             setNews(newsData || [])
           }
@@ -479,7 +477,7 @@ function DashboardContent() {
           className="mb-8"
         >
           <h2 className="text-lg font-bold text-[#0F172A] mb-4">Your Tools</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-[#1D4ED8]/30 bg-white shadow-sm p-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] border border-[#EFF6FF] flex items-center justify-center">
@@ -491,7 +489,7 @@ function DashboardContent() {
                 </div>
               </div>
               <p className="text-[#475569] text-xs mb-4">
-                Industry-tailored cybersecurity assessment with scored results and downloadable reports.
+                Industry-tailored security assessment, including how your team uses AI, with scored results and downloadable reports.
               </p>
               {!assessment && (
                 <Link href="/tools/cyber-audit/assessment">
@@ -537,35 +535,12 @@ function DashboardContent() {
                 </div>
               </div>
               <p className="text-[#475569] text-xs mb-4">
-                Generate all 9 insurance-required cybersecurity policies, customized for your organization.
+                Generate 9 security policies, including an AI Acceptable Use Policy, customized for your organization.
               </p>
               <Link href="/tools/policies">
                 <Button size="sm" variant="outline">
                   <span className="flex items-center gap-2">
                     {policies.length > 0 ? `${policies.length} of 9 done` : "Get started"} <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </Button>
-              </Link>
-            </div>
-
-            {/* Vendor Scorecards */}
-            <div className="rounded-2xl border border-[#D97706]/20 bg-white shadow-sm p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[#FFFBEB] border border-[#D97706]/20 flex items-center justify-center">
-                  <ClipboardList className="w-5 h-5 text-[#D97706]" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[#0F172A]">Vendor Security Scorecards</h3>
-                  <span className="text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-1.5 py-0.5 rounded">Free</span>
-                </div>
-              </div>
-              <p className="text-[#475569] text-xs mb-4">
-                Independent security scores for the 10 tools small businesses use every day.
-              </p>
-              <Link href="/vendors">
-                <Button size="sm" variant="outline">
-                  <span className="flex items-center gap-2">
-                    View Scorecards <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </Button>
               </Link>
@@ -585,7 +560,7 @@ function DashboardContent() {
                 </div>
               </div>
               <p className="text-[#475569] text-xs mb-4">
-                Build, test, and activate your personalized incident response plan.
+                Build, test, and activate your incident response plan, including deepfake fraud and AI data-leak scenarios.
               </p>
               {irPlan ? (
                 <div className="mb-3 flex items-center gap-1.5 text-[11px] text-[#059669] font-semibold">
@@ -623,7 +598,7 @@ function DashboardContent() {
                 <div className="flex items-center gap-3">
                   <FileText className="w-4 h-4 text-[#1D4ED8]" />
                   <div>
-                    <p className="text-sm text-[#0F172A]">Insurance Report</p>
+                    <p className="text-sm text-[#0F172A]">Summary Report</p>
                     <p className="text-xs text-[#94A3B8]">{new Date(assessment.completed_at).toLocaleDateString()}</p>
                   </div>
                 </div>

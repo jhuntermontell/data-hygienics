@@ -9,6 +9,18 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [...compat.extends("next/core-web-vitals")];
+const eslintConfig = [
+  // Flat config only matches .js/.mjs/.cjs by default; include JSX files.
+  { files: ["**/*.{js,jsx,mjs}"] },
+  {
+    ignores: [".next/**", ".vercel/**", "node_modules/**", "public/**"],
+  },
+  ...compat.extends("next/core-web-vitals"),
+  {
+    // Content entries are one anonymous object per file by design.
+    files: ["lib/content/**/*.js"],
+    rules: { "import/no-anonymous-default-export": "off" },
+  },
+];
 
 export default eslintConfig;

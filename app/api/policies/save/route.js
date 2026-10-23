@@ -150,10 +150,12 @@ export async function POST(request) {
     } else if (hasIndividualPurchase) {
       authorized = true
     } else if (access.canAccessPolicies) {
-      // Any source of full-library access: Protection / Agency subscription,
-      // legacy Professional / MSP subscription, legacy Policy Bundle purchase,
-      // or Documentation Pack purchase. getPlanAccess has already merged
-      // these into a single flag, so this branch handles all of them.
+      // Any source of full-library access: Ongoing Protection subscription,
+      // a grandfathered legacy plan that includes the library, a legacy
+      // Policy Bundle purchase, a Documentation Pack purchase, or an admin
+      // profile.
+      // getPlanAccess has already merged these into a single flag, so this
+      // branch handles all of them.
       authorized = true
     } else if (isPaid && plan === "starter") {
       // Starter: 2 paid policies. Editing existing never counts.

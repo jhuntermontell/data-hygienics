@@ -43,7 +43,7 @@ export default function Tooltip({ tooltip, ariaLabel = "More info" }) {
             {insurerNote && (
               <div className="bg-[#EFF6FF] border border-[#EFF6FF] rounded-lg p-2.5">
                 <p className="text-[#1D4ED8]/80 text-[11px] leading-relaxed">
-                  <span className="font-semibold text-[#1D4ED8]">Why insurers care: </span>
+                  <span className="font-semibold text-[#1D4ED8]">Why it matters: </span>
                   {insurerNote}
                 </p>
               </div>

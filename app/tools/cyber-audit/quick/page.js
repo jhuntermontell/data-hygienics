@@ -9,8 +9,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Shield, ArrowRight, User, Mail, Building2 } from "lucide-react"
+import { QUICK_SECTIONS } from "@/lib/questions/quick"
 
 const QUICK_LEAD_KEY = "dh_quick_lead"
+
+// Derived so the copy stays right when questions are added or removed.
+const QUICK_QUESTION_COUNT = QUICK_SECTIONS.reduce(
+  (total, section) => total + section.questions.length,
+  0
+)
 
 export default function QuickLeadCapturePage() {
   const router = useRouter()
@@ -47,7 +54,7 @@ export default function QuickLeadCapturePage() {
           <div className="max-w-5xl mx-auto px-6 py-2.5 flex items-center justify-center gap-2">
             <Shield className="w-3.5 h-3.5 text-white" />
             <span className="text-white text-xs font-semibold tracking-wide uppercase">
-              Quick Security Check &nbsp;&middot;&nbsp; 12 Questions
+              Quick Security Check &nbsp;&middot;&nbsp; {QUICK_QUESTION_COUNT} Questions
             </span>
           </div>
         </div>
@@ -65,7 +72,7 @@ export default function QuickLeadCapturePage() {
               See where your business stands in 5 minutes
             </h1>
             <p className="text-[#475569] text-base leading-relaxed">
-              Answer 12 questions. Get your cybersecurity score. No sales pitch, no jargon, no strings attached.
+              Answer {QUICK_QUESTION_COUNT} questions, including one on how your team uses AI. Get your security score. No sales pitch, no jargon, no strings attached.
             </p>
           </div>
 

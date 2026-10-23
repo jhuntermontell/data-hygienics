@@ -1,54 +1,61 @@
 import { notFound } from "next/navigation"
-import { threats, getThreatBySlug } from "@/lib/threats"
-import ThreatDetailClient from "./ThreatDetailClient"
+import Navbar from "@/app/components/Navbar"
+import Footer from "@/app/components/Footer"
 import SchemaScript from "@/app/components/SchemaScript"
-import { articleSchema, faqSchema } from "@/lib/schema"
+import ThreatArticle from "@/app/components/ThreatArticle"
+import { entryMetadata, entryDescription } from "@/app/components/libraryHelpers"
+import { articleSchema, faqSchema, breadcrumbSchema } from "@/lib/schema"
+import { threats, getThreatBySlug } from "@/lib/threats"
+import { hrefFor, stripCitations } from "@/lib/content"
+
+export const dynamicParams = false
 
 export function generateStaticParams() {
-  return threats.map((t) => ({ slug: t.slug }))
+  return threats.map((entry) => ({ slug: entry.slug }))
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
-  const threat = getThreatBySlug(slug)
-  if (!threat) return {}
-
-  return {
-    title: threat.metaTitle,
-    description: threat.metaDescription,
-    alternates: {
-      canonical: `https://datahygienics.com/threats/${slug}`,
-    },
-  }
+  const entry = getThreatBySlug(slug)
+  if (!entry) return {}
+  return entryMetadata(entry)
 }
 
-export default async function ThreatDetailPage({ params }) {
+export default async function ThreatPage({ params }) {
   const { slug } = await params
-  const threat = getThreatBySlug(slug)
+  const entry = getThreatBySlug(slug)
+  if (!entry) notFound()
 
-  if (!threat) {
-    notFound()
-  }
-
-  // Per-threat review date stored as YYYY-MM; expand to ISO date (day 01
-  // of the review month) for schema.org dateModified.
-  const reviewDate = `${threat.lastReviewed}-01`
-
+  const path = hrefFor(entry)
+  const faqs = (entry.faqs || []).filter((f) => f?.question && f?.answer)
   const schemas = [
     articleSchema({
-      title: threat.title,
-      description: threat.metaDescription,
-      slug: `/threats/${slug}`,
-      lastReviewed: reviewDate,
-      datePublished: threat.datePublished,
+      title: entry.title,
+      description: entryDescription(entry),
+      slug: path,
+      lastReviewed: entry.lastReviewed ? `${entry.lastReviewed}-01` : entry.datePublished,
+      datePublished: entry.datePublished,
     }),
-    faqSchema(threat.faqs),
-  ]
+    faqs.length
+      ? faqSchema(faqs.map((f) => ({ question: stripCitations(f.question), answer: stripCitations(f.answer) })))
+      : null,
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Threat Library", path: "/threats" },
+      { name: entry.title, path },
+    ]),
+  ].filter(Boolean)
 
   return (
     <>
       <SchemaScript schema={schemas} />
-      <ThreatDetailClient threat={threat} />
+      <div className="min-h-screen bg-[#F8FAFC]">
+        <Navbar />
+        <main className="library-page max-w-3xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
+          <ThreatArticle entry={entry} />
+        </main>
+        <Footer />
+      </div>
     </>
   )
 }

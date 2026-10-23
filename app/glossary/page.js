@@ -1,109 +1,98 @@
-"use client"
-
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { BookMarked } from "lucide-react"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
-import { GraduationCap, Mail, Check } from "lucide-react"
+import SchemaScript from "@/app/components/SchemaScript"
+import SourceList from "@/app/components/SourceList"
+import GlossaryList from "@/app/components/GlossaryList"
+import { libraryMetadata, orderCitations } from "@/app/components/libraryHelpers"
+import { definedTermSetSchema, breadcrumbSchema } from "@/lib/schema"
+import { glossary, getTermBySlug } from "@/lib/glossary"
+import { getThreatBySlug } from "@/lib/threats"
+import { getGuideBySlug } from "@/lib/guides"
+import { getExplainerBySlug } from "@/lib/sovereignty"
+import { glossaryHref, hrefFor, stripCitations } from "@/lib/content"
 
-const fadeUp = {
-  initial: { opacity: 0, y: 20 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true },
-  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+const TITLE = "AI and Security Glossary | Data Hygienics"
+const DESCRIPTION =
+  "Plain-English definitions of the AI and security terms you keep running into, from prompt injection to passkeys, and why each one matters to you."
+
+export const metadata = libraryMetadata({ title: TITLE, description: DESCRIPTION, path: "/glossary" })
+
+function list(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : []
+}
+
+function paragraphs(value) {
+  return Array.isArray(value) ? value.filter((v) => typeof v === "string") : typeof value === "string" ? [value] : []
+}
+
+// Resolve seeAlso slugs to links, dropping drafts and missing entries so
+// nothing points at a 404.
+function seeAlsoLinks(term) {
+  const seeAlso = term.seeAlso || {}
+  const pick = (slugs, getter, toLink) => list(slugs).map(getter).filter(Boolean).map(toLink)
+  return [
+    ...pick(seeAlso.glossary, getTermBySlug, (t) => ({ href: glossaryHref(t.slug), label: t.term, type: "term" })).filter(
+      (link) => link.href !== glossaryHref(term.slug)
+    ),
+    ...pick(seeAlso.threats, getThreatBySlug, (e) => ({ href: hrefFor(e), label: e.title, type: "threat" })),
+    ...pick(seeAlso.guides, getGuideBySlug, (e) => ({ href: hrefFor(e), label: e.title, type: "guide" })),
+    ...pick(seeAlso.explainers, getExplainerBySlug, (e) => ({ href: hrefFor(e), label: e.title, type: "explainer" })),
+  ]
 }
 
 export default function GlossaryPage() {
-  const [email, setEmail] = useState("")
-  const [submitted, setSubmitted] = useState(false)
+  // Plain data for the client list, in lib/glossary's A-Z order.
+  const entries = glossary.map((term) => ({
+    term: term.term,
+    slug: term.slug,
+    aliases: list(term.aliases),
+    shortDef: term.shortDef || "",
+    longDef: paragraphs(term.longDef),
+    whyItMatters: paragraphs(term.whyItMatters),
+    links: seeAlsoLinks(term),
+  }))
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setSubmitted(true)
-  }
+  // Number citations in render order: shortDef, longDef, whyItMatters.
+  const { ids, number } = orderCitations(
+    entries.flatMap((e) => [e.shortDef, ...e.longDef, ...e.whyItMatters]),
+    glossary.flatMap((term) => list(term.sourceIds))
+  )
+
+  const schemas = [
+    definedTermSetSchema(glossary.map((term) => ({ ...term, shortDef: stripCitations(term.shortDef) }))),
+    breadcrumbSchema([
+      { name: "Home", path: "/" },
+      { name: "Glossary", path: "/glossary" },
+    ]),
+  ]
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <>
+      <SchemaScript schema={schemas} />
+      <div className="min-h-screen bg-[#F8FAFC]">
+        <Navbar />
+        <main className="library-page max-w-3xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
+          <header className="mb-6">
+            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#1D4ED8] mb-3">
+              <BookMarked className="w-4 h-4" aria-hidden="true" />
+              Glossary
+            </p>
+            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+              AI and security terms, decoded
+            </h1>
+            <p className="text-[#475569] text-lg leading-relaxed">
+              The words you keep running into, in plain English: what each one means, and why it matters to your
+              home or your business.
+            </p>
+          </header>
 
-      <section className="pt-36 pb-24 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <motion.div
-            {...fadeUp}
-            className="inline-flex items-center gap-2 bg-[#F0FDFA] text-[#0F766E] text-xs font-semibold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wide"
-          >
-            Coming Q3 2026
-          </motion.div>
+          <GlossaryList entries={entries} number={number} />
 
-          <motion.div
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.05 }}
-            className="w-14 h-14 rounded-xl bg-[#EFF6FF] flex items-center justify-center mx-auto mb-6"
-          >
-            <GraduationCap className="w-7 h-7 text-[#1D4ED8]" />
-          </motion.div>
-
-          <motion.h1
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold text-[#0F172A] tracking-tight leading-[1.1] mb-5"
-          >
-            Cybersecurity jargon, translated
-          </motion.h1>
-
-          <motion.p
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.15 }}
-            className="text-[#475569] text-lg md:text-xl leading-relaxed mb-8 max-w-xl mx-auto"
-          >
-            Every term you&apos;ve nodded along to in a meeting but never actually understood.
-          </motion.p>
-
-          <motion.p
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.2 }}
-            className="text-[#475569] text-base leading-[1.8] mb-10 max-w-xl mx-auto"
-          >
-            We&apos;re building a plain-English glossary of every cybersecurity term a business owner might encounter. Each entry explains what it means, why it matters, and links to the controls and threats where it comes up. No condescension. No jargon-to-explain-jargon.
-          </motion.p>
-
-          <motion.div
-            {...fadeUp}
-            transition={{ ...fadeUp.transition, delay: 0.25 }}
-            className="max-w-md mx-auto"
-          >
-            {submitted ? (
-              <div className="flex items-center justify-center gap-2 bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] px-5 py-4 rounded-lg text-sm font-medium">
-                <Check className="w-4 h-4" />
-                Thanks. We&apos;ll let you know when it launches.
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="w-full h-12 rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-4 text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/20 focus:border-[#1D4ED8]"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center bg-[#1D4ED8] text-white font-semibold text-sm px-6 py-3 rounded-lg hover:bg-[#1E40AF] transition-all shadow-sm"
-                >
-                  Notify me
-                </button>
-              </form>
-            )}
-          </motion.div>
-        </div>
-      </section>
-
-      <Footer />
-    </div>
+          <SourceList ids={ids} />
+        </main>
+        <Footer />
+      </div>
+    </>
   )
 }

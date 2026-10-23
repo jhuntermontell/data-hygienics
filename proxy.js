@@ -3,8 +3,9 @@ import { NextResponse } from "next/server"
 
 // Prefix-matched. Any pathname that startsWith one of these requires a
 // valid Supabase session. Public marketing pages, the cyber-audit landing
-// page, controls/threats/vendors libraries, and login/register/forgot
-// pages are intentionally NOT in this list.
+// page, the research library (hubs, threats, guides, toolkit, glossary,
+// controls), and login/register/forgot pages are intentionally NOT in this
+// list.
 const PROTECTED_ROUTES = [
   "/tools/cyber-audit/dashboard",
   "/tools/cyber-audit/assessment",

@@ -7,13 +7,13 @@ import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 
 const PLAN_LABELS = {
   free: "Free",
-  // New catalog
+  // Current catalog
   protection: "Ongoing Protection",
-  agency: "Agency Plan",
-  // Legacy catalog (grandfathered)
+  // Legacy catalog (grandfathered, no longer sold)
   starter: "Starter",
   professional: "Professional",
-  msp: "MSP / Advisor",
+  msp: "IT Provider / Advisor (Legacy)",
+  agency: "Agency Plan (Legacy)",
 }
 
 /**

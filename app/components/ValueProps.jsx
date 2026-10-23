@@ -1,51 +1,58 @@
 "use client"
-import { motion } from "framer-motion"
-import { ShieldCheck, Building2, Zap } from "lucide-react"
+import { motion, useReducedMotion } from "framer-motion"
+import { BookOpenCheck, Scale, UsersRound } from "lucide-react"
 
-const props = [
+// The three promises behind everything we publish.
+const PROMISES = [
   {
-    icon: ShieldCheck,
-    title: "No vendor bias. Ever.",
-    text: "We don't sell security products. We don't receive referral fees from vendors. Our job is to tell you the truth about where you stand.",
+    icon: Scale,
+    title: "Independent",
+    text: "We sell only our own business tools, and we label them wherever they appear. We take no referral fees, use no affiliate links and accept no sponsors.",
+    iconWrap: "bg-[#EFF6FF] text-[#1D4ED8]",
   },
   {
-    icon: Building2,
-    title: "Built for real businesses.",
-    text: "Not enterprise. Not Fortune 500. Built for the law firm with 12 employees, the medical practice with no IT department, the nonprofit protecting donor data.",
+    icon: BookOpenCheck,
+    title: "Researched and cited",
+    text: "Every number links to a named source with a date. We favor government and standards bodies, use the more conservative figure when sources disagree, and say so when we don't know yet.",
+    iconWrap: "bg-gradient-to-br from-[#EFF6FF] to-[#F0FDFA] text-[#0F172A]",
   },
   {
-    icon: Zap,
-    title: "From assessment to action in minutes.",
-    text: "Take the assessment, get your score, download your report. No sales calls. No waiting. No upsells.",
+    icon: UsersRound,
+    title: "For home and business",
+    text: "One library, two front doors. Households get habits the whole family can keep. Small businesses get rules and plans a five-person team can run.",
+    iconWrap: "bg-[#F0FDFA] text-[#0F766E]",
   },
 ]
 
-export default function ValueProps() {
+export default function ValueProps({ headingLevel = "h3" }) {
+  const reduce = useReducedMotion()
+  const Heading = headingLevel
+
   return (
-    <section className="py-24 bg-[#F8FAFC]">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="grid md:grid-cols-3 gap-6">
-          {props.map((prop, i) => {
-            const Icon = prop.icon
-            return (
-              <motion.div
-                key={prop.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-                className="bg-white rounded-xl border border-[#E2E8F0] p-8 shadow-sm hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="w-11 h-11 rounded-lg bg-[#EFF6FF] flex items-center justify-center mb-5">
-                  <Icon className="w-5 h-5 text-[#1D4ED8]" />
-                </div>
-                <h3 className="text-lg font-bold text-[#0F172A] mb-2">{prop.title}</h3>
-                <p className="text-[#475569] text-sm leading-relaxed">{prop.text}</p>
-              </motion.div>
-            )
-          })}
-        </div>
-      </div>
-    </section>
+    <ul className="grid gap-5 md:grid-cols-3 list-none p-0">
+      {PROMISES.map((promise, i) => {
+        const Icon = promise.icon
+        // Same initial state on server and client; reduced motion is instant.
+        const motionProps = {
+          initial: { opacity: 0, y: 16 },
+          whileInView: { opacity: 1, y: 0 },
+          viewport: { once: true, margin: "-60px" },
+          transition: reduce ? { duration: 0 } : { duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] },
+        }
+        return (
+          <motion.li
+            key={promise.title}
+            {...motionProps}
+            className="bg-white rounded-2xl border border-[#E2E8F0] p-6 sm:p-8 shadow-sm"
+          >
+            <span className={`w-11 h-11 rounded-xl flex items-center justify-center ${promise.iconWrap}`}>
+              <Icon className="w-5 h-5" aria-hidden="true" />
+            </span>
+            <Heading className="mt-5 text-lg font-bold text-[#0F172A]">{promise.title}</Heading>
+            <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">{promise.text}</p>
+          </motion.li>
+        )
+      })}
+    </ul>
   )
 }

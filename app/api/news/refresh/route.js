@@ -4,7 +4,6 @@ import { timingSafeEqual } from "crypto"
 // Industries we refresh on each cron tick.
 const INDUSTRIES = [
   "Healthcare",
-  "Legal",
   "Financial Services",
   "Retail / E-commerce",
   "Government / Defense Contractor",
@@ -17,13 +16,13 @@ const INDUSTRIES = [
 const ITEMS_PER_INDUSTRY = 5
 
 function buildPrompt(industry) {
-  return `You are a cybersecurity news analyst for small and mid-sized ${industry} organizations.
+  return `You are a cybersecurity and AI-threat news analyst for small and mid-sized ${industry} organizations.
 
-Use the web_search tool to find ${ITEMS_PER_INDUSTRY} real, recent (published within the last 30 days) cybersecurity news stories that are directly relevant to ${industry}. Prefer stories from reputable sources: KrebsOnSecurity, BleepingComputer, The Record, DarkReading, CISA advisories, HHS OCR, industry trade press, or major newswires (Reuters, AP, WSJ).
+Use the web_search tool to find ${ITEMS_PER_INDUSTRY} real, recent (published within the last 30 days) cybersecurity and AI-threat news stories that are directly relevant to ${industry}. AI-threat stories include AI-enabled scams and phishing, deepfake voice or video fraud, and data exposure through AI tools. Prefer stories from reputable sources: KrebsOnSecurity, BleepingComputer, The Record, DarkReading, CISA advisories, HHS OCR, industry trade press, or major newswires (Reuters, AP, WSJ).
 
 For each story, return a JSON object with:
 - "title": the actual headline from the article (under 120 characters, no editorializing)
-- "summary": a 2-3 sentence plain-language summary of what happened and why it matters to ${industry} organizations
+- "summary": a 2-3 sentence plain-language summary of what happened and why it matters to ${industry} organizations. Keep it calm and factual, with no hype or fear language.
 - "url": the canonical https URL to the original article on the publisher's site
 
 Requirements:

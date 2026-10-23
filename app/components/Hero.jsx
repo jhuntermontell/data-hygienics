@@ -1,89 +1,138 @@
 "use client"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import HeroScoreGauge from "./HeroScoreGauge"
+import { motion, useReducedMotion } from "framer-motion"
+import { ArrowRight, Briefcase, Check, House } from "lucide-react"
+import ThreatSpotlight from "./ThreatSpotlight"
+import { SITE } from "@/lib/site"
 
-export default function Hero() {
+const EASE = [0.22, 1, 0.36, 1]
+
+// The tagline's last phrase gets the blue-to-teal treatment: blue is
+// Business, teal is Home, and the brand sits across both.
+const HIGHLIGHT = "alongside AI."
+
+const PROMISES = ["Only our own business tools for sale", "No referral fees", "No affiliate links"]
+
+function Tagline() {
+  const tagline = SITE.tagline
+  const at = tagline.lastIndexOf(HIGHLIGHT)
+  if (at <= 0) return tagline
   return (
-    <section className="relative min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-6 pt-24 pb-16 flex flex-col lg:flex-row items-center lg:items-center min-h-screen">
-        {/* Left column: text */}
-        <div className="w-full lg:w-1/2 lg:pr-12 flex flex-col justify-center py-12 lg:py-0">
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="inline-block text-[#0F766E] text-[13px] font-semibold tracking-[0.08em] mb-6"
-          >
-            Cybersecurity Platform
-          </motion.span>
+    <>
+      {tagline.slice(0, at)}
+      <span className="bg-gradient-to-r from-[#1D4ED8] to-[#0F766E] bg-clip-text text-transparent">
+        {tagline.slice(at)}
+      </span>
+    </>
+  )
+}
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.1] tracking-tight text-[#0F172A] mb-6"
-          >
-            Cybersecurity tools for the people actually running the business.
-          </motion.h1>
+// `threats` are trimmed spotlight items from toSpotlightItem(), built on the
+// server in app/page.js.
+export default function Hero({ threats = [] }) {
+  const reduce = useReducedMotion()
+  // Same initial/animate on server and client (the server can't know the
+  // motion preference); reduced motion just makes the transition instant.
+  const rise = (delay) => ({
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0 },
+    transition: reduce ? { duration: 0 } : { duration: 0.5, delay, ease: EASE },
+  })
+  const hasSpotlight = threats.length > 0
 
+  return (
+    <section aria-labelledby="hero-title" className="relative overflow-hidden bg-white">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-48 -left-40 w-[32rem] h-[32rem] rounded-full bg-[#0F766E]/10 blur-3xl" />
+        <div className="absolute -top-24 -right-48 w-[36rem] h-[36rem] rounded-full bg-[#1D4ED8]/10 blur-3xl" />
+        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle,#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_65%)]" />
+      </div>
+
+      <div
+        className={`relative max-w-7xl mx-auto px-4 sm:px-6 pt-28 sm:pt-36 lg:pt-40 pb-16 sm:pb-24 grid grid-cols-1 gap-12 items-center ${
+          hasSpotlight ? "lg:grid-cols-12 lg:gap-16" : ""
+        }`}
+      >
+        <div className={hasSpotlight ? "lg:col-span-7" : "max-w-3xl"}>
           <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.42 }}
-            className="text-[#475569] text-xl leading-[1.55] max-w-[520px] mb-5"
+            {...rise(0)}
+            className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold tracking-[0.06em] uppercase text-[#334155]"
           >
-            Whether you&apos;re a CFO, office manager, or firm partner, if cybersecurity landed in your lap, this platform was built for you.
+            <span
+              className="w-2 h-2 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F766E]"
+              aria-hidden="true"
+            />
+            {SITE.kicker}
           </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="text-[#475569] text-base leading-[1.7] max-w-[520px] mb-8"
+          <h1
+            id="hero-title"
+            className="mt-6 text-[2.75rem] leading-[1.02] sm:text-6xl lg:text-[4.5rem] font-bold tracking-[-0.03em] text-[#0F172A] text-balance"
           >
-            We don&apos;t sell security products. We don&apos;t take referral fees. Our only job is to give you an honest picture of where you stand.
+            <Tagline />
+          </h1>
+
+          <motion.p
+            {...rise(0.1)}
+            className="mt-6 max-w-xl text-lg sm:text-xl leading-relaxed text-[#475569]"
+          >
+            Independent, researched guidance for households and small businesses: what AI changed about
+            scams and privacy, the habits that stop them, and the tools worth trusting.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className="flex flex-wrap gap-3 mb-5"
-          >
+          <motion.div {...rise(0.18)} className="mt-9 flex flex-col sm:flex-row gap-3">
             <Link
-              href="/tools/cyber-audit"
-              className="inline-flex items-center bg-[#1D4ED8] text-white font-semibold text-sm px-7 py-3 rounded-lg hover:bg-[#1E40AF] transition-all duration-150 shadow-sm"
+              href="/household"
+              className="group inline-flex items-center justify-between gap-4 rounded-xl bg-[#0F766E] px-6 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#115E59] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] transition-colors sm:min-w-[15rem]"
             >
-              Start the Free Assessment
+              <span className="inline-flex items-center gap-3">
+                <House className="w-5 h-5" aria-hidden="true" />
+                For my home
+              </span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
             </Link>
             <Link
-              href="/how-it-works"
-              className="inline-flex items-center bg-white border border-[#1D4ED8] text-[#1D4ED8] font-semibold text-sm px-7 py-3 rounded-lg hover:bg-[#EFF6FF] transition-all duration-150"
+              href="/business"
+              className="group inline-flex items-center justify-between gap-4 rounded-xl bg-[#1D4ED8] px-6 py-4 text-base font-semibold text-white shadow-sm hover:bg-[#1E40AF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] transition-colors sm:min-w-[15rem]"
             >
-              How It Works
+              <span className="inline-flex items-center gap-3">
+                <Briefcase className="w-5 h-5" aria-hidden="true" />
+                For my business
+              </span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
             </Link>
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.75 }}
-            className="text-[#94A3B8] text-[13px]"
+          <motion.div {...rise(0.24)} className="mt-6">
+            <Link
+              href="/digital-sovereignty"
+              className="group inline-flex items-center gap-1.5 text-[15px] font-semibold text-[#0F172A] underline decoration-[#0F766E]/40 decoration-2 underline-offset-4 hover:decoration-[#0F766E]"
+            >
+              What is digital sovereignty?
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+            </Link>
+          </motion.div>
+
+          <motion.ul
+            {...rise(0.3)}
+            className="mt-10 flex flex-wrap gap-x-5 gap-y-2 text-[13px] text-[#64748B] list-none p-0"
           >
-            No credit card required &nbsp;&middot;&nbsp; Results in under 20 minutes
-          </motion.p>
+            {PROMISES.map((promise) => (
+              <li key={promise} className="inline-flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-[#0F766E]" aria-hidden="true" />
+                {promise}
+              </li>
+            ))}
+          </motion.ul>
         </div>
 
-        {/* Right column: score gauge */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="w-full lg:w-1/2 h-[400px] sm:h-[480px] lg:h-[600px] flex items-center justify-center"
-        >
-          <HeroScoreGauge />
-        </motion.div>
+        {hasSpotlight ? (
+          <motion.div {...rise(0.2)} className="lg:col-span-5">
+            <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC]/80 backdrop-blur-sm p-4 sm:p-6 shadow-[0_8px_30px_rgb(15_23_42/0.06)]">
+              <ThreatSpotlight threats={threats} />
+            </div>
+          </motion.div>
+        ) : null}
       </div>
     </section>
   )
