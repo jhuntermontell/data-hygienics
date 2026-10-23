@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import PathIcon from "./PathIcon"
@@ -90,20 +90,27 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
   const reduce = useReducedMotion()
   const [index, setIndex] = useState(0)
   const headingRef = useRef(null)
-  const first = useRef(true)
+  const focusNext = useRef(false)
   const steps = visible(questions, answers)
   const q = steps[Math.min(index, steps.length - 1)]
   const value = answers[q.id]
   const styles = ACCENTS[accent]
   const last = index >= steps.length - 1
 
-  useEffect(() => {
-    if (first.current) {
-      first.current = false
-      return
+  // With AnimatePresence mode="wait" the next screen mounts only after the
+  // old one exits, so focus moves from the new heading's ref callback, not
+  // from an effect (which would still see the old heading).
+  const focusHeading = (el) => {
+    headingRef.current = el
+    if (el && focusNext.current) {
+      focusNext.current = false
+      el.focus()
     }
-    headingRef.current?.focus()
-  }, [index])
+  }
+  const go = (delta) => {
+    focusNext.current = true
+    setIndex((i) => i + delta)
+  }
 
   const setValue = (next) => onChange({ ...answers, [q.id]: next })
 
@@ -119,16 +126,18 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
     else if (!q.max || current.length < q.max) setValue([...current.filter((v) => !exclusive.has(v)), optionValue])
   }
 
-  const advance = () => (last ? onComplete() : setIndex((i) => i + 1))
+  // onComplete gets the final answers: a Skip on the last question has
+  // only just removed its answer, so the parent's copy is one render behind.
+  const advance = (latest) => (last ? onComplete(latest) : go(1))
   const next = () => {
-    if (isAnswered(q, value)) advance()
+    if (isAnswered(q, value)) advance(answers)
   }
   const skip = () => {
     const { [q.id]: _skipped, ...rest } = answers
     onChange(rest)
-    advance()
+    advance(rest)
   }
-  const back = () => (index === 0 ? onExit?.() : setIndex((i) => i - 1))
+  const back = () => (index === 0 ? onExit?.() : go(-1))
 
   const selected = q.type === "single" ? (value ? [value] : []) : Array.isArray(value) ? value : []
   const full = q.max && q.type !== "single" && selected.length >= q.max
@@ -167,7 +176,7 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
           <fieldset>
             <legend className="w-full">
               <h2
-                ref={headingRef}
+                ref={focusHeading}
                 tabIndex={-1}
                 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A] text-balance focus:outline-none"
               >

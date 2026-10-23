@@ -12,7 +12,8 @@ import { STATUS, matchesWhen, minutesFor } from "@/lib/path"
 //   story   a short scene that ends calmly, then the actions
 // A missing telling falls back (story -> simple -> do, detail -> do) and the
 // tab shows what's actually on screen. Knowledge level adds a reassurance
-// box for newcomers and "go further" for experts.
+// box for newcomers; for the technical, the detail shows as "Go further"
+// under any telling.
 //
 // The card follows the brand's three faces: Why now (navy, Judgment), your
 // status (cobalt, Clarity), Do it (teal, Action). Status is always a label,
@@ -68,7 +69,7 @@ function StatusChip({ mark }) {
 function Actions({ step, mark, onMark }) {
   const button =
     "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
-  if (mark && mark.status !== "skipped") {
+  if (mark?.status && mark.status !== "skipped") {
     return (
       <div className="flex flex-wrap items-center gap-2">
         {mark.status !== "checked" && mark.status !== "declined" ? (
@@ -342,11 +343,13 @@ export default function StepCard({
             </p>
           ) : null}
 
-          {knowledge === "expert" && step.expert ? (
-            <p className="text-sm leading-relaxed text-[#334155]">
-              <span className="font-semibold text-[#0F172A]">Go further: </span>
-              {step.expert}
-            </p>
+          {knowledge === "expert" && chosen !== "detail" && step.detail ? (
+            <div className="text-sm leading-relaxed text-[#334155] space-y-1">
+              <p className="font-semibold text-[#0F172A]">Go further</p>
+              {[].concat(step.detail).map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+            </div>
           ) : null}
 
           {step.involves ? (

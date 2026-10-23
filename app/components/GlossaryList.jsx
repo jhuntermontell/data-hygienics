@@ -46,18 +46,29 @@ export default function GlossaryList({ entries = [], number = {} }) {
   const [pendingTarget, setPendingTarget] = useState(null)
   const inputRef = useRef(null)
 
-  // An in-page jump (#term-...) to a term the search or filter is hiding
-  // clears both, then scrolls once the term is back in the DOM.
+  // An in-page jump to a term the search or filter is hiding clears both,
+  // then scrolls once the term is back in the DOM. Clicks on "#term-" links
+  // anywhere on the page (the "Words for what's coming" chips) are handled
+  // directly, since clicking the current hash again fires no hashchange.
   useEffect(() => {
-    const onHash = () => {
-      const id = window.location.hash.slice(1)
-      if (!id.startsWith("term-") || document.getElementById(id)) return
+    const reveal = (id) => {
+      if (!id.startsWith("term-") || document.getElementById(id)) return false
       setQuery("")
       setHorizon("all")
       setPendingTarget(id)
+      return true
     }
+    const onClick = (event) => {
+      const link = event.target.closest?.('a[href^="#term-"]')
+      if (link && reveal(link.getAttribute("href").slice(1))) event.preventDefault()
+    }
+    const onHash = () => reveal(window.location.hash.slice(1))
+    document.addEventListener("click", onClick)
     window.addEventListener("hashchange", onHash)
-    return () => window.removeEventListener("hashchange", onHash)
+    return () => {
+      document.removeEventListener("click", onClick)
+      window.removeEventListener("hashchange", onHash)
+    }
   }, [])
 
   const index = useMemo(

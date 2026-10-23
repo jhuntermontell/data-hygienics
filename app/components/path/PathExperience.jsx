@@ -84,8 +84,8 @@ export default function PathExperience({ audience, links }) {
             if (editing) setEditing(false)
             else window.location.assign("/path")
           }}
-          onComplete={() => {
-            const finalAnswers = { ...answers, completedAt: new Date().toISOString() }
+          onComplete={(latest) => {
+            const finalAnswers = { ...(latest || answers), completedAt: new Date().toISOString() }
             const built = buildPath(audience, finalAnswers)
             update((current) => ({
               ...current,
@@ -105,9 +105,9 @@ export default function PathExperience({ audience, links }) {
 
   const onMark = (id, status) =>
     update((current) => {
-      const progress = { ...(current.progress || {}) }
-      if (status) progress[id] = { status, at: new Date().toISOString() }
-      else delete progress[id]
+      // Undo is a tombstone (status: null) so it beats an older copy of the
+      // mark on another device when the two merge.
+      const progress = { ...(current.progress || {}), [id]: { status: status || null, at: new Date().toISOString() } }
       return { ...current, progress }
     })
 

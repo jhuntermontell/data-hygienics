@@ -125,7 +125,7 @@ function uncitedStats(text) {
         )
         // The 988 crisis line, "over 21", "112-bit", EU regulation numbers,
         // clock times in stories ("6:52 am").
-        .replace(/\b988\b|\bover \d{2}\b|\b\d+-bit\b|\(EU\) \/\d+|\b\d{1,2}:\d{2}\b/gi, "")
+        .replace(/\b988\b|\bover \d{2}\b(?!\s?(%|percent|million|billion|thousand))|\b\d+-bit\b|\(EU\) \/\d+|\b\d{1,2}:\d{2}\b/gi, "")
       const hasStat = /\d+(\.\d+)?\s?%|[$€£]\s?\d|\b\d{2,}\b|\b\d+(\.\d+)?\s?(million|billion|thousand)\b/i.test(scrubbed)
       return hasStat && !HAS_MARKER.test(sentence)
     })

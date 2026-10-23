@@ -7,6 +7,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut, ArrowRight } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { clearSubscriptionCache } from "@/lib/stripe/subscription"
+import { clearAccountPaths } from "@/lib/path/storage"
 import { NAV } from "@/lib/site"
 
 // Links come from lib/site.js NAV. Dropdowns follow the disclosure pattern:
@@ -276,6 +277,8 @@ export default function Navbar() {
     setOpenMenu(null)
     setMobileOpen(false)
     clearSubscriptionCache()
+    // Paths saved to this account shouldn't stay on a shared browser.
+    clearAccountPaths()
     await supabase.auth.signOut()
     window.location.href = "/"
   }

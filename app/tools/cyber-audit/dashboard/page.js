@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry, RETIRED_INDUSTRIES } from "@/lib/questions"
 import { getSubscription, clearSubscriptionCache } from "@/lib/stripe/subscription"
+import { clearAccountPaths } from "@/lib/path/storage"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import ScoreTimeline from "../components/ScoreTimeline"
@@ -232,6 +233,7 @@ function DashboardContent() {
 
   const handleSignOut = async () => {
     clearSubscriptionCache()
+    clearAccountPaths()
     await supabase.auth.signOut()
     window.location.href = "/"
   }
