@@ -215,7 +215,10 @@ export async function POST(request) {
 
     // ----- Build redirect URLs from the request origin (server-side only) --
     const origin = new URL(request.url).origin
-    const success_url = `${origin}/tools/cyber-audit/dashboard?welcome=true`
+    // checkout=<mode> tells the dashboard what the webhook will grant: a
+    // subscription changes the plan, a one-time payment (Documentation
+    // Pack) adds a purchase row and leaves the plan at "free".
+    const success_url = `${origin}/tools/cyber-audit/dashboard?welcome=true&checkout=${mode}`
     const cancel_url = `${origin}/pricing`
 
     // ----- Build session params. supabase_user_id is the LAST field set so
