@@ -8,7 +8,6 @@ import { getQuestionsForIndustry } from "@/lib/questions"
 import { calculateTotalScore, calculateSectionScores } from "@/lib/cyber-audit/scoring"
 import { getActiveDrillDowns } from "@/lib/cyber-audit/drill-downs"
 import { getSubscription } from "@/lib/stripe/subscription"
-import { isSubscriptionPaid } from "@/lib/stripe/entitlement"
 import Navbar from "@/app/components/Navbar"
 import ProgressBar from "../components/ProgressBar"
 import QuestionRenderer from "../components/QuestionRenderer"
@@ -87,14 +86,12 @@ export default function AssessmentPage() {
         // re-check.
         setIsPaid(false)
       } else {
-        // A user counts as "paid" for assessment purposes if they have an
-        // active paid subscription OR they bought the one-time Assessment
-        // Bundle. Without the bundle check a bundle buyer would be stuck
-        // at the 3-question free-tier wall.
-        const hasBundle = (subData.purchases || []).some(
-          (p) => p.purchase_type === "assessment_bundle"
-        )
-        setIsPaid(isSubscriptionPaid(subData.subscription) || hasBundle)
+        // access is the merged view from getPlanAccess: paid subscription or
+        // promo plan, one-time purchases (Documentation Pack, legacy
+        // Assessment Bundle) and the admin override. Checking the
+        // subscription row alone left Documentation Pack buyers, promo users
+        // and admins stuck at the 3-question free-tier wall.
+        setIsPaid(subData.access?.canTakeAssessment === true)
       }
       setSubLoading(false)
 

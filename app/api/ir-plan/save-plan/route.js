@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createClient as createServiceClient } from "@supabase/supabase-js"
-import { isSubscriptionPaid } from "@/lib/stripe/entitlement"
+import { loadUserAccess } from "@/lib/stripe/user-access"
 
 const ALLOWED_FIELDS = new Set([
   "company_name",
@@ -21,8 +21,8 @@ const ALLOWED_FIELDS = new Set([
 ])
 
 /**
- * Server-side IR plan save. Validates entitlement (active paid sub or
- * unexpired promo) and forces user_id to the authenticated user so the
+ * Server-side IR plan save. Validates entitlement (access.canAccessIRPlan
+ * via loadUserAccess) and forces user_id to the authenticated user so the
  * client cannot spoof ownership. RLS still backs this up at the DB level.
  */
 export async function POST(request) {
@@ -59,34 +59,18 @@ export async function POST(request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    // Entitlement check
-    const { data: sub } = await service
-      .from("subscriptions")
-      .select("plan, status, current_period_end")
-      .eq("user_id", userId)
-      .maybeSingle()
-
-    const hasActiveSub = isSubscriptionPaid(sub)
-
-    let hasPromo = false
-    const { data: redemptions } = await service
-      .from("promo_redemptions")
-      .select("promo_code_id, promo_codes(plan, expires_at, max_uses, current_uses)")
-      .eq("user_id", userId)
-    for (const r of redemptions || []) {
-      const pc = r.promo_codes
-      if (!pc) continue
-      const expired =
-        pc.expires_at && new Date(pc.expires_at).getTime() < Date.now()
-      const exhausted =
-        pc.max_uses !== null && pc.current_uses >= pc.max_uses
-      if (!expired && !exhausted) {
-        hasPromo = true
-        break
-      }
+    // Entitlement check. Same resolution the IR plan UI uses: paid plan or
+    // promo, one-time purchases (Documentation Pack) and the admin flag.
+    const { access, error: accessError } = await loadUserAccess(service, userId)
+    if (accessError) {
+      console.error("IR plan entitlement lookup failed:", JSON.stringify(accessError))
+      return NextResponse.json(
+        { error: "Could not verify access. Please try again." },
+        { status: 500 }
+      )
     }
 
-    if (!hasActiveSub && !hasPromo) {
+    if (!access.canAccessIRPlan) {
       return NextResponse.json({ error: "Subscription required" }, { status: 403 })
     }
 
