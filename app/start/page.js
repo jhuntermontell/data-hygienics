@@ -22,9 +22,9 @@ export const metadata = {
 const CHOICES = [
   {
     key: "home",
-    href: AUDIENCES.home.href,
+    href: "/path/home",
     label: "For my home",
-    cta: "Explore Home",
+    cta: "Map my home path",
     icon: House,
     description: AUDIENCES.home.description,
     detail: "Scams that use cloned voices, chatbot privacy, and keeping the family's accounts safe.",
@@ -43,9 +43,9 @@ const CHOICES = [
   },
   {
     key: "business",
-    href: AUDIENCES.business.href,
+    href: "/path/business",
     label: "For my business",
-    cta: "Explore Business",
+    cta: "Map my business path",
     icon: Briefcase,
     description: AUDIENCES.business.description,
     detail: "Deepfake payment fraud, your team's AI use, and getting your rules and plans in writing.",
@@ -76,7 +76,7 @@ export default function StartPage() {
       <Navbar />
       <main className="relative overflow-hidden bg-white text-[#0F172A]">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-40 -left-32 w-[28rem] h-[28rem] rounded-full bg-[#0F766E]/10 blur-3xl" />
+          <div className="absolute -top-40 -left-32 w-[28rem] h-[28rem] rounded-full bg-[#0F8F83]/10 blur-3xl" />
           <div className="absolute -top-32 -right-40 w-[30rem] h-[30rem] rounded-full bg-[#1D4ED8]/10 blur-3xl" />
         </div>
 
@@ -91,8 +91,8 @@ export default function StartPage() {
                 Who are you protecting?
               </h1>
               <p className="mt-5 max-w-xl mx-auto text-lg leading-relaxed text-[#475569]">
-                Pick a door. You can walk through the other one any time, and everything we publish is free to
-                read.
+                Pick one and we&apos;ll build your path: the steps that matter for you, in order. About two minutes.
+                It stays on this device unless you save it.
               </p>
             </div>
 
@@ -163,6 +163,17 @@ export default function StartPage() {
             </div>
 
             <p className="mt-8 text-center text-sm text-[#64748B]">
+              Rather browse first?{" "}
+              <Link href={AUDIENCES.home.href} className="font-semibold text-[#0F766E] hover:text-[#115E59]">
+                For Home
+              </Link>{" "}
+              ·{" "}
+              <Link href={AUDIENCES.business.href} className="font-semibold text-[#1D4ED8] hover:text-[#1E40AF]">
+                For Business
+              </Link>
+            </p>
+
+            <p className="mt-3 text-center text-sm text-[#64748B]">
               Already use our business tools?{" "}
               <Link href="/tools/cyber-audit/login" className="font-semibold text-[#1D4ED8] hover:text-[#1E40AF]">
                 Sign in

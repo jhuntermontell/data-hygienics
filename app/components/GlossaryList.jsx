@@ -6,6 +6,9 @@ import { Search, X, Lightbulb } from "lucide-react"
 import CitedText from "./CitedText"
 import { Paragraphs, asParagraphs } from "./ArticleParts"
 import { stripCitations } from "@/lib/content"
+import { HORIZONS, HORIZON_ORDER, HORIZON_STYLES } from "@/lib/horizons"
+
+const HORIZON_FILTERS = [{ key: "all", label: "All terms" }, ...HORIZON_ORDER.map((key) => HORIZONS[key])]
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
 
@@ -33,13 +36,29 @@ function letterId(letter) {
   return letter === "#" ? "letter-other" : `letter-${letter.toLowerCase()}`
 }
 
-// A-Z glossary with search over term, aliases and short definition.
-// `entries` arrive sorted A-Z (lib/glossary) with seeAlso already resolved
-// into { href, label, type } links; `number` is the page's citation map.
+// A-Z glossary with search over term, aliases and short definition, and a
+// horizon filter (lib/horizons.js). `entries` arrive sorted A-Z
+// (lib/glossary) with seeAlso already resolved into { href, label, type }
+// links; `number` is the page's citation map.
 export default function GlossaryList({ entries = [], number = {} }) {
   const [query, setQuery] = useState("")
+  const [horizon, setHorizon] = useState("all")
   const [pendingTarget, setPendingTarget] = useState(null)
   const inputRef = useRef(null)
+
+  // An in-page jump (#term-...) to a term the search or filter is hiding
+  // clears both, then scrolls once the term is back in the DOM.
+  useEffect(() => {
+    const onHash = () => {
+      const id = window.location.hash.slice(1)
+      if (!id.startsWith("term-") || document.getElementById(id)) return
+      setQuery("")
+      setHorizon("all")
+      setPendingTarget(id)
+    }
+    window.addEventListener("hashchange", onHash)
+    return () => window.removeEventListener("hashchange", onHash)
+  }, [])
 
   const index = useMemo(
     () =>
@@ -51,7 +70,10 @@ export default function GlossaryList({ entries = [], number = {} }) {
   )
 
   const q = normalize(query).trim()
-  const matches = q ? index.filter((item) => item.haystack.includes(q)).map((item) => item.entry) : entries
+  const matches = (q ? index.filter((item) => item.haystack.includes(q)).map((item) => item.entry) : entries).filter(
+    (entry) => horizon === "all" || entry.horizon === horizon
+  )
+  const filtering = Boolean(q) || horizon !== "all"
 
   const groups = []
   for (const entry of matches) {
@@ -76,9 +98,10 @@ export default function GlossaryList({ entries = [], number = {} }) {
   }, [pendingTarget])
 
   function followTerm(event, href) {
-    if (!q || !href.startsWith("/glossary#")) return
+    if (!filtering || !href.startsWith("/glossary#")) return
     event.preventDefault()
     setQuery("")
+    setHorizon("all")
     setPendingTarget(href.split("#")[1])
   }
 
@@ -125,8 +148,38 @@ export default function GlossaryList({ entries = [], number = {} }) {
           ) : null}
         </div>
         <p id="glossary-search-status" className="sr-only" aria-live="polite">
-          {q ? `${matches.length} ${matches.length === 1 ? "term matches" : "terms match"} “${query.trim()}”` : ""}
+          {filtering ? `${matches.length} ${matches.length === 1 ? "term" : "terms"} shown` : ""}
         </p>
+
+        <fieldset className="mt-3">
+          <legend className="sr-only">Show terms by horizon</legend>
+          <div className="flex flex-wrap gap-1.5">
+            {HORIZON_FILTERS.map((option) => {
+              const on = horizon === option.key
+              return (
+                <label
+                  key={option.key}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold cursor-pointer focus-within:ring-2 focus-within:ring-[#1D4ED8] focus-within:ring-offset-1 ${
+                    on ? "border-[#0F172A] bg-[#0F172A] text-white" : "border-[#E2E8F0] bg-white text-[#475569] hover:border-[#CBD5E1]"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="glossary-horizon"
+                    value={option.key}
+                    checked={on}
+                    onChange={() => setHorizon(option.key)}
+                    className="sr-only"
+                  />
+                  {HORIZON_STYLES[option.key] ? (
+                    <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full ${on ? "bg-white" : HORIZON_STYLES[option.key].dot}`} />
+                  ) : null}
+                  {option.label}
+                </label>
+              )
+            })}
+          </div>
+        </fieldset>
 
         <nav aria-label="Jump to letter" className="mt-3">
           <ul className="flex flex-wrap gap-1">
@@ -162,10 +215,13 @@ export default function GlossaryList({ entries = [], number = {} }) {
       {matches.length === 0 ? (
         <div className="mt-8 rounded-xl border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
           <p>
-            No terms match &ldquo;{query.trim()}&rdquo;. Try a shorter word, or{" "}
+            {q ? <>No terms match &ldquo;{query.trim()}&rdquo;{horizon !== "all" ? ` in ${HORIZONS[horizon].label}` : ""}. Try a shorter word, or </> : "No terms here yet. "}
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("")
+                setHorizon("all")
+              }}
               className="font-semibold text-[#1D4ED8] underline underline-offset-2"
             >
               browse A to Z
@@ -211,7 +267,18 @@ function TermCard({ entry, number, onFollowTerm }) {
       tabIndex={-1}
       className="rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6 target:border-[#1D4ED8]/50 target:ring-2 target:ring-[#1D4ED8]/15"
     >
-      <h3 className="text-xl font-bold text-[#0F172A] leading-snug">{entry.term}</h3>
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+        <h3 className="text-xl font-bold text-[#0F172A] leading-snug">{entry.term}</h3>
+        {HORIZONS[entry.horizon] ? (
+          <span
+            className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${HORIZON_STYLES[entry.horizon].chip}`}
+          >
+            <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full ${HORIZON_STYLES[entry.horizon].dot}`} />
+            <span className="sr-only">Horizon: </span>
+            {HORIZONS[entry.horizon].label}
+          </span>
+        ) : null}
+      </div>
       {aliases.length > 0 ? (
         <p className="text-sm text-[#64748B] mt-0.5">Also called: {aliases.join(", ")}</p>
       ) : null}

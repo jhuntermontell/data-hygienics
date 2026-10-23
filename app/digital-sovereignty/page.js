@@ -104,7 +104,7 @@ export default function DigitalSovereigntyPage() {
                 >
                   <span
                     aria-hidden="true"
-                    className="shrink-0 text-sm font-bold tabular-nums bg-gradient-to-br from-[#1D4ED8] to-[#0F766E] bg-clip-text text-transparent"
+                    className="shrink-0 text-sm font-bold tabular-nums bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83] bg-clip-text text-transparent"
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
@@ -174,7 +174,7 @@ export default function DigitalSovereigntyPage() {
             <article className="relative overflow-hidden rounded-3xl bg-[#0F172A] text-white p-6 sm:p-10">
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-gradient-to-br from-[#1D4ED8]/40 to-[#0F766E]/40 blur-3xl"
+                className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-gradient-to-br from-[#1D4ED8]/40 to-[#0F8F83]/40 blur-3xl"
               />
               <div className="relative max-w-3xl">
                 <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.1em] uppercase text-[#99F6E4]">

@@ -1,43 +1,71 @@
-// Generates the full Data Hygienics icon set from the rounded logo mark.
+// Generates the Data Hygienics icon set and social image from the Continuous
+// Fold brand masters (design/brand-book/assets, see its README).
 // Run: node scripts/generate-icons.mjs
+//
+// Brand rules applied here: the micro mark below 40 px, the full-color master
+// at 40 px and above, the one-color white mark on navy tiles (app tile and
+// social avatar), and the supplied outlined wordmark, never retyped.
 import sharp from "sharp"
 import fs from "node:fs/promises"
 import path from "node:path"
+import { createRequire } from "node:module"
+
+const require = createRequire(import.meta.url)
+const fontkit = require("fontkit")
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..")
+const assetsDir = path.join(root, "design", "brand-book", "assets")
 const publicDir = path.join(root, "public")
+const brandDir = path.join(publicDir, "brand")
 const appDir = path.join(root, "app")
 
-// The rounded logo mark — same shapes as public/logo-mark.svg, but rendered
-// at higher fidelity onto a transparent square canvas with extra inner padding
-// so the icon reads cleanly at small sizes.
-function logoSvg(size, { background = "transparent", padding = 0.12 } = {}) {
-  const pad = Math.round(size * padding)
-  const inner = size - pad * 2
-  // Source viewBox is 0..32 — scale to inner box
-  const scale = inner / 32
-  const tx = pad
-  const ty = pad
-  const bgRect =
-    background === "transparent"
-      ? ""
-      : `<rect width="${size}" height="${size}" fill="${background}" />`
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  ${bgRect}
-  <g transform="translate(${tx}, ${ty}) scale(${scale})">
-    <rect x="2"  y="4"  width="16" height="16" rx="4.5" fill="#1D4ED8" opacity="0.2"/>
-    <rect x="10" y="12" width="16" height="16" rx="4.5" fill="#1D4ED8" opacity="0.45"/>
-    <rect x="6"  y="8"  width="16" height="16" rx="4.5" fill="none" stroke="#1D4ED8" stroke-width="1.8"/>
-  </g>
-</svg>`
+const NAVY = "#0F172A"
+
+// Masters copied to /public/brand so pages and emails can link them.
+const PUBLISHED = [
+  "mark-color.svg",
+  "mark-micro-color.svg",
+  "mark-navy.svg",
+  "mark-white.svg",
+  "logo-horizontal-color.svg",
+  "logo-horizontal-navy.svg",
+  "logo-horizontal-white.svg",
+  "logo-stacked-color.svg",
+  "wordmark-navy.svg",
+  "wordmark-white.svg",
+]
+
+const read = (name) => fs.readFile(path.join(assetsDir, name), "utf8")
+
+// Inner markup of an SVG master, with ids prefixed so two masters can share
+// one canvas without their masks colliding.
+function innerSvg(svg, prefix) {
+  return svg
+    .replace(/^[\s\S]*?<svg[^>]*>/, "")
+    .replace(/<\/svg>\s*$/, "")
+    .replace(/id="([^"]+)"/g, `id="${prefix}-$1"`)
+    .replace(/url\(#([^)]+)\)/g, `url(#${prefix}-$1)`)
 }
 
-async function renderPng(size, outPath, opts) {
-  const svg = logoSvg(size, opts)
-  await sharp(Buffer.from(svg))
-    .png({ compressionLevel: 9 })
-    .toFile(outPath)
-  console.log("wrote", path.relative(root, outPath), `(${size}x${size})`)
+function viewBoxOf(svg) {
+  const [, , w, h] = svg.match(/viewBox="([^"]+)"/)[1].split(/\s+/).map(Number)
+  return { w, h }
+}
+
+async function renderMark(source, size, outPath, { background, scale = 1 } = {}) {
+  const svg = await read(source)
+  const inner = size * scale
+  const offset = (size - inner) / 2
+  const canvas = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+  ${background ? `<rect width="${size}" height="${size}" fill="${background}"/>` : ""}
+  <g transform="translate(${offset} ${offset}) scale(${inner / 400})">${innerSvg(svg, "m")}</g>
+</svg>`
+  const buf = await sharp(Buffer.from(canvas)).png({ compressionLevel: 9 }).toBuffer()
+  if (outPath) {
+    await fs.writeFile(outPath, buf)
+    console.log("wrote", path.relative(root, outPath), `(${size}x${size})`)
+  }
+  return buf
 }
 
 // --- ICO encoder -----------------------------------------------------------
@@ -45,11 +73,10 @@ async function renderPng(size, outPath, opts) {
 // ICONDIRENTRY per image (16 bytes), then the image payloads.
 async function buildIco(sizes, outPath) {
   const pngs = await Promise.all(
-    sizes.map(async (s) => {
-      const svg = logoSvg(s, { padding: s <= 32 ? 0.06 : 0.12 })
-      const buf = await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer()
-      return { size: s, buf }
-    })
+    sizes.map(async (s) => ({
+      size: s,
+      buf: await renderMark(s < 40 ? "mark-micro-color.svg" : "mark-color.svg", s, null),
+    }))
   )
 
   const headerSize = 6
@@ -82,68 +109,94 @@ async function buildIco(sizes, outPath) {
   console.log("wrote", path.relative(root, outPath), `(ICO ${sizes.join("+")})`)
 }
 
-// --- OG image (1200x630, white background, centered logo + text) -----------
+// Outlined text, so the social image renders the same on any machine. Avenir
+// Next is the wordmark's foundation (macOS system font).
+function outlinedText(text, { x, baseline, size, fill, weight = "AvenirNext-Medium" }) {
+  const collection = fontkit.openSync("/System/Library/Fonts/Avenir Next.ttc")
+  const font = collection.fonts.find((f) => f.postscriptName === weight)
+  if (!font) throw new Error(`${weight} was not found`)
+  const run = font.layout(text)
+  const scale = size / font.unitsPerEm
+  let penX = 0
+  const paths = run.glyphs.map((glyph, i) => {
+    const pos = run.positions[i]
+    const tx = x + (penX + pos.xOffset) * scale
+    penX += pos.xAdvance
+    return `<path d="${glyph.path.toSVG()}" fill="${fill}" transform="translate(${tx.toFixed(2)} ${baseline}) scale(${scale.toFixed(5)} ${(-scale).toFixed(5)})"/>`
+  })
+  return paths.join("")
+}
+
+// --- OG image (1200x630): mirrors the brand book cover. Navy field, the
+// color mark on a white tile, the white wordmark and the tagline.
 async function buildOgImage(outPath) {
   const W = 1200
   const H = 630
-  const logoSize = 220
+  const wordmark = await read("wordmark-white.svg")
+  const mark = await read("mark-color.svg")
+  const word = viewBoxOf(wordmark)
+  const tile = 264
+  const tileX = 96
+  const tileY = (H - tile) / 2
+  const wordW = 640
+  const wordH = (word.h / word.w) * wordW
+  const textX = tileX + tile + 64
 
   const og = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-  <rect width="${W}" height="${H}" fill="#FFFFFF"/>
-  <!-- subtle bottom rule -->
-  <rect x="0" y="${H - 6}" width="${W}" height="6" fill="#1D4ED8"/>
-
-  <!-- Logo mark, centered horizontally, upper area -->
-  <g transform="translate(${(W - logoSize) / 2}, 130)">
-    <g transform="scale(${logoSize / 32})">
-      <rect x="2"  y="4"  width="16" height="16" rx="4.5" fill="#1D4ED8" opacity="0.2"/>
-      <rect x="10" y="12" width="16" height="16" rx="4.5" fill="#1D4ED8" opacity="0.45"/>
-      <rect x="6"  y="8"  width="16" height="16" rx="4.5" fill="none" stroke="#1D4ED8" stroke-width="1.8"/>
-    </g>
-  </g>
-
-  <!-- Brand name -->
-  <text x="${W / 2}" y="430"
-        text-anchor="middle"
-        font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
-        font-size="76"
-        font-weight="800"
-        fill="#0F172A"
-        letter-spacing="-2">Data Hygienics</text>
-
-  <!-- Subtitle -->
-  <text x="${W / 2}" y="490"
-        text-anchor="middle"
-        font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif"
-        font-size="30"
-        font-weight="500"
-        fill="#475569"
-        letter-spacing="-0.5">Cybersecurity Tools for Business Leaders</text>
+  <rect width="${W}" height="${H}" fill="${NAVY}"/>
+  <circle cx="${W + 40}" cy="-60" r="330" fill="#1E293B"/>
+  <rect x="${tileX}" y="${tileY}" width="${tile}" height="${tile}" rx="44" fill="#FFFFFF"/>
+  <g transform="translate(${tileX + 32} ${tileY + 32}) scale(${(tile - 64) / 400})">${innerSvg(mark, "og-mark")}</g>
+  <g transform="translate(${textX - 12} ${H / 2 - wordH + 8}) scale(${wordW / word.w})">${innerSvg(wordmark, "og-word")}</g>
+  ${outlinedText("Live securely alongside AI.", { x: textX, baseline: H / 2 + 62, size: 38, fill: "#CBD5E1" })}
+  <rect x="${textX}" y="${H / 2 + 104}" width="56" height="6" rx="3" fill="#0F8F83"/>
 </svg>`
 
-  await sharp(Buffer.from(og))
-    .png({ compressionLevel: 9 })
-    .toFile(outPath)
+  await sharp(Buffer.from(og)).png({ compressionLevel: 9 }).toFile(outPath)
   console.log("wrote", path.relative(root, outPath), `(${W}x${H})`)
 }
 
+// Wordmark glyph outlines as data, for renderers that can't load an SVG file
+// (the @react-pdf documents). Written to lib/brand/wordmark.js.
+async function buildWordmarkModule(outPath) {
+  const svg = await read("wordmark-navy.svg")
+  const glyphs = [...svg.matchAll(/<path d="([^"]+)"[^>]*transform="translate\(([\d.-]+) ([\d.-]+)\) scale\(([\d.-]+) [\d.-]+\)"/g)].map(
+    ([, d, x, y, scale]) => ({ d, x: Number(x), y: Number(y), scale: Number(scale) })
+  )
+  const { w, h } = viewBoxOf(svg)
+  const body = `// Generated by scripts/generate-icons.mjs from design/brand-book/assets/wordmark-navy.svg.
+// The outlined Data Hygienics wordmark. Never retype it; draw these glyphs.
+// Each glyph is drawn with transform="translate(x y) scale(scale -scale)".
+export const WORDMARK = ${JSON.stringify({ width: w, height: h, glyphs }, null, 2)}
+`
+  await fs.mkdir(path.dirname(outPath), { recursive: true })
+  await fs.writeFile(outPath, body)
+  console.log("wrote", path.relative(root, outPath), `(${glyphs.length} glyphs)`)
+}
+
 async function main() {
-  await fs.mkdir(publicDir, { recursive: true })
-  await fs.mkdir(appDir, { recursive: true })
+  await buildWordmarkModule(path.join(root, "lib", "brand", "wordmark.js"))
+  await fs.mkdir(brandDir, { recursive: true })
+  for (const name of PUBLISHED) {
+    await fs.copyFile(path.join(assetsDir, name), path.join(brandDir, name))
+  }
+  console.log("copied", PUBLISHED.length, "masters to public/brand")
 
-  // PNG icons (in /public so they're served at root)
-  await renderPng(16,  path.join(publicDir, "favicon-16x16.png"), { padding: 0.06 })
-  await renderPng(32,  path.join(publicDir, "favicon-32x32.png"), { padding: 0.06 })
-  await renderPng(180, path.join(publicDir, "apple-touch-icon.png"))
-  await renderPng(192, path.join(publicDir, "icon-192.png"))
-  await renderPng(512, path.join(publicDir, "icon-512.png"))
+  // Navbar and footer lockups.
+  await fs.copyFile(path.join(assetsDir, "logo-horizontal-color.svg"), path.join(publicDir, "logo.svg"))
+  await fs.copyFile(path.join(assetsDir, "mark-color.svg"), path.join(publicDir, "logo-mark.svg"))
 
-  // favicon.ico — replaces the default Next.js triangle favicon at /app/favicon.ico
-  // (App Router convention: app/favicon.ico is auto-served at /favicon.ico and
-  // takes precedence over /public/favicon.ico)
+  // Browser favicons use the micro mark; the app tile is the white mark on navy.
+  await renderMark("mark-micro-color.svg", 16, path.join(publicDir, "favicon-16x16.png"))
+  await renderMark("mark-micro-color.svg", 32, path.join(publicDir, "favicon-32x32.png"))
+  await renderMark("mark-white.svg", 180, path.join(publicDir, "apple-touch-icon.png"), { background: NAVY, scale: 0.62 })
+  // Maskable icons keep the mark inside the central safe zone.
+  await renderMark("mark-white.svg", 192, path.join(publicDir, "icon-192.png"), { background: NAVY, scale: 0.56 })
+  await renderMark("mark-white.svg", 512, path.join(publicDir, "icon-512.png"), { background: NAVY, scale: 0.56 })
+
+  // favicon.ico (App Router serves app/favicon.ico at /favicon.ico).
   await buildIco([16, 32, 48], path.join(appDir, "favicon.ico"))
 
-  // OG image
   await buildOgImage(path.join(publicDir, "og-image.png"))
 }
 

@@ -60,8 +60,8 @@ const DOORS = [
     cta: "Explore Digital Sovereignty",
     frame: "border border-[#E2E8F0] hover:border-[#0F766E]/40",
     iconWrap: "bg-gradient-to-br from-[#EFF6FF] to-[#F0FDFA] text-[#0F172A]",
-    bar: "bg-gradient-to-r from-[#1D4ED8] to-[#0F766E]",
-    bullet: "bg-gradient-to-br from-[#1D4ED8] to-[#0F766E]",
+    bar: "bg-gradient-to-r from-[#1D4ED8] to-[#0F8F83]",
+    bullet: "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]",
     link: "text-[#0F172A] group-hover:text-[#1D4ED8]",
   },
 ]

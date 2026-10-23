@@ -28,7 +28,9 @@ There are no tests. Run `npm run validate` after any content change and `npm run
 
 Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, framer-motion, lucide-react, @react-pdf/renderer, Supabase (auth + data), Stripe (checkout + webhooks). `proxy.js` is the middleware; it guards the `PROTECTED_ROUTES` prefixes under `/tools/*`.
 
-**Styling**: light theme. Tokens live in `app/globals.css` `@theme` (primary `#1D4ED8` for Business, teal `#0F766E` for Home, text `#0F172A` / `#475569` / `#94A3B8`, surface `#F8FAFC`, border `#E2E8F0`). Tailwind utility classes inline in JSX. `public/output.css` is a stale compiled artifact.
+**Styling**: light theme. Tokens live in `app/globals.css` `:root` (primary `#1D4ED8` for Business, teal `#0F766E` for Home, text `#0F172A` / `#475569` / `#94A3B8`, surface `#F8FAFC`, border `#E2E8F0`). Tailwind utility classes inline in JSX. `public/output.css` is a stale compiled artifact.
+
+**Brand** (Continuous Fold, `design/brand-book/`): navy `#0F172A` = Judgment, cobalt `#1D4ED8` = Clarity, Action Teal `#0F8F83` = Action, Field White `#F8FAFC`. Brand teal is about 4:1 on white, so use it for fills, icons and large type only; body-size teal text and white-on-teal buttons stay `#0F766E`. Never retype the wordmark: use `/logo.svg` (the outlined lockup), `app/components/BrandMark.jsx` for the inline mark, and `app/components/pdf/BrandLockupPdf.jsx` in PDFs. Mark geometry lives in `lib/brand/mark.js`; `node scripts/generate-icons.mjs` regenerates favicons, app icons, the OG image, `public/brand/*` and `lib/brand/wordmark.js` from the masters.
 
 **Navbar**: `app/components/Navbar.jsx` is fixed-position and must be imported and rendered at the top of each page. There is no global layout that includes it. Navigation and footer links come from `lib/site.js` (`NAV`, `FOOTER_COLUMNS`).
 
@@ -37,6 +39,7 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 ## Site map
 
 - `/` homepage, `/start` audience chooser, hubs `/household`, `/business`, `/digital-sovereignty`
+- Clear Path: `/path` (indexable landing), `/path/home` and `/path/business` (personal paths, noindex)
 - Research library: `/threats`, `/threats/[slug]`, `/guides`, `/guides/[slug]`, `/digital-sovereignty/[slug]` (explainers), `/toolkit`, `/glossary`, `/controls`, `/controls/[slug]`
 - Business tools: `/tools`, `/tools/cyber-audit/*`, `/tools/policies/*`, `/tools/ir-plan/*`, `/pricing`
 - Company: `/about`, `/how-it-works` ("How we work"), `/contact`, `/privacy`, `/terms`
@@ -58,6 +61,15 @@ Rules:
 - Entries have `status: "draft" | "published"`; only published entries render in production and appear in the sitemap.
 - Toolkit URLs are clean vendor URLs. Never add affiliate or tracking parameters (the validator rejects them).
 - Industry briefs (`kind: "industry-brief"`, healthcare and financial) keep hand-authored HTML in `content`; markers inside that HTML are converted by `htmlWithCitations()`.
+
+## Clear Path
+
+The personal, ordered path for a home or business. Free, and local-first: answers and progress live in the browser (`lib/path/storage.js`, `lib/hooks/usePathRecord.js`) and sync to Supabase `path_profiles` only for signed-in users (`supabase/migrations/20261023_path_profiles.sql`; the Path keeps working locally if the table is missing).
+
+- Content is pure data in `lib/content/path/`: `quiz.js` (questions; option values are stored keys), `home.js` and `business.js` (stages and steps; step ids are stored keys), `long-view.js` (end states, "What we cut", routines). Logic is in `lib/path.js` (inclusion via `when`/`unless`, stage and step ordering, "this week", "Where you stand"); `lib/path-links.js` resolves step link keys like `guide:slug` on the server.
+- Steps are written once and told four ways (`do`, `simple`, `detail`, `story`); knowledge level adds `newcomer` or shows "go further". Steps carry no citations, so they carry no statistics; link to the sourced library entry instead. The validator checks links, quiz keys, enums and tone.
+- Horizons (`lib/horizons.js`): `now`, `next`, `future` ("Long View", always five years out, never hard-coded). The glossary tags every term with one. Horizons are directions, never deadlines: no dates or countdowns on steps.
+- Progress is counts per outcome (Hard to break into, Hard to fool, Quick to recover, In your control). No composite score or grade; the Cyber Audit does grading.
 
 ## Voice and terminology
 

@@ -8,9 +8,8 @@ import {
   View,
   StyleSheet,
   pdf,
-  Svg,
-  Rect,
 } from "@react-pdf/renderer"
+import BrandLockupPdf from "@/app/components/pdf/BrandLockupPdf"
 
 const styles = StyleSheet.create({
   page: {
@@ -27,20 +26,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingBottom: 16,
     borderBottom: "2px solid #1D4ED8",
-  },
-  logoArea: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  logoText: {
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: "#1D4ED8",
-  },
-  logoSub: {
-    fontSize: 8,
-    color: "#475569",
   },
   companyName: {
     fontSize: 11,
@@ -120,16 +105,6 @@ const styles = StyleSheet.create({
   },
 })
 
-function LogoMark() {
-  return (
-    <Svg viewBox="0 0 32 32" width={22} height={22}>
-      <Rect x={2} y={4} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.2} />
-      <Rect x={10} y={12} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.45} />
-      <Rect x={6} y={8} width={16} height={16} rx={4.5} ry={4.5} fill="none" stroke="#1D4ED8" strokeWidth={1.8} />
-    </Svg>
-  )
-}
-
 function formatDate(dateStr) {
   if (!dateStr) return "Date not set"
   const d = new Date(dateStr)
@@ -163,13 +138,7 @@ function PolicyDocument({ policyName, companyName, ownerName, ownerTitle, effect
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.headerRow}>
-          <View style={styles.logoArea}>
-            <LogoMark />
-            <View>
-              <Text style={styles.logoText}>Data Hygienics</Text>
-              <Text style={styles.logoSub}>Cybersecurity Platform</Text>
-            </View>
-          </View>
+          <BrandLockupPdf subtitle="Policy Library" />
           <Text style={styles.companyName}>{companyName}</Text>
         </View>
 

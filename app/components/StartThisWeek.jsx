@@ -71,7 +71,7 @@ export default function StartThisWeek() {
                 <div className="flex items-center gap-3">
                   <span
                     aria-hidden="true"
-                    className="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F766E] text-white text-sm font-bold flex items-center justify-center"
+                    className="shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83] text-white text-sm font-bold flex items-center justify-center"
                   >
                     {i + 1}
                   </span>

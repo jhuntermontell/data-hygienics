@@ -1,4 +1,4 @@
-import { BookMarked } from "lucide-react"
+import { BookMarked, Telescope } from "lucide-react"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import SchemaScript from "@/app/components/SchemaScript"
@@ -11,6 +11,7 @@ import { getThreatBySlug } from "@/lib/threats"
 import { getGuideBySlug } from "@/lib/guides"
 import { getExplainerBySlug } from "@/lib/sovereignty"
 import { glossaryHref, hrefFor, stripCitations } from "@/lib/content"
+import { HORIZONS, HORIZON_STYLES, LONG_VIEW_YEARS, longViewYear } from "@/lib/horizons"
 
 const TITLE = "AI and Security Glossary | Data Hygienics"
 const DESCRIPTION =
@@ -41,11 +42,59 @@ function seeAlsoLinks(term) {
   ]
 }
 
+// "Learn the word before you need it": the Next and Long View terms, grouped
+// by horizon, as jump links into the A-Z list below.
+function ComingWords({ entries }) {
+  const groups = ["next", "future"]
+    .map((key) => ({ horizon: HORIZONS[key], items: entries.filter((e) => e.horizon === key) }))
+    .filter((g) => g.items.length)
+  if (!groups.length) return null
+  return (
+    <section aria-labelledby="coming-words-heading" className="mb-8 rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
+      <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">
+        <Telescope className="w-4 h-4" aria-hidden="true" />
+        The Long View
+      </p>
+      <h2 id="coming-words-heading" className="mt-2 text-2xl font-bold tracking-tight text-[#0F172A]">
+        Words for what&apos;s coming
+      </h2>
+      <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">
+        Learn the word before you need it. These are arriving over the next {LONG_VIEW_YEARS} years, through{" "}
+        {longViewYear()}. None of them needs doing today; knowing them keeps today&apos;s choices pointed the right way.
+      </p>
+      <div className="mt-5 space-y-4">
+        {groups.map(({ horizon, items }) => (
+          <div key={horizon.key}>
+            <p className="flex items-center gap-2 text-sm font-semibold text-[#0F172A]">
+              <span aria-hidden="true" className={`w-2 h-2 rounded-full ${HORIZON_STYLES[horizon.key].dot}`} />
+              {horizon.label}
+              <span className="font-normal text-[#64748B]"><span aria-hidden="true">· </span>{horizon.window}</span>
+            </p>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {items.map((e) => (
+                <li key={e.slug}>
+                  <a
+                    href={`#term-${e.slug}`}
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium hover:underline underline-offset-2 ${HORIZON_STYLES[horizon.key].chip}`}
+                  >
+                    {e.term}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 export default function GlossaryPage() {
   // Plain data for the client list, in lib/glossary's A-Z order.
   const entries = glossary.map((term) => ({
     term: term.term,
     slug: term.slug,
+    horizon: term.horizon || "now",
     aliases: list(term.aliases),
     shortDef: term.shortDef || "",
     longDef: paragraphs(term.longDef),
@@ -86,6 +135,8 @@ export default function GlossaryPage() {
               home or your business.
             </p>
           </header>
+
+          <ComingWords entries={entries} />
 
           <GlossaryList entries={entries} number={number} />
 

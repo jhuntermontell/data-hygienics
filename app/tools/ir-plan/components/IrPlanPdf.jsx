@@ -8,9 +8,8 @@ import {
   View,
   StyleSheet,
   pdf,
-  Svg,
-  Rect,
 } from "@react-pdf/renderer"
+import BrandLockupPdf from "@/app/components/pdf/BrandLockupPdf"
 import {
   INCIDENT_TYPES,
   PLAYBOOKS,
@@ -56,9 +55,6 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     borderBottom: "2px solid #0F766E",
   },
-  logoArea: { flexDirection: "row", alignItems: "center", gap: 6 },
-  logoText: { fontSize: 12, fontFamily: "Helvetica-Bold", color: "#0F766E" },
-  logoSub: { fontSize: 8, color: "#475569" },
   companyName: { fontSize: 11, fontFamily: "Helvetica-Bold", textAlign: "right" },
 
   // Cover
@@ -209,26 +205,10 @@ function DraftWatermark() {
   )
 }
 
-function LogoMark() {
-  return (
-    <Svg viewBox="0 0 32 32" width={20} height={20}>
-      <Rect x={2} y={4} width={16} height={16} rx={4.5} ry={4.5} fill="#0F766E" fillOpacity={0.2} />
-      <Rect x={10} y={12} width={16} height={16} rx={4.5} ry={4.5} fill="#0F766E" fillOpacity={0.45} />
-      <Rect x={6} y={8} width={16} height={16} rx={4.5} ry={4.5} fill="none" stroke="#0F766E" strokeWidth={1.8} />
-    </Svg>
-  )
-}
-
 function PageHeader({ companyName }) {
   return (
     <View style={styles.headerRow}>
-      <View style={styles.logoArea}>
-        <LogoMark />
-        <View>
-          <Text style={styles.logoText}>Data Hygienics</Text>
-          <Text style={styles.logoSub}>Incident Response Plan</Text>
-        </View>
-      </View>
+      <BrandLockupPdf subtitle="Incident Response Plan" markSize={22} />
       <Text style={styles.companyName}>{truncate(companyName, MAX_COMPANY_NAME)}</Text>
     </View>
   )

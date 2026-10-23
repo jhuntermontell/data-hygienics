@@ -1,5 +1,6 @@
 import Navbar from "./components/Navbar"
 import Hero from "./components/Hero"
+import PathBand from "./components/PathBand"
 import WhatChanged from "./components/WhatChanged"
 import StartThisWeek from "./components/StartThisWeek"
 import AudienceSplit from "./components/AudienceSplit"
@@ -58,6 +59,7 @@ export default function HomePage() {
       <Navbar />
       <main className="bg-white text-[#0F172A]">
         <Hero threats={spotlight} />
+        <PathBand />
         <WhatChanged />
         <StartThisWeek />
         <AudienceSplit />

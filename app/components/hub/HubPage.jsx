@@ -1,6 +1,6 @@
 import { Children } from "react"
 import Link from "next/link"
-import { ArrowRight, BookA, Briefcase, ExternalLink, House, KeyRound, LifeBuoy } from "lucide-react"
+import { ArrowRight, BookA, Briefcase, ExternalLink, House, KeyRound, LifeBuoy, Route } from "lucide-react"
 import ContentCard from "@/app/components/ContentCard"
 import SchemaScript from "@/app/components/SchemaScript"
 import { hrefFor, stripCitations } from "@/lib/content"
@@ -29,6 +29,7 @@ const ACCENTS = {
     title: "group-hover:text-[#0F766E]",
     cardHover: "hover:border-[#0F766E]/40",
     glow: "bg-[#0F766E]/10",
+    cta: "bg-[#0F766E] hover:bg-[#115E59]",
   },
   business: {
     icon: Briefcase,
@@ -38,15 +39,17 @@ const ACCENTS = {
     title: "group-hover:text-[#1D4ED8]",
     cardHover: "hover:border-[#1D4ED8]/40",
     glow: "bg-[#1D4ED8]/10",
+    cta: "bg-[#1D4ED8] hover:bg-[#1E40AF]",
   },
   sovereignty: {
     icon: KeyRound,
     band: "from-[#EFF6FF] via-[#F0FDFA] to-white",
     pill: "bg-white text-[#0F172A] border-[#0F172A]/15",
-    number: "bg-gradient-to-br from-[#1D4ED8] to-[#0F766E] text-white",
+    number: "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83] text-white",
     title: "group-hover:text-[#1D4ED8]",
     cardHover: "hover:border-[#1D4ED8]/40",
     glow: "bg-[#0F766E]/10",
+    cta: "bg-[#0F172A] hover:bg-[#1E293B]",
   },
 }
 
@@ -129,6 +132,7 @@ export function AlreadyHappened({ box }) {
   if (!steps.length) return null
   return (
     <section
+      id="already-happened"
       aria-labelledby="hub-already-happened-heading"
       className="px-4 sm:px-6 py-14 sm:py-20 bg-white border-t border-[#F1F5F9]"
     >
@@ -246,6 +250,20 @@ function HubHeader({ hub }) {
           ))}
         </div>
         {hub.note ? <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#64748B]">{hub.note}</p> : null}
+
+        {hub.clearPath ? (
+          <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-3">
+            <Link
+              href={hub.clearPath.href}
+              className={`group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-colors ${accent.cta}`}
+            >
+              <Route className="w-5 h-5" aria-hidden="true" />
+              {hub.clearPath.label}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+            </Link>
+            <p className="text-sm text-[#475569]">{hub.clearPath.line}</p>
+          </div>
+        ) : null}
 
         {startHere.length > 0 ? (
           <div className="mt-10 sm:mt-12">

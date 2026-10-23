@@ -8,9 +8,8 @@ import {
   View,
   StyleSheet,
   pdf,
-  Svg,
-  Rect,
 } from "@react-pdf/renderer"
+import BrandLockupPdf from "@/app/components/pdf/BrandLockupPdf"
 import { RECOMMENDATIONS } from "@/lib/cyber-audit/recommendations"
 
 const styles = StyleSheet.create({
@@ -25,20 +24,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  logoText: {
-    marginLeft: 8,
-  },
-  logoTitle: {
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
-  },
-  logoSubtitle: {
-    fontSize: 10,
-    color: "#64748b",
-  },
   header: {
-    borderBottom: "2px solid #3b82f6",
+    borderBottom: "2px solid #1D4ED8",
     paddingBottom: 16,
     marginBottom: 24,
   },
@@ -52,7 +39,7 @@ const styles = StyleSheet.create({
   reportTitle: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
+    color: "#1D4ED8",
     marginBottom: 8,
   },
   meta: {
@@ -72,7 +59,7 @@ const styles = StyleSheet.create({
   scoreNumber: {
     fontSize: 48,
     fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
+    color: "#1D4ED8",
     marginRight: 16,
   },
   gradeText: {
@@ -220,16 +207,6 @@ function getEffortEstimate(rec) {
   return "Medium"
 }
 
-function LogoSvg() {
-  return (
-    <Svg viewBox="0 0 32 32" width={28} height={28}>
-      <Rect x={2} y={4} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.2} />
-      <Rect x={10} y={12} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.45} />
-      <Rect x={6} y={8} width={16} height={16} rx={4.5} ry={4.5} fill="none" stroke="#1D4ED8" strokeWidth={1.8} />
-    </Svg>
-  )
-}
-
 function ReportDocument({
   score,
   grade,
@@ -270,11 +247,7 @@ function ReportDocument({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.logoRow}>
-            <LogoSvg />
-            <View style={styles.logoText}>
-              <Text style={styles.logoTitle}>Data Hygienics</Text>
-              <Text style={styles.logoSubtitle}>Cybersecurity Platform</Text>
-            </View>
+            <BrandLockupPdf subtitle="Cyber Audit" markSize={28} />
           </View>
           {companyName && (
             <Text style={styles.companyName}>{companyName}</Text>

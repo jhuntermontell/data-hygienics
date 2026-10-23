@@ -57,7 +57,7 @@ export default function WhatChanged() {
             const n = numberOf[fact.sourceId]
             return (
               <li key={`${fact.sourceId}-${fact.figure}`} className="bg-white p-6 sm:p-7 flex flex-col">
-                <p className="text-4xl sm:text-[2.75rem] font-extrabold leading-none tracking-tight bg-gradient-to-br from-[#1D4ED8] to-[#0F766E] bg-clip-text text-transparent break-words">
+                <p className="text-4xl sm:text-[2.75rem] font-extrabold leading-none tracking-tight bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83] bg-clip-text text-transparent break-words">
                   {fact.figure}
                 </p>
                 <p className="mt-4 text-[15px] leading-relaxed text-[#334155]">

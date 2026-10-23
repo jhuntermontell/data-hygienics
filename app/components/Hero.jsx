@@ -7,7 +7,7 @@ import { SITE } from "@/lib/site"
 
 const EASE = [0.22, 1, 0.36, 1]
 
-// The tagline's last phrase gets the blue-to-teal treatment: blue is
+// The tagline's last phrase gets the cobalt-to-teal treatment: cobalt is
 // Business, teal is Home, and the brand sits across both.
 const HIGHLIGHT = "alongside AI."
 
@@ -20,7 +20,7 @@ function Tagline() {
   return (
     <>
       {tagline.slice(0, at)}
-      <span className="bg-gradient-to-r from-[#1D4ED8] to-[#0F766E] bg-clip-text text-transparent">
+      <span className="bg-gradient-to-r from-[#1D4ED8] to-[#0F8F83] bg-clip-text text-transparent">
         {tagline.slice(at)}
       </span>
     </>
@@ -43,7 +43,7 @@ export default function Hero({ threats = [] }) {
   return (
     <section aria-labelledby="hero-title" className="relative overflow-hidden bg-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-48 -left-40 w-[32rem] h-[32rem] rounded-full bg-[#0F766E]/10 blur-3xl" />
+        <div className="absolute -top-48 -left-40 w-[32rem] h-[32rem] rounded-full bg-[#0F8F83]/10 blur-3xl" />
         <div className="absolute -top-24 -right-48 w-[36rem] h-[36rem] rounded-full bg-[#1D4ED8]/10 blur-3xl" />
         <div className="absolute inset-0 opacity-70 bg-[radial-gradient(circle,#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_65%)]" />
       </div>
@@ -59,7 +59,7 @@ export default function Hero({ threats = [] }) {
             className="inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white/80 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold tracking-[0.06em] uppercase text-[#334155]"
           >
             <span
-              className="w-2 h-2 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F766E]"
+              className="w-2 h-2 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]"
               aria-hidden="true"
             />
             {SITE.kicker}
@@ -102,6 +102,13 @@ export default function Hero({ threats = [] }) {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
             </Link>
           </motion.div>
+
+          <motion.p {...rise(0.21)} className="mt-4 text-[15px] text-[#475569]">
+            Not sure where to start?{" "}
+            <Link href="/path" className="font-semibold text-[#0F172A] underline decoration-[#0F8F83]/50 decoration-2 underline-offset-4 hover:decoration-[#0F8F83]">
+              Map your path in two minutes.
+            </Link>
+          </motion.p>
 
           <motion.div {...rise(0.24)} className="mt-6">
             <Link

@@ -18,9 +18,9 @@ const ALL_TOOLS_LINK = { href: "/tools", label: "All business tools" }
 
 // Color key: teal is Home, blue is Business, the blend is Digital Sovereignty.
 const PRIMARY_DOTS = {
-  "/household": "bg-[#0F766E]",
+  "/household": "bg-[#0F8F83]",
   "/business": "bg-[#1D4ED8]",
-  "/digital-sovereignty": "bg-gradient-to-br from-[#1D4ED8] to-[#0F766E]",
+  "/digital-sovereignty": "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]",
 }
 
 const FOCUSABLE = "a[href], button:not([disabled])"
@@ -305,7 +305,7 @@ export default function Navbar() {
       >
         <nav aria-label="Main" className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]">
-            <Image src="/logo.svg" alt="Data Hygienics" width={160} height={32} loading="eager" unoptimized className="h-7 xl:h-8 w-auto" />
+            <Image src="/logo.svg" alt="Data Hygienics" width={919} height={220} loading="eager" unoptimized className="h-9 xl:h-10 w-auto" />
           </Link>
 
           {/* Desktop center nav */}

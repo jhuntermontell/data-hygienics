@@ -13,7 +13,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:w-72 shrink-0">
             <Link href="/" className="inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]">
-              <Image src="/logo.svg" alt="Data Hygienics" width={160} height={32} unoptimized className="h-7 w-auto" />
+              <Image src="/logo.svg" alt="Data Hygienics" width={919} height={220} unoptimized className="h-10 w-auto" />
             </Link>
             <p className="mt-4 text-[#0F172A] font-semibold">{SITE.tagline}</p>
             <p className="mt-2 text-sm leading-relaxed text-[#475569]">
@@ -21,7 +21,7 @@ export default function Footer() {
               businesses.
             </p>
             <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1.5 text-xs font-medium text-[#475569]">
-              <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F766E]" />
+              <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]" />
               No sponsors. No referral fees. No affiliate links.
             </p>
           </div>

@@ -89,7 +89,7 @@ export default function HowWeWorkPage() {
         {/* Header */}
         <section aria-labelledby="how-title" className="relative overflow-hidden px-4 sm:px-6 pt-28 sm:pt-36 pb-16 sm:pb-20">
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[40rem] h-[24rem] rounded-full bg-gradient-to-r from-[#1D4ED8]/10 to-[#0F766E]/10 blur-3xl" />
+            <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[40rem] h-[24rem] rounded-full bg-gradient-to-r from-[#1D4ED8]/10 to-[#0F8F83]/10 blur-3xl" />
           </div>
           <div className="relative max-w-3xl mx-auto text-center">
             <p className="text-xs font-semibold tracking-[0.1em] uppercase text-[#64748B]">Method and independence</p>
