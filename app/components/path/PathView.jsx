@@ -376,7 +376,7 @@ function SaveCard({ sync, user, audience }) {
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
-          href={`/tools/cyber-audit/register?next=${encodeURIComponent(next)}`}
+          href={`/path/save?for=${audience}`}
           className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF]"
         >
           Save my path

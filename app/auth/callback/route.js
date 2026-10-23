@@ -15,5 +15,8 @@ export async function GET(request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/tools/cyber-audit/login?error=auth`)
+  // A Clear Path link that fails goes back to the Path's own sign-in page.
+  const audience = next.match(/^\/path\/(home|business)(?:[/?]|$)/)?.[1]
+  const failed = audience ? `/path/save?for=${audience}&error=link` : "/tools/cyber-audit/login?error=auth"
+  return NextResponse.redirect(`${origin}${failed}`)
 }
