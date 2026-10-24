@@ -8,8 +8,8 @@ import Footer from "@/app/components/Footer"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { getSubscription } from "@/lib/stripe/subscription"
-import { INCIDENT_TYPES } from "@/lib/ir-plan/playbooks"
-import { SCENARIOS } from "@/lib/ir-plan/scenarios"
+import { INCIDENT_TYPES, getIncidentType } from "@/lib/ir-plan/playbooks"
+import { SCENARIOS, getScenarioIncidentType } from "@/lib/ir-plan/scenarios"
 import UpgradeModal from "@/app/tools/cyber-audit/components/UpgradeModal"
 import {
   LifeBuoy,
@@ -21,6 +21,8 @@ import {
   Mail,
   Fish,
   Smartphone,
+  Mic,
+  Bot,
   Phone,
   Briefcase,
   Building2,
@@ -35,7 +37,15 @@ import {
   Clock,
 } from "lucide-react"
 
-const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone }
+const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone, Mic, Bot }
+
+function incidentTypeLabel(key) {
+  return getIncidentType(key)?.title || (key || "").replace(/_/g, " ")
+}
+
+function scenarioLabel(key) {
+  return incidentTypeLabel(getScenarioIncidentType(key))
+}
 
 export default function IrPlanHubPage() {
   const [user, setUser] = useState(null)
@@ -91,8 +101,8 @@ export default function IrPlanHubPage() {
       setExercises(exRes.data || [])
       setIncidents(historyRes.data || [])
       setActiveIncidents(activeRes.data || [])
-      // IR plan is unlocked by: any Ongoing Protection / Agency subscription,
-      // legacy Starter / Professional / MSP subscriptions (grandfathered),
+      // IR plan is unlocked by: an Ongoing Protection subscription, any
+      // grandfathered legacy plan (see isLegacyPlan in lib/stripe/access.js),
       // and any Documentation Pack purchase. All of those set
       // access.canAccessIRPlan = true via getPlanAccess.
       setIsPaid(subData.access.canAccessIRPlan)
@@ -183,8 +193,8 @@ export default function IrPlanHubPage() {
                         <p className="text-[10px] uppercase tracking-wider font-bold text-[#B91C1C] mb-0.5">
                           Active
                         </p>
-                        <p className="text-base font-bold text-[#0F172A] capitalize">
-                          {(incident.incident_type || "").replace(/_/g, " ")}
+                        <p className="text-base font-bold text-[#0F172A]">
+                          {incidentTypeLabel(incident.incident_type)}
                         </p>
                         <p className="text-xs text-[#475569] mt-0.5">
                           Started{" "}
@@ -303,13 +313,13 @@ export default function IrPlanHubPage() {
           </p>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
-            {INCIDENT_TYPES.map((it) => {
-              const Icon = ICON_MAP[it.icon] || ShieldAlert
-              const scenario = SCENARIOS[it.key]
-              if (!scenario) return null
+            {Object.keys(SCENARIOS).map((scenarioKey) => {
+              const scenario = SCENARIOS[scenarioKey]
+              const it = getIncidentType(getScenarioIncidentType(scenarioKey))
+              const Icon = ICON_MAP[it?.icon] || ShieldAlert
               return (
                 <div
-                  key={it.key}
+                  key={scenarioKey}
                   className="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col"
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -320,12 +330,12 @@ export default function IrPlanHubPage() {
                       <Clock className="w-3 h-3" /> {scenario.estimatedMinutes} min
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-[#0F172A] mb-1">{it.title}</h3>
+                  <h3 className="text-sm font-bold text-[#0F172A] mb-1">{it?.title || scenario.title}</h3>
                   <p className="text-xs text-[#475569] italic mb-3 flex-1">
                     &ldquo;{scenario.title}&rdquo;
                   </p>
                   <Link
-                    href={`/tools/ir-plan/exercise/${it.key}`}
+                    href={`/tools/ir-plan/exercise/${scenarioKey}`}
                     className="inline-flex items-center justify-center gap-1.5 bg-[#0F766E] text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-[#0E7490] transition-colors"
                   >
                     <Play className="w-3.5 h-3.5" /> Start exercise
@@ -346,7 +356,7 @@ export default function IrPlanHubPage() {
             <div className="rounded-lg border border-[#F59E0B]/40 bg-[#FFFBEB] px-4 py-3 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-[#92400E] shrink-0" />
               <p className="text-sm text-[#92400E]">
-                Your plan has not been tested yet. Insurance carriers look for documented tabletop exercises.
+                Your plan has not been tested yet. A dated tabletop exercise is the record your team, your lawyer, and your insurer (if you have one) will ask for.
               </p>
             </div>
           )}
@@ -371,15 +381,15 @@ export default function IrPlanHubPage() {
               </div>
               {exercises.length === 0 ? (
                 <p className="text-xs text-[#94A3B8]">
-                  No exercises yet. Tabletop exercises let you rehearse your plan in a low-risk way and produce documentation insurance brokers recognize.
+                  No exercises yet. Tabletop exercises let you rehearse your plan in a low-risk way and leave a dated record your team, your lawyer, and your insurer (if you have one) will ask for.
                 </p>
               ) : (
                 <ul className="space-y-2">
                   {exercises.map((ex) => (
                     <li key={ex.id} className="flex items-center justify-between text-xs">
                       <div>
-                        <span className="font-medium text-[#0F172A] capitalize">
-                          {ex.scenario_type.replace(/_/g, " ")}
+                        <span className="font-medium text-[#0F172A]">
+                          {scenarioLabel(ex.scenario_type)}
                         </span>
                         <span className="text-[#94A3B8]"> &middot; {new Date(ex.created_at).toLocaleDateString()}</span>
                       </div>
@@ -405,8 +415,8 @@ export default function IrPlanHubPage() {
                   {incidents.map((inc) => (
                     <li key={inc.id} className="flex items-center justify-between text-xs">
                       <div>
-                        <span className="font-medium text-[#0F172A] capitalize">
-                          {inc.incident_type.replace(/_/g, " ")}
+                        <span className="font-medium text-[#0F172A]">
+                          {incidentTypeLabel(inc.incident_type)}
                         </span>
                         <span className="text-[#94A3B8]">
                           {" "}
@@ -512,7 +522,7 @@ function IntroductionView({ user, isPaid, onUpgrade, showUpgrade, setShowUpgrade
             Build your incident response plan
           </h1>
           <p className="text-[#475569] text-lg max-w-2xl leading-relaxed">
-            A personalized, step-by-step guide for the moments when everything goes wrong. Built around your team, your systems, and your insurance.
+            A personalized, step-by-step guide for the moments when everything goes wrong. Built around your team and your systems, with playbooks for AI-era incidents like cloned-voice payment fraud and client data pasted into a chatbot.
           </p>
         </motion.div>
 
@@ -525,12 +535,12 @@ function IntroductionView({ user, isPaid, onUpgrade, showUpgrade, setShowUpgrade
           <FeatureCard
             icon={Sparkles}
             title="Test it before you need it"
-            body="Run interactive tabletop exercises that simulate real incidents. Practice your response, find the gaps, and generate a documented exercise report for your insurance renewal."
+            body="Run interactive tabletop exercises that simulate real incidents. Practice your response, find the gaps, and keep a dated exercise report your team, your lawyer, and your insurer (if you have one) will ask for."
           />
           <FeatureCard
             icon={ShieldAlert}
             title="Usable during a real incident"
-            body="Step-by-step guided workflows with real-time action logging and timestamped documentation for your carrier and legal team."
+            body="Step-by-step guided workflows with real-time action logging and timestamped documentation for your lawyer, your bank, and your insurer if you have one."
           />
         </div>
 

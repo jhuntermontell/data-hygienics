@@ -67,7 +67,7 @@ export default function QuestionRenderer({ question, value, onChange, index }) {
       )}
 
       {question.type === "maturity" && (
-        <MaturityTier value={value} onChange={onChange} />
+        <MaturityTier value={value} onChange={onChange} rubric={question.rubric} />
       )}
 
       {question.type === "text" && (

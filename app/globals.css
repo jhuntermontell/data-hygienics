@@ -3,6 +3,15 @@
 :root {
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 
+  /* Continuous Fold brand palette (design/brand-book). Navy carries
+     authority; cobalt and teal are signals. Brand teal is for fills, icons
+     and large type; body-size teal text and white-on-teal buttons use
+     --color-teal, which keeps 4.5:1 contrast. */
+  --color-brand-navy: #0F172A;   /* Judgment */
+  --color-brand-cobalt: #1D4ED8; /* Clarity */
+  --color-brand-teal: #0F8F83;   /* Action */
+  --color-brand-field: #F8FAFC;
+
   --color-background: #FFFFFF;
   --color-surface: #F8FAFC;
   --color-surface-raised: #FFFFFF;
@@ -137,4 +146,99 @@ body {
 }
 .threat-content a:hover {
   color: #1E40AF;
+}
+
+/* Industry brief HTML: lists and long words/URLs that would overflow at 375px */
+.threat-content {
+  overflow-wrap: anywhere;
+}
+.threat-content ul,
+.threat-content ol {
+  margin: 0 0 1rem;
+  padding-left: 1.25rem;
+  color: #475569;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+.threat-content ul {
+  list-style: disc;
+}
+.threat-content ol {
+  list-style: decimal;
+}
+.threat-content li + li {
+  margin-top: 0.35rem;
+}
+
+/* Multi-paragraph TL;DR (research library articles) */
+.tldr-block p + p {
+  margin-top: 0.6rem;
+}
+
+/* ── Research library pages (threats, guides, explainers, toolkit, glossary) ── */
+
+/* Anchors land below the fixed 64px navbar. */
+.library-page [id] {
+  scroll-margin-top: 6rem;
+}
+.library-page {
+  overflow-wrap: break-word;
+}
+
+/* One visible focus style for every interactive element. */
+.library-page a:focus-visible,
+.library-page button:focus-visible,
+.library-page summary:focus-visible,
+.library-page input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Citation superscripts: small, blue, no underline, with a focus ring. */
+sup.cite {
+  font-size: 0.7em;
+  margin-left: 0.05em;
+  white-space: nowrap;
+}
+sup.cite a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0 0.1em;
+  border-radius: 3px;
+}
+sup.cite a:hover {
+  color: var(--color-primary-hover);
+  background: var(--color-primary-light);
+}
+sup.cite a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  background: var(--color-primary-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── Clear Path (app/path) ── */
+
+/* The brand's signature clean cut, as a corner on each step card. It fills
+   teal (Action) when the step is done. */
+.step-cut {
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* Printed paths are a plain checklist: titles and status, no controls. */
+@media print {
+  body > header,
+  footer,
+  nav {
+    display: none !important;
+  }
+  .step-card {
+    break-inside: avoid;
+  }
 }

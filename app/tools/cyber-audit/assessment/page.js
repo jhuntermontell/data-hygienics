@@ -233,7 +233,8 @@ export default function AssessmentPage() {
         const direct = sections.find((s) =>
           s.questions.some((q) => q.key === key)
         )
-        if (direct) return direct.id
+        // Banks key sections by `id` (most) or `key` (financial).
+        if (direct) return direct.id ?? direct.key
         // Drill-down: strip `_dd_...` suffix and look up the parent
         const ddIndex = key.indexOf("_dd_")
         if (ddIndex === -1) return null
@@ -241,7 +242,7 @@ export default function AssessmentPage() {
         const parentSection = sections.find((s) =>
           s.questions.some((q) => q.key === parentKey)
         )
-        return parentSection?.id ?? null
+        return parentSection?.id ?? parentSection?.key ?? null
       }
 
       const sectionKey = resolveSection(questionKey)
@@ -608,7 +609,7 @@ export default function AssessmentPage() {
                     Unlock the full assessment
                   </h3>
                   <p className="text-sm text-[#475569] max-w-md mx-auto mb-5">
-                    The free preview shows the first {FREE_TIER_QUESTION_LIMIT} questions. The Documentation Pack ($299, one-time) unlocks every section of the comprehensive audit along with your insurance and remediation reports, all 9 policies, and your incident response plan.
+                    The free preview shows the first {FREE_TIER_QUESTION_LIMIT} questions. The Documentation Pack ($299, one-time) unlocks every section of the comprehensive audit along with your summary and remediation reports, all 9 policies (including an AI Acceptable Use Policy), and your incident response plan.
                   </p>
                   <Button onClick={() => setShowUpgrade(true)}>
                     <span className="flex items-center gap-2">

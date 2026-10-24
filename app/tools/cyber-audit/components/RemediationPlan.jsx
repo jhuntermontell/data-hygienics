@@ -198,7 +198,7 @@ export default function RemediationPlan({ plan }) {
                       </p>
                     </div>
 
-                    {/* MSP question */}
+                    {/* Question for your IT provider */}
                     <div className="rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4">
                       <p className="text-[11px] font-semibold text-[#0F172A] uppercase tracking-wider mb-2">
                         Ask your IT provider

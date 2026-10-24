@@ -8,9 +8,8 @@ import {
   View,
   StyleSheet,
   pdf,
-  Svg,
-  Rect,
 } from "@react-pdf/renderer"
+import BrandLockupPdf from "@/app/components/pdf/BrandLockupPdf"
 import { RECOMMENDATIONS } from "@/lib/cyber-audit/recommendations"
 
 const styles = StyleSheet.create({
@@ -25,20 +24,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  logoText: {
-    marginLeft: 8,
-  },
-  logoTitle: {
-    fontSize: 12,
-    fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
-  },
-  logoSubtitle: {
-    fontSize: 10,
-    color: "#64748b",
-  },
   header: {
-    borderBottom: "2px solid #3b82f6",
+    borderBottom: "2px solid #1D4ED8",
     paddingBottom: 16,
     marginBottom: 24,
   },
@@ -52,7 +39,7 @@ const styles = StyleSheet.create({
   reportTitle: {
     fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
+    color: "#1D4ED8",
     marginBottom: 8,
   },
   meta: {
@@ -72,7 +59,7 @@ const styles = StyleSheet.create({
   scoreNumber: {
     fontSize: 48,
     fontFamily: "Helvetica-Bold",
-    color: "#3b82f6",
+    color: "#1D4ED8",
     marginRight: 16,
   },
   gradeText: {
@@ -174,7 +161,7 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     textAlign: "center",
   },
-  insuranceWarning: {
+  coverageNote: {
     backgroundColor: "#fff7ed",
     border: "1px solid #fed7aa",
     borderRadius: 6,
@@ -220,16 +207,6 @@ function getEffortEstimate(rec) {
   return "Medium"
 }
 
-function LogoSvg() {
-  return (
-    <Svg viewBox="0 0 32 32" width={28} height={28}>
-      <Rect x={2} y={4} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.2} />
-      <Rect x={10} y={12} width={16} height={16} rx={4.5} ry={4.5} fill="#1D4ED8" fillOpacity={0.45} />
-      <Rect x={6} y={8} width={16} height={16} rx={4.5} ry={4.5} fill="none" stroke="#1D4ED8" strokeWidth={1.8} />
-    </Svg>
-  )
-}
-
 function ReportDocument({
   score,
   grade,
@@ -258,9 +235,11 @@ function ReportDocument({
     return (priorityOrder[recA?.priority] ?? 3) - (priorityOrder[recB?.priority] ?? 3)
   })
 
-  const isInsurance = reportType === "insurance"
-  const titleText = isInsurance
-    ? "Cybersecurity Assessment Report"
+  // "summary" is the shareable report (score, sections, gaps). Anything
+  // else renders the internal remediation report with fix steps.
+  const isSummary = reportType === "summary"
+  const titleText = isSummary
+    ? "Cybersecurity Summary Report"
     : "Internal Remediation Report"
 
   return (
@@ -268,11 +247,7 @@ function ReportDocument({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.logoRow}>
-            <LogoSvg />
-            <View style={styles.logoText}>
-              <Text style={styles.logoTitle}>Data Hygienics</Text>
-              <Text style={styles.logoSubtitle}>Cybersecurity Platform</Text>
-            </View>
+            <BrandLockupPdf subtitle="Cyber Audit" markSize={28} />
           </View>
           {companyName && (
             <Text style={styles.companyName}>{companyName}</Text>
@@ -291,12 +266,12 @@ function ReportDocument({
         </View>
 
         {hasInsurance === "No" && (
-          <View style={styles.insuranceWarning}>
+          <View style={styles.coverageNote}>
             <Text style={[styles.warningText, { fontFamily: "Helvetica-Bold" }]}>
-              No Cyber Insurance Detected
+              No Cyber Insurance Reported
             </Text>
             <Text style={styles.warningText}>
-              This report can be used to support your cyber insurance application. We strongly recommend obtaining coverage to protect your business from breach costs.
+              Without cyber insurance, your business carries the full cost of an incident. Consider coverage as you close the gaps in this report.
             </Text>
           </View>
         )}
@@ -333,7 +308,7 @@ function ReportDocument({
         ))}
 
         <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
-          {isInsurance ? "Identified Gaps" : "Identified Gaps & Remediation Plan"}
+          {isSummary ? "Identified Gaps" : "Identified Gaps & Remediation Plan"}
         </Text>
         {sortedGaps.map((gap) => {
           const rec = RECOMMENDATIONS[gap.questionKey]
@@ -356,7 +331,7 @@ function ReportDocument({
                 {gap.cisControl ? ` | CIS: ${gap.cisControl}` : ""}
               </Text>
 
-              {!isInsurance && (
+              {!isSummary && (
                 <>
                   <View style={styles.remediationBox}>
                     <Text style={styles.remediationTitle}>Remediation Steps</Text>
@@ -381,7 +356,7 @@ function ReportDocument({
   )
 }
 
-export default function PdfReport({ reportType = "insurance", onClose, onError, ...props }) {
+export default function PdfReport({ reportType = "summary", onClose, onError, ...props }) {
   useEffect(() => {
     let cancelled = false
     async function generate() {
@@ -393,7 +368,7 @@ export default function PdfReport({ reportType = "insurance", onClose, onError, 
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        const prefix = reportType === "insurance" ? "insurance-report" : "remediation-report"
+        const prefix = reportType === "summary" ? "summary-report" : "remediation-report"
         a.download = `${prefix}-${new Date().toISOString().slice(0, 10)}.pdf`
         document.body.appendChild(a)
         a.click()

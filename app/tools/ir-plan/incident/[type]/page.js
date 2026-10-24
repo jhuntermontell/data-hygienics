@@ -6,7 +6,7 @@
 // Builder and exercise writes go through /api/ir-plan/ routes for entitlement
 // enforcement; incident writes do not need that gate.
 
-import { useEffect, useMemo, useState, useRef, Suspense } from "react"
+import { useEffect, useState, useRef, Suspense } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import dynamic from "next/dynamic"
@@ -44,6 +44,23 @@ import {
 const IrPlanPdf = dynamic(() => import("@/app/tools/ir-plan/components/IrPlanPdf"), {
   ssr: false,
 })
+
+// Incident types that ask "was sensitive data involved?" in phase 1. The
+// answer is stored as conditionalAnswers.data_compromised and unlocks steps
+// marked conditional: "data_possibly_compromised".
+const DATA_DECISION_TYPES = ["data_breach", "ransomware", "phishing", "ai_data_exposure"]
+
+const DATA_DECISION_QUESTIONS = {
+  ai_data_exposure:
+    "Did the information shared with the AI tool include personal, health, financial, or client-confidential data?",
+}
+
+const DEFAULT_DATA_DECISION_QUESTION =
+  "Was sensitive data (client information, health records, financial data) potentially accessed?"
+
+function incidentTypeLabel(key) {
+  return getIncidentType(key)?.title || (key || "").replace(/_/g, " ")
+}
 
 export default function ActiveIncidentPage() {
   return (
@@ -397,6 +414,11 @@ function ActiveIncidentInner() {
     if (step.conditional === "has_legal_counsel") {
       return !!plan.legal_counsel?.name
     }
+    if (step.conditional === "has_insurance") {
+      return (
+        plan.insurance_info?.has_insurance === "yes" || !!plan.insurance_info?.carrier
+      )
+    }
     if (step.conditional === "data_possibly_compromised") {
       return conditionalAnswers.data_compromised === true
     }
@@ -603,36 +625,32 @@ function ActiveIncidentInner() {
     }
   }
 
-  const allCriticalDone = useMemo(() => {
-    return playbook.phases.every((p) =>
-      p.steps.filter(shouldShowStep).every((s) => !s.critical || completedSteps[s.id])
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [completedSteps, conditionalAnswers, playbook])
+  // Plain computations, not useMemo: this code runs after the early returns
+  // above, so a hook here would change the hook order between renders.
+  const allCriticalDone = playbook.phases.every((p) =>
+    p.steps.filter(shouldShowStep).every((s) => !s.critical || completedSteps[s.id])
+  )
 
   // Detect unanswered decision points relevant to the current phase
-  const unansweredDecisions = useMemo(() => {
-    const list = []
-    if (
-      (type === "data_breach" || type === "ransomware" || type === "phishing") &&
-      phaseIdx === 0 &&
-      conditionalAnswers.data_compromised === undefined
-    ) {
-      list.push("data_compromised")
-    }
-    if (type === "lost_device" && phaseIdx === 0 && conditionalAnswers.has_mdm === undefined) {
-      list.push("has_mdm")
-    }
-    if (
-      type === "lost_device" &&
-      phaseIdx === 0 &&
-      completedSteps["l4"] &&
-      conditionalAnswers.unencrypted_sensitive === undefined
-    ) {
-      list.push("unencrypted_sensitive")
-    }
-    return list
-  }, [type, phaseIdx, conditionalAnswers, completedSteps])
+  const unansweredDecisions = []
+  if (
+    DATA_DECISION_TYPES.includes(type) &&
+    phaseIdx === 0 &&
+    conditionalAnswers.data_compromised === undefined
+  ) {
+    unansweredDecisions.push("data_compromised")
+  }
+  if (type === "lost_device" && phaseIdx === 0 && conditionalAnswers.has_mdm === undefined) {
+    unansweredDecisions.push("has_mdm")
+  }
+  if (
+    type === "lost_device" &&
+    phaseIdx === 0 &&
+    completedSteps["l4"] &&
+    conditionalAnswers.unencrypted_sensitive === undefined
+  ) {
+    unansweredDecisions.push("unencrypted_sensitive")
+  }
 
   async function advancePhase() {
     if (closingOutRef.current) return
@@ -741,8 +759,8 @@ function ActiveIncidentInner() {
             </div>
             <p className="text-sm text-[#475569] leading-relaxed mb-6">
               An active{" "}
-              <span className="font-semibold capitalize">
-                {(existingActive.incident_type || "").replace(/_/g, " ")}
+              <span className="font-semibold">
+                {incidentTypeLabel(existingActive.incident_type)}
               </span>{" "}
               incident was started on{" "}
               {new Date(existingActive.started_at).toLocaleString()}. Would you like to resume it or start a new one?
@@ -1369,7 +1387,7 @@ function DecisionPoints({
   onAnswer,
 }) {
   const showDataQuestion =
-    (type === "data_breach" || type === "ransomware" || type === "phishing") &&
+    DATA_DECISION_TYPES.includes(type) &&
     phaseIdx === 0 &&
     conditionalAnswers.data_compromised === undefined
 
@@ -1390,7 +1408,7 @@ function DecisionPoints({
         <DecisionCard
           conditionKey="data_compromised"
           disabled={pendingDecisions.has("data_compromised") || closingOut}
-          question="Was sensitive data (client information, health records, financial data) potentially accessed?"
+          question={DATA_DECISION_QUESTIONS[type] || DEFAULT_DATA_DECISION_QUESTION}
           onYes={() => onAnswer("data_compromised", true)}
           onNo={() => onAnswer("data_compromised", false)}
         />

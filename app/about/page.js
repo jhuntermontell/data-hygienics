@@ -2,11 +2,14 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import SchemaScript from "@/app/components/SchemaScript"
 import Link from "next/link"
-import { ShieldCheck, Scale, Lightbulb, Briefcase, Building2, Heart, Landmark, DollarSign, Award, ExternalLink } from "lucide-react"
+import { ShieldCheck, Scale, Lightbulb, Briefcase, Building2, Heart, Laptop, DollarSign, Award, ExternalLink, House, Sparkles } from "lucide-react"
+import { breadcrumbSchema } from "@/lib/schema"
+import { SITE } from "@/lib/site"
 
 export const metadata = {
   title: "About Data Hygienics | Hunter Montell, CompTIA Security+",
-  description: "Data Hygienics was built by Hunter Montell, a cybersecurity practitioner with NIST CSF 2.0 and CIS Controls v8 framework experience from SAIC and Element Technologies. CompTIA Security+ certified.",
+  description: "Data Hygienics was built by Hunter Montell, a CompTIA Security+ certified practitioner, to help households and small businesses live securely alongside AI.",
+  alternates: { canonical: `${SITE.url}/about` },
 }
 
 const personSchema = {
@@ -32,17 +35,17 @@ const beliefs = [
   {
     icon: Lightbulb,
     title: "Clarity is a right, not a luxury.",
-    text: "Every business owner deserves to understand their cybersecurity posture in plain English. Not just the ones who can afford a dedicated security team.",
+    text: "Every household and every business owner deserves to understand their security in plain English. Not just the ones who can afford a dedicated security team.",
   },
   {
     icon: Scale,
     title: "Independence matters.",
-    text: "We do not sell security products. We do not earn referral fees. We have no financial relationship with any vendor. That independence is the foundation everything else is built on.",
+    text: "We sell only our own business tools, and we say so wherever they appear. We take no referral fees, use no affiliate links and have no financial relationship with any company we write about. That independence is the foundation for everything else.",
   },
   {
     icon: ShieldCheck,
     title: "Knowledge changes outcomes.",
-    text: "When a CFO can walk into a conversation with their IT provider and ask the right questions, better decisions get made. We exist to make that possible.",
+    text: "When an owner or office manager can walk into a conversation with their IT provider and ask the right questions, better decisions get made. We exist to make that possible.",
   },
 ]
 
@@ -59,7 +62,7 @@ const credentials = [
   },
   {
     name: "CIS Controls v8",
-    detail: "Framework deployment experience via Element Technologies, LLC (MSP)",
+    detail: "Framework deployment experience via Element Technologies, LLC (managed IT provider)",
     href: "https://www.cisecurity.org/controls",
   },
   {
@@ -75,18 +78,26 @@ const credentials = [
 ]
 
 const industries = [
+  { icon: House, label: "Households and Families" },
   { icon: Briefcase, label: "Small Businesses" },
-  { icon: Scale, label: "Law Firms" },
   { icon: Heart, label: "Medical Practices" },
-  { icon: Building2, label: "Nonprofits and Churches" },
+  { icon: Building2, label: "Owner-run offices" },
   { icon: DollarSign, label: "Financial Services" },
-  { icon: Landmark, label: "Government Contractors" },
+  { icon: Laptop, label: "Solo creators and remote workers" },
 ]
 
 export default function About() {
   return (
     <>
-      <SchemaScript schema={personSchema} />
+      <SchemaScript
+        schema={[
+          personSchema,
+          breadcrumbSchema([
+            { name: "Data Hygienics", path: "/" },
+            { name: "About", path: "/about" },
+          ]),
+        ]}
+      />
       <Navbar />
       <main className="min-h-screen bg-white text-[#0F172A]">
         {/* Hero */}
@@ -115,7 +126,7 @@ export default function About() {
 
             <div className="space-y-6 text-[#475569] text-lg leading-relaxed">
               <p>
-                Hunter built Data Hygienics to solve a problem that every non-technical business owner runs into sooner or later: cybersecurity guidance that actually makes sense. He has direct experience implementing NIST Cybersecurity Framework 2.0 controls for US government contractors at SAIC, and he led CIS Controls v8 deployments at Element Technologies, LLC, a managed service provider. That background means he has seen both sides of the security gap firsthand.
+                Hunter built Data Hygienics to solve a problem that every non-technical business owner runs into sooner or later: cybersecurity guidance that actually makes sense. He has direct experience implementing NIST Cybersecurity Framework 2.0 controls for US government contractors at SAIC, and he led CIS Controls v8 deployments at Element Technologies, LLC, a managed IT provider. That background means he has seen both sides of the security gap firsthand.
               </p>
               <p>
                 Early in his career, Hunter worked as an incident response analyst for a Native American tribal nation, responsible for securing federal government infrastructure, casinos, museums, and hospitals. These were communities depending on systems most people never think about. Getting it wrong had real consequences for real people.
@@ -127,7 +138,7 @@ export default function About() {
                 The expertise was always on one side of the table. The authority and the accountability were on the other. That gap is where bad decisions get made.
               </p>
               <p>
-                In the private sector, working with a managed service provider, he saw it again across dozens of organizations: nonprofits, law firms, hospitals, financial firms, small businesses across nearly every industry. Leaders who wanted to do the right thing but could not get a straight answer about what the right thing was.
+                In the private sector, working with a managed IT provider, he saw it again across dozens of organizations: nonprofits, professional services firms, hospitals, financial firms, small businesses across nearly every industry. Leaders who wanted to do the right thing but could not get a straight answer about what the right thing was.
               </p>
               <p>
                 The cybersecurity industry had built remarkable tools. It just had not built them for the people running the business.
@@ -137,6 +148,26 @@ export default function About() {
               </p>
               <p>
                 He is now a software developer with a deep belief that technology should serve people, not mystify them. This is where that belief lives.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* AI-era mission */}
+        <section aria-labelledby="mission-heading" className="pb-16 px-6 bg-white">
+          <div className="max-w-3xl mx-auto rounded-2xl border border-[#E2E8F0] bg-gradient-to-br from-[#EFF6FF] via-white to-[#F0FDFA] p-6 sm:p-8">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-[#0F766E]" aria-hidden="true" />
+              <h2 id="mission-heading" className="text-xl sm:text-2xl font-bold text-[#0F172A]">
+                The mission, updated for AI
+              </h2>
+            </div>
+            <div className="mt-4 space-y-4 text-[#475569] text-lg leading-relaxed">
+              <p>
+                AI changed the job. The tools that help you draft an email also help a scammer clone a voice, polish a phishing message or fake an invoice.
+              </p>
+              <p>
+                So Data Hygienics became the independent field guide to living and working securely alongside AI, for households and small businesses. We research first, cite every number, and tell you what to do next.
               </p>
             </div>
           </div>
@@ -198,7 +229,7 @@ export default function About() {
         <section className="py-16 px-6 bg-[#F8FAFC]">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-[#0F172A] text-center mb-12">
-              Built for organizations like yours.
+              Built for households and organizations like yours.
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-8">
               {industries.map((ind) => {
@@ -212,26 +243,36 @@ export default function About() {
               })}
             </div>
             <p className="text-center text-[#475569] text-base">
-              If cybersecurity landed in your lap, this platform was built for you.
+              If security landed in your lap, at home or at work, this was built for you.
             </p>
           </div>
         </section>
 
         {/* Closing CTA */}
-        <section className="py-20 px-6 bg-[#1D4ED8]">
+        <section aria-labelledby="about-cta-heading" className="py-20 px-6 bg-[#0F172A]">
           <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl font-bold text-white mb-3">
-              Ready to see where you stand?
+            <h2 id="about-cta-heading" className="text-3xl font-bold text-white mb-3">
+              Start where you are.
             </h2>
-            <p className="text-blue-100 text-base mb-8">
-              Start with the free assessment. No credit card. No sales call. Results in under 20 minutes.
+            <p className="text-[#CBD5E1] text-base mb-8">
+              Pick a door. Everything we publish is free to read.
             </p>
-            <Link
-              href="/tools/cyber-audit"
-              className="inline-flex items-center bg-white text-[#1D4ED8] font-semibold text-sm px-8 py-3.5 rounded-lg hover:bg-blue-50 transition-all shadow-sm"
-            >
-              Start the Free Assessment
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/household"
+                className="inline-flex items-center justify-center gap-2 bg-[#0F766E] text-white font-semibold text-sm px-8 py-3.5 rounded-lg hover:bg-[#115E59] transition-colors shadow-sm"
+              >
+                <House className="w-4 h-4" aria-hidden="true" />
+                For my home
+              </Link>
+              <Link
+                href="/business"
+                className="inline-flex items-center justify-center gap-2 bg-[#1D4ED8] text-white font-semibold text-sm px-8 py-3.5 rounded-lg hover:bg-[#1E40AF] transition-colors shadow-sm"
+              >
+                <Briefcase className="w-4 h-4" aria-hidden="true" />
+                For my business
+              </Link>
+            </div>
           </div>
         </section>
       </main>

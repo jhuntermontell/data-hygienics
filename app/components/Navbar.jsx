@@ -1,42 +1,174 @@
 "use client"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut } from "lucide-react"
+import Image from "next/image"
+import { usePathname } from "next/navigation"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
+import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut, ArrowRight } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { clearSubscriptionCache } from "@/lib/stripe/subscription"
+import { clearAccountPaths } from "@/lib/path/storage"
+import { NAV } from "@/lib/site"
 
-const primaryLinks = [
-  { href: "/how-it-works", label: "How It Works" },
-  { href: "/tools/cyber-audit", label: "Cyber Audit" },
-  { href: "/tools/policies", label: "Policy Library" },
-  { href: "/vendors", label: "Vendor Security Scorecards" },
-]
+// Links come from lib/site.js NAV. Dropdowns follow the disclosure pattern:
+// a button with aria-expanded/aria-controls toggles a panel of links. Panels
+// close on Escape (focus returns to the button), on a click or focus outside,
+// and after a link is chosen. Arrow keys, Home and End move between links.
 
-const resourceLinks = [
-  { href: "/tools/ir-plan", label: "Incident Response Planner" },
-  { href: "/controls", label: "Controls Library" },
-  { href: "/threats", label: "Threat Library" },
-  { href: "/glossary", label: "Glossary" },
-  { href: "/tools", label: "Tools" },
-]
+const ALL_TOOLS_LINK = { href: "/tools", label: "All business tools" }
+
+// Color key: teal is Home, blue is Business, the blend is Digital Sovereignty.
+const PRIMARY_DOTS = {
+  "/household": "bg-[#0F8F83]",
+  "/business": "bg-[#1D4ED8]",
+  "/digital-sovereignty": "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]",
+}
+
+const FOCUSABLE = "a[href], button:not([disabled])"
+
+function isActive(pathname, href) {
+  if (!pathname) return false
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
+function Dropdown({ id, label, open, onToggle, onClose, align = "left", panelClassName = "", buttonClassName = "", children }) {
+  const reduce = useReducedMotion()
+  const wrapRef = useRef(null)
+  const buttonRef = useRef(null)
+  const panelRef = useRef(null)
+  const panelId = `${id}-panel`
+
+  useEffect(() => {
+    if (!open) return
+    const outside = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) onClose()
+    }
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        onClose()
+        buttonRef.current?.focus()
+      }
+    }
+    document.addEventListener("pointerdown", outside)
+    document.addEventListener("focusin", outside)
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("pointerdown", outside)
+      document.removeEventListener("focusin", outside)
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [open, onClose])
+
+  const items = () => Array.from(panelRef.current?.querySelectorAll(FOCUSABLE) || [])
+
+  const focusItem = (index) => {
+    const list = items()
+    if (list.length) list[(index + list.length) % list.length].focus()
+  }
+
+  const handleButtonKeyDown = (e) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return
+    e.preventDefault()
+    if (!open) onToggle()
+    // The panel is unhidden on the next commit; focus after it paints.
+    requestAnimationFrame(() => focusItem(e.key === "ArrowDown" ? 0 : -1))
+  }
+
+  const handlePanelKeyDown = (e) => {
+    const list = items()
+    const index = list.indexOf(document.activeElement)
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      focusItem(index + 1)
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault()
+      focusItem(index - 1)
+    } else if (e.key === "Home") {
+      e.preventDefault()
+      focusItem(0)
+    } else if (e.key === "End") {
+      e.preventDefault()
+      focusItem(list.length - 1)
+    }
+  }
+
+  return (
+    <div ref={wrapRef} className="relative">
+      <button
+        ref={buttonRef}
+        type="button"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={onToggle}
+        onKeyDown={handleButtonKeyDown}
+        className={`flex items-center gap-1 text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] ${
+          open ? "text-[#0F172A] bg-[#F1F5F9]" : "text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
+        } ${buttonClassName}`}
+      >
+        {label}
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      <motion.div
+        ref={panelRef}
+        id={panelId}
+        hidden={!open}
+        initial={false}
+        animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+        transition={{ duration: reduce ? 0 : 0.14 }}
+        onKeyDown={handlePanelKeyDown}
+        className={`absolute top-full mt-2 z-50 rounded-xl bg-white border border-[#E2E8F0] shadow-lg overflow-hidden ${
+          align === "right" ? "right-0" : "left-0"
+        } ${panelClassName}`}
+      >
+        {children}
+      </motion.div>
+    </div>
+  )
+}
+
+function DropdownLinks({ links, pathname, onNavigate }) {
+  return (
+    <ul className="py-2 list-none m-0 p-0">
+      {links.map((link) => (
+        <li key={link.href}>
+          <Link
+            href={link.href}
+            onClick={onNavigate}
+            aria-current={isActive(pathname, link.href) ? "page" : undefined}
+            className="block px-4 py-2.5 hover:bg-[#F8FAFC] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors"
+          >
+            <span className="block text-sm font-semibold text-[#0F172A]">{link.label}</span>
+            {link.description ? (
+              <span className="block text-xs text-[#64748B] mt-0.5 leading-snug">{link.description}</span>
+            ) : null}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
 export default function Navbar() {
   const supabase = getSupabaseBrowserClient()
+  const pathname = usePathname()
+  const reduce = useReducedMotion()
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
   const [ready, setReady] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [resourcesOpen, setResourcesOpen] = useState(false)
-  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false)
-  const [userOpen, setUserOpen] = useState(false)
+  // Which desktop dropdown is open: "library" | "tools" | "user" | null.
+  const [openMenu, setOpenMenu] = useState(null)
+  // Which mobile accordion is open: "library" | "tools" | null.
+  const [mobileSection, setMobileSection] = useState(null)
   const [showNameModal, setShowNameModal] = useState(false)
   const [nameInput, setNameInput] = useState("")
   const [savingName, setSavingName] = useState(false)
   const [nameError, setNameError] = useState("")
-  const resourcesRef = useRef(null)
-  const userRef = useRef(null)
+  const mobileToggleRef = useRef(null)
   // Tracks the user ID we currently care about. Profile queries that finish
   // after the user signs out or switches accounts compare against this and
   // discard their results, preventing stale data from leaking into UI.
@@ -67,6 +199,8 @@ export default function Navbar() {
     })
 
     return () => subscription.unsubscribe()
+    // Subscribes once on mount by design; the client and loader are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function loadProfile(userId) {
@@ -117,23 +251,34 @@ export default function Navbar() {
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
-    window.addEventListener("scroll", handler)
+    handler()
+    window.addEventListener("scroll", handler, { passive: true })
     return () => window.removeEventListener("scroll", handler)
   }, [])
 
+  // Escape closes the mobile drawer and returns focus to its toggle.
   useEffect(() => {
-    const handler = (e) => {
-      if (resourcesRef.current && !resourcesRef.current.contains(e.target)) setResourcesOpen(false)
-      if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false)
+    if (!mobileOpen) return
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setMobileOpen(false)
+        mobileToggleRef.current?.focus()
+      }
     }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [])
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [mobileOpen])
+
+  const closeMenu = useCallback(() => setOpenMenu(null), [])
+  const toggleMenu = (key) => setOpenMenu((current) => (current === key ? null : key))
+  const closeMobile = () => setMobileOpen(false)
 
   const handleSignOut = async () => {
-    setUserOpen(false)
+    setOpenMenu(null)
     setMobileOpen(false)
     clearSubscriptionCache()
+    // Paths saved to this account shouldn't stay on a shared browser.
+    clearAccountPaths()
     await supabase.auth.signOut()
     window.location.href = "/"
   }
@@ -143,123 +288,130 @@ export default function Navbar() {
   if (profile?.full_name) firstName = profile.full_name.split(" ")[0]
   else if (user?.user_metadata?.full_name) firstName = user.user_metadata.full_name.split(" ")[0]
 
+  const toolsLinks = NAV.businessTools
+  // Identical props on server and client; reduced motion only zeroes the
+  // duration, so the SSR style never gets stranded after hydration.
+  const drawerMotion = {
+    initial: false,
+    animate: mobileOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 },
+    transition: { duration: reduce ? 0 : 0.16 },
+  }
+
   return (
     <>
-      <motion.nav
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white ${
-          scrolled ? "shadow-[0_1px_3px_0_rgb(0_0_0/0.06)] border-b border-[#E2E8F0]" : "border-b border-transparent"
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md transition-shadow duration-300 ${
+          scrolled || mobileOpen
+            ? "shadow-[0_1px_3px_0_rgb(0_0_0/0.06)] border-b border-[#E2E8F0]"
+            : "border-b border-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <img src="/logo.svg" alt="Data Hygienics" className="h-8 w-auto" />
+        <nav aria-label="Main" className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]">
+            <Image src="/logo.svg" alt="Data Hygienics" width={919} height={220} loading="eager" unoptimized className="h-9 xl:h-10 w-auto" />
           </Link>
 
           {/* Desktop center nav */}
-          <div className="hidden lg:flex items-center gap-7">
-            {primaryLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5">
+            {NAV.primary.map((link) => {
+              const active = isActive(pathname, link.href)
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`inline-flex items-center gap-2 text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] ${
+                    active ? "text-[#0F172A] bg-[#F1F5F9]" : "text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
+                  }`}
+                >
+                  <span aria-hidden="true" className={`hidden xl:inline-block w-1.5 h-1.5 rounded-full ${PRIMARY_DOTS[link.href] || "bg-[#94A3B8]"}`} />
+                  {link.label}
+                </Link>
+              )
+            })}
 
-            <div className="relative" ref={resourcesRef}>
-              <button
-                onClick={() => setResourcesOpen(!resourcesOpen)}
-                className="flex items-center gap-1 text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150 cursor-pointer"
-              >
-                Resources
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${resourcesOpen ? "rotate-180" : ""}`} />
-              </button>
-              <AnimatePresence>
-                {resourcesOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.12 }}
-                    className="absolute top-full mt-2 left-0 w-56 rounded-lg bg-white border border-[#E2E8F0] shadow-lg overflow-hidden"
-                  >
-                    {resourceLinks.map((link) => (
-                      <Link key={link.href} href={link.href} onClick={() => setResourcesOpen(false)}
-                        className="block px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors">
-                        {link.label}
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <span aria-hidden="true" className="hidden xl:block mx-1.5 h-5 w-px bg-[#E2E8F0]" />
 
-            <Link
-              href="/pricing"
-              className="text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150"
+            <Dropdown
+              id="nav-library"
+              label="Library"
+              open={openMenu === "library"}
+              onToggle={() => toggleMenu("library")}
+              onClose={closeMenu}
+              panelClassName="w-80"
             >
-              Pricing
-            </Link>
+              <DropdownLinks links={NAV.library} pathname={pathname} onNavigate={closeMenu} />
+            </Dropdown>
+
+            <Dropdown
+              id="nav-tools"
+              label="Business Tools"
+              open={openMenu === "tools"}
+              onToggle={() => toggleMenu("tools")}
+              onClose={closeMenu}
+              panelClassName="w-80"
+            >
+              <p className="px-4 pt-3 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#1D4ED8]">
+                For businesses
+              </p>
+              <DropdownLinks links={toolsLinks} pathname={pathname} onNavigate={closeMenu} />
+              <div className="border-t border-[#F1F5F9] bg-[#F8FAFC]">
+                <Link
+                  href={ALL_TOOLS_LINK.href}
+                  onClick={closeMenu}
+                  className="flex items-center justify-between px-4 py-3 text-sm font-semibold text-[#1D4ED8] hover:text-[#1E40AF] focus-visible:bg-[#F1F5F9] focus-visible:outline-none"
+                >
+                  {ALL_TOOLS_LINK.label}
+                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                </Link>
+              </div>
+            </Dropdown>
           </div>
 
           {/* Desktop right: auth-aware */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
             {!ready ? (
-              <div className="w-20 h-9" />
+              <div className="w-44 h-9" />
             ) : user ? (
-              <div className="relative" ref={userRef}>
+              <Dropdown
+                id="nav-user"
+                label={`Hi, ${firstName || "there"}`}
+                open={openMenu === "user"}
+                onToggle={() => toggleMenu("user")}
+                onClose={closeMenu}
+                align="right"
+                panelClassName="w-52"
+              >
+                <Link href="/tools/cyber-audit/dashboard" onClick={closeMenu}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
+                  <LayoutDashboard className="w-4 h-4" aria-hidden="true" /> Dashboard
+                </Link>
+                <Link href="/tools/cyber-audit/results" onClick={closeMenu}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
+                  <FileText className="w-4 h-4" aria-hidden="true" /> My Assessments
+                </Link>
+                <Link href="/tools/policies" onClick={closeMenu}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
+                  <ShieldCheck className="w-4 h-4" aria-hidden="true" /> My Policies
+                </Link>
+                <div className="border-t border-[#F1F5F9]" />
                 <button
-                  onClick={() => setUserOpen(!userOpen)}
-                  className="flex items-center gap-1.5 text-[#475569] hover:text-[#0F172A] text-sm font-medium transition-colors duration-150 cursor-pointer px-3 py-2 rounded-lg hover:bg-[#F8FAFC]"
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#DC2626] hover:bg-[#FEF2F2] focus-visible:bg-[#FEF2F2] focus-visible:outline-none transition-colors w-full text-left cursor-pointer"
                 >
-                  Hi, {firstName || "there"}
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${userOpen ? "rotate-180" : ""}`} />
+                  <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
                 </button>
-                <AnimatePresence>
-                  {userOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 6 }}
-                      transition={{ duration: 0.12 }}
-                      className="absolute top-full mt-2 right-0 w-52 rounded-lg bg-white border border-[#E2E8F0] shadow-lg overflow-hidden"
-                    >
-                      <Link href="/tools/cyber-audit/dashboard" onClick={() => setUserOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] transition-colors">
-                        <LayoutDashboard className="w-4 h-4" /> Dashboard
-                      </Link>
-                      <Link href="/tools/cyber-audit/results" onClick={() => setUserOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] transition-colors">
-                        <FileText className="w-4 h-4" /> My Assessments
-                      </Link>
-                      <Link href="/tools/policies" onClick={() => setUserOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] transition-colors">
-                        <ShieldCheck className="w-4 h-4" /> My Policies
-                      </Link>
-                      <div className="border-t border-[#F1F5F9]" />
-                      <button
-                        onClick={handleSignOut}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#DC2626] hover:bg-[#FEF2F2] transition-colors w-full text-left cursor-pointer"
-                      >
-                        <LogOut className="w-4 h-4" /> Sign out
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              </Dropdown>
             ) : (
               <>
                 <Link href="/tools/cyber-audit/login"
-                  className="text-[#475569] hover:text-[#0F172A] text-sm font-medium px-4 py-2 transition-colors duration-150">
+                  className="text-[#475569] hover:text-[#0F172A] text-sm font-medium px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
                   Sign in
                 </Link>
-                <Link href="/tools/cyber-audit"
-                  className="inline-flex items-center bg-[#1D4ED8] text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#1E40AF] transition-colors duration-150 shadow-sm">
-                  Get started
+                <Link href={NAV.start.href}
+                  className="inline-flex items-center bg-[#0F172A] text-white text-sm font-semibold px-4 xl:px-5 py-2.5 rounded-lg hover:bg-[#1E293B] transition-colors duration-150 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
+                  {NAV.start.label}
                 </Link>
               </>
             )}
@@ -267,88 +419,124 @@ export default function Navbar() {
 
           {/* Mobile toggle */}
           <button
+            ref={mobileToggleRef}
+            type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden text-[#475569] hover:text-[#0F172A] transition-colors p-1"
-            aria-label="Toggle menu"
+            className="lg:hidden -mr-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
           >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
           </button>
-        </div>
+        </nav>
 
-        {/* Mobile drawer */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="lg:hidden overflow-hidden bg-white border-b border-[#E2E8F0]"
-            >
-              <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col gap-1">
-                {primaryLinks.map((link) => (
-                  <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                    className="text-[#475569] hover:text-[#0F172A] text-base font-medium py-2 transition-colors">
-                    {link.label}
-                  </Link>
-                ))}
-
-                <button
-                  onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
-                  className="flex items-center justify-between text-[#475569] hover:text-[#0F172A] text-base font-medium py-2 transition-colors cursor-pointer"
-                >
-                  Resources
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-150 ${mobileResourcesOpen ? "rotate-180" : ""}`} />
-                </button>
-                <AnimatePresence>
-                  {mobileResourcesOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className="overflow-hidden pl-4 flex flex-col gap-1 border-l border-[#F1F5F9]"
+        {/* Mobile drawer: mirrors the desktop structure */}
+        <motion.div
+          id="mobile-menu"
+          hidden={!mobileOpen}
+          {...drawerMotion}
+          className="lg:hidden border-t border-[#F1F5F9] bg-white max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
+        >
+          <nav aria-label="Mobile" className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col">
+            <ul className="list-none m-0 p-0">
+              {NAV.primary.map((link) => {
+                const active = isActive(pathname, link.href)
+                return (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onClick={closeMobile}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex items-center gap-3 py-3 text-base font-semibold border-b border-[#F1F5F9] ${
+                        active ? "text-[#0F172A]" : "text-[#334155] hover:text-[#0F172A]"
+                      }`}
                     >
-                      {resourceLinks.map((link) => (
-                        <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
-                          className="text-[#475569] hover:text-[#0F172A] text-sm py-1.5 transition-colors">
-                          {link.label}
+                      <span aria-hidden="true" className={`w-2 h-2 rounded-full ${PRIMARY_DOTS[link.href] || "bg-[#94A3B8]"}`} />
+                      {link.label}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+
+            {[
+              { key: "library", label: "Library", links: NAV.library },
+              { key: "tools", label: "Business Tools", links: toolsLinks, extra: ALL_TOOLS_LINK },
+            ].map((group) => {
+              const open = mobileSection === group.key
+              const panelId = `mobile-${group.key}`
+              return (
+                <div key={group.key} className="border-b border-[#F1F5F9]">
+                  <button
+                    type="button"
+                    aria-expanded={open}
+                    aria-controls={panelId}
+                    onClick={() => setMobileSection(open ? null : group.key)}
+                    className="w-full flex items-center justify-between py-3 text-base font-semibold text-[#334155] hover:text-[#0F172A] cursor-pointer"
+                  >
+                    {group.label}
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                  <ul id={panelId} hidden={!open} className="list-none m-0 p-0 pb-3 pl-3 border-l-2 border-[#F1F5F9]">
+                    {group.links.map((link) => (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          onClick={closeMobile}
+                          aria-current={isActive(pathname, link.href) ? "page" : undefined}
+                          className="block py-2 pl-2"
+                        >
+                          <span className="block text-sm font-medium text-[#0F172A]">{link.label}</span>
+                          {link.description ? (
+                            <span className="block text-xs text-[#64748B] mt-0.5">{link.description}</span>
+                          ) : null}
                         </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      </li>
+                    ))}
+                    {group.extra ? (
+                      <li>
+                        <Link
+                          href={group.extra.href}
+                          onClick={closeMobile}
+                          className="inline-flex items-center gap-1 py-2 pl-2 text-sm font-semibold text-[#1D4ED8]"
+                        >
+                          {group.extra.label}
+                          <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                        </Link>
+                      </li>
+                    ) : null}
+                  </ul>
+                </div>
+              )
+            })}
 
-                <Link href="/pricing" onClick={() => setMobileOpen(false)}
-                  className="text-[#475569] hover:text-[#0F172A] text-base font-medium py-2 transition-colors">
-                  Pricing
-                </Link>
-
-                {user ? (
-                  <div className="border-t border-[#F1F5F9] mt-3 pt-3">
-                    <p className="text-[#0F172A] text-sm font-medium mb-2">Hi, {firstName || "there"}</p>
-                    <Link href="/tools/cyber-audit/dashboard" onClick={() => setMobileOpen(false)} className="block text-[#475569] text-sm py-1.5">Dashboard</Link>
-                    <Link href="/tools/cyber-audit/results" onClick={() => setMobileOpen(false)} className="block text-[#475569] text-sm py-1.5">My Assessments</Link>
-                    <Link href="/tools/policies" onClick={() => setMobileOpen(false)} className="block text-[#475569] text-sm py-1.5">My Policies</Link>
-                    <button onClick={handleSignOut} className="text-[#DC2626] text-sm py-1.5 cursor-pointer">Sign out</button>
-                  </div>
-                ) : (
-                  <div className="flex gap-3 mt-4">
-                    <Link href="/tools/cyber-audit/login" onClick={() => setMobileOpen(false)}
-                      className="flex-1 text-center border border-[#E2E8F0] text-[#475569] text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#F8FAFC] transition-colors">
-                      Sign in
-                    </Link>
-                    <Link href="/tools/cyber-audit" onClick={() => setMobileOpen(false)}
-                      className="flex-1 text-center bg-[#1D4ED8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#1E40AF] transition-colors">
-                      Get started
-                    </Link>
-                  </div>
-                )}
+            {user ? (
+              <div className="mt-4">
+                <p className="text-[#0F172A] text-sm font-medium mb-2">Hi, {firstName || "there"}</p>
+                <Link href="/tools/cyber-audit/dashboard" onClick={closeMobile} className="block text-[#475569] text-sm py-1.5">Dashboard</Link>
+                <Link href="/tools/cyber-audit/results" onClick={closeMobile} className="block text-[#475569] text-sm py-1.5">My Assessments</Link>
+                <Link href="/tools/policies" onClick={closeMobile} className="block text-[#475569] text-sm py-1.5">My Policies</Link>
+                <button type="button" onClick={handleSignOut} className="text-[#DC2626] text-sm py-1.5 cursor-pointer">Sign out</button>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.nav>
+            ) : (
+              <div className="flex gap-3 mt-5">
+                <Link href="/tools/cyber-audit/login" onClick={closeMobile}
+                  className="flex-1 text-center border border-[#E2E8F0] text-[#475569] text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#F8FAFC] transition-colors">
+                  Sign in
+                </Link>
+                <Link href={NAV.start.href} onClick={closeMobile}
+                  className="flex-1 text-center bg-[#0F172A] text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-[#1E293B] transition-colors">
+                  {NAV.start.label}
+                </Link>
+              </div>
+            )}
+          </nav>
+        </motion.div>
+      </header>
 
       {/* Name modal */}
       <AnimatePresence>

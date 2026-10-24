@@ -10,23 +10,22 @@ import PromoCodeInput from "@/app/components/PromoCodeInput"
 const PRICES = getActivePrices()
 
 // The upgrade modal surfaces the two conversion paths: one-time
-// Documentation Pack or Ongoing Protection subscription. Agency Plan is
-// intentionally not shown here because agency signups go through the full
-// pricing page (seat selection, billing details, etc) rather than a modal.
+// Documentation Pack or Ongoing Protection subscription. These are the only
+// plans on sale.
 const upgradeOptions = [
   {
     key: "docs_pack",
     label: "Documentation Pack",
     price: "$299",
     priceLabel: "one-time",
-    desc: "Everything you need for your next insurance application.",
+    desc: "Your AI-era security kit: assessment, 9 policies, and a response plan.",
     icon: FileText,
     priceId: PRICES.docsPack,
     mode: "payment",
     popular: true,
     bullets: [
       "Full comprehensive assessment",
-      "All 9 customized policies",
+      "All 9 policies, including AI acceptable use",
       "Incident Response Plan",
     ],
   },
@@ -35,13 +34,13 @@ const upgradeOptions = [
     label: "Ongoing Protection",
     price: "$49",
     priceLabel: "/month",
-    desc: "Stay ready for renewal season, every season.",
+    desc: "Keep your security current as AI tools and scams change.",
     icon: ShieldCheck,
     priceId: PRICES.protectionMonthly,
     mode: "subscription",
     bullets: [
       "Everything in the Documentation Pack",
-      "Quarterly reassessments",
+      "Quarterly reassessments with new AI-era questions",
       "Policy update workflow",
     ],
   },

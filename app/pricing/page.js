@@ -9,7 +9,6 @@ import {
   Loader2,
   FileText,
   ShieldCheck,
-  Users,
   Sparkles,
   ArrowRight,
 } from "lucide-react"
@@ -31,12 +30,19 @@ const DOCS_PACK_PRICE = "$299"
 const PROTECTION_MONTHLY_PRICE = "$49"
 const PROTECTION_ANNUAL_PRICE = "$468"
 const PROTECTION_ANNUAL_EFFECTIVE = "$39"
-const AGENCY_SEAT_PRICE = "$29"
-const AGENCY_MIN_SEATS = 5
 
-// Documentation Pack is the hero offer: a one-time purchase that produces
-// everything a small business needs for an insurance submission or client
-// questionnaire in one go.
+// Display names for grandfathered plans in the current-plan banner. These
+// plans are still honored but never sold.
+const LEGACY_PLAN_LABELS = {
+  starter: "Starter",
+  professional: "Professional",
+  msp: "IT Provider / Advisor (Legacy)",
+  agency: "Agency Plan (Legacy)",
+}
+
+// Documentation Pack is the hero offer: a one-time purchase that gets a small
+// business's AI-era security in writing in one go: assessment, policies
+// (including an AI Acceptable Use Policy), and a response plan.
 const docsPack = {
   key: "docs_pack",
   name: "Documentation Pack",
@@ -45,12 +51,11 @@ const docsPack = {
   priceId: PRICES.docsPack,
   mode: "payment",
   tagline:
-    "Everything you need for your next insurance application or client questionnaire.",
+    "Everything a small business needs to get its AI-era security in writing.",
   features: [
     "Comprehensive Cyber Audit (full assessment)",
-    "All 9 security policies, generated and customized",
+    "All nine security policies, including the AI Acceptable Use Policy (also free on its own)",
     "Incident Response Plan",
-    "Insurance readiness report",
     "Remediation priority plan",
   ],
   cta: "Buy Documentation Pack",
@@ -69,43 +74,20 @@ function protectionTier(billingInterval) {
       : "Cancel anytime.",
     priceId: isAnnual ? PRICES.protectionYearly : PRICES.protectionMonthly,
     mode: "subscription",
-    tagline: "Stay ready for renewal season, every season.",
+    tagline: "Keep your security current as AI tools and scams change.",
     features: [
       "Everything in the Documentation Pack",
-      "Quarterly reassessment reminders and re-scoring",
+      "Quarterly reassessment with new AI-era questions",
+      "Policy updates when the threat picture changes",
       "Policy review and update workflow",
-      "Evidence export tools (coming soon)",
-      "Carrier requirement change alerts (coming soon)",
-      "Pre-renewal insurability delta report (coming soon)",
     ],
     cta: "Start Ongoing Protection",
   }
 }
 
-const agencyTier = {
-  key: "agency",
-  name: "Agency Plan",
-  price: AGENCY_SEAT_PRICE,
-  priceLabel: "/client / month",
-  caption: `Starts at ${AGENCY_MIN_SEATS} clients. Adjust seats anytime.`,
-  priceId: PRICES.agency,
-  mode: "subscription",
-  tagline: "Turn assessments into recurring advisory revenue.",
-  features: [
-    "Multi-tenant workspace",
-    "Branded report generation",
-    "Client management dashboard",
-    "All Ongoing Protection features, per client",
-    "Bulk assessment tools",
-    "Carrier-specific submission packs (coming soon)",
-  ],
-  cta: "Start Agency Plan",
-}
-
 export default function PricingPage() {
   const router = useRouter()
   const [billing, setBilling] = useState("monthly") // 'monthly' | 'annual'
-  const [agencySeats, setAgencySeats] = useState(AGENCY_MIN_SEATS)
   const [checkingOut, setCheckingOut] = useState(null)
   const [session, setSession] = useState(null)
   const [currentPlan, setCurrentPlan] = useState(null)
@@ -128,7 +110,6 @@ export default function PricingPage() {
   }, [])
 
   const protection = protectionTier(billing)
-  const agencyMonthly = Number(AGENCY_SEAT_PRICE.replace("$", "")) * agencySeats
 
   async function handleCheckout({ priceId, mode, key }) {
     if (!session) {
@@ -168,7 +149,6 @@ export default function PricingPage() {
       }
 
       const payload = { priceId }
-      if (key === "agency") payload.quantity = agencySeats
 
       const res = await fetch("/api/stripe/create-checkout-session", {
         method: "POST",
@@ -215,12 +195,12 @@ export default function PricingPage() {
             className="text-center mb-12"
           >
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] mb-4">
-              Simple pricing, built for how you use it.
+              Simple pricing for small business security in the AI era.
             </h1>
             <p className="text-[#475569] text-lg max-w-2xl mx-auto">
-              Buy the docs once, or subscribe to stay ready year-round. Built
-              for the small businesses, advisors, and agencies who have to
-              prove their security posture.
+              Buy the kit once, or subscribe to keep it current as AI changes
+              how scams and attacks work. These business tools are the only
+              thing we sell: no referral fees, no affiliate links.
             </p>
           </motion.div>
 
@@ -233,7 +213,8 @@ export default function PricingPage() {
             >
               <p className="text-sm text-[#0F766E]">
                 <span className="font-semibold">
-                  You are on the legacy {currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)} plan.
+                  You are on a legacy plan:{" "}
+                  {LEGACY_PLAN_LABELS[currentPlan] || currentPlan}.
                 </span>{" "}
                 Keep using it for as long as you like — nothing below affects
                 your existing subscription or billing.
@@ -254,7 +235,7 @@ export default function PricingPage() {
             <div className="p-10 sm:p-12 grid md:grid-cols-[1.15fr_1fr] gap-10">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-[#EFF6FF] text-[#1D4ED8] text-xs font-semibold px-3 py-1 mb-5 tracking-wide uppercase">
-                  <Sparkles className="w-3.5 h-3.5" /> Most Popular
+                  <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> One-time purchase
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-bold text-[#0F172A] mb-3 tracking-tight">
                   {docsPack.name}
@@ -329,11 +310,12 @@ export default function PricingPage() {
             className="text-center mb-10"
           >
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A] mb-3">
-              Need to stay ready year-round?
+              Want to stay current all year?
             </h2>
             <p className="text-[#475569] text-base max-w-xl mx-auto">
-              Subscribe to keep your documentation fresh, catch carrier
-              changes before renewal, and export evidence on demand.
+              AI tools and the scams built on them keep changing. Subscribe to
+              reassess every quarter with new AI-era questions and keep your
+              policies up to date.
             </p>
           </motion.div>
 
@@ -380,23 +362,13 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 items-start mb-10 max-w-4xl mx-auto">
+          <div className="grid gap-6 items-start mb-10 max-w-md mx-auto">
             {/* Ongoing Protection card */}
             <SubscriptionCard
               tier={protection}
               icon={ShieldCheck}
               accentColor="#1D4ED8"
               highlight
-              onCheckout={handleCheckout}
-              checkingOut={checkingOut}
-            />
-
-            {/* Agency Plan card */}
-            <AgencyCard
-              tier={agencyTier}
-              seats={agencySeats}
-              onSeatsChange={setAgencySeats}
-              monthlyTotal={agencyMonthly}
               onCheckout={handleCheckout}
               checkingOut={checkingOut}
             />
@@ -430,12 +402,12 @@ export default function PricingPage() {
               href="/tools/cyber-audit"
               className="text-[#1D4ED8] font-semibold hover:text-[#1E40AF]"
             >
-              Start with the free Quick Assessment
+              Start with the free Quick Check
             </a>
             .
           </p>
 
-          {/* Closing quote */}
+          {/* Closing line */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -443,11 +415,10 @@ export default function PricingPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-16 text-center"
           >
-            <blockquote className="text-xl sm:text-2xl font-semibold text-[#475569] max-w-2xl mx-auto leading-relaxed">
-              &ldquo;Built for the small businesses, law firms, medical
-              practices, and nonprofits who deserve the same security clarity
-              as the Fortune 500.&rdquo;
-            </blockquote>
+            <p className="text-xl sm:text-2xl font-semibold text-[#475569] max-w-2xl mx-auto leading-relaxed">
+              Built for the small businesses, practices, and nonprofits
+              learning to work securely alongside AI.
+            </p>
           </motion.div>
         </div>
       </main>
@@ -519,106 +490,6 @@ function SubscriptionCard({
         }
         disabled={!!checkingOut}
         className="block text-center rounded-lg py-3 px-4 font-semibold text-sm transition-all bg-[#1D4ED8] hover:bg-[#1E40AF] text-white shadow-sm disabled:opacity-70"
-      >
-        {checkingOut === tier.key ? (
-          <span className="flex items-center justify-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Redirecting...
-          </span>
-        ) : (
-          tier.cta
-        )}
-      </button>
-    </motion.div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Agency card with a seat slider
-// ---------------------------------------------------------------------------
-function AgencyCard({
-  tier,
-  seats,
-  onSeatsChange,
-  monthlyTotal,
-  onCheckout,
-  checkingOut,
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: 0.05 }}
-      className="bg-white rounded-xl border border-[#0F766E]/30 p-8 flex flex-col shadow-sm"
-    >
-      <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-lg bg-[#F0FDFA] flex items-center justify-center">
-          <Users className="w-5 h-5 text-[#0F766E]" />
-        </div>
-        <h3 className="text-lg font-semibold text-[#0F172A]">{tier.name}</h3>
-      </div>
-
-      <p className="text-[#475569] text-sm leading-relaxed mb-5">
-        {tier.tagline}
-      </p>
-
-      <div className="mb-1">
-        <span className="text-4xl font-bold text-[#0F172A]">{tier.price}</span>
-        <span className="text-[#94A3B8] text-base ml-1">{tier.priceLabel}</span>
-      </div>
-      {tier.caption && (
-        <p className="text-xs text-[#94A3B8] mb-5">{tier.caption}</p>
-      )}
-
-      <div className="mb-5 rounded-lg bg-[#F0FDFA] border border-[#0F766E]/15 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <label
-            htmlFor="agency-seats"
-            className="text-xs font-semibold text-[#0F172A] uppercase tracking-wider"
-          >
-            Client seats
-          </label>
-          <span className="text-sm font-bold text-[#0F766E]">{seats}</span>
-        </div>
-        <input
-          id="agency-seats"
-          type="range"
-          min={AGENCY_MIN_SEATS}
-          max={50}
-          value={seats}
-          onChange={(e) => onSeatsChange(Number(e.target.value))}
-          className="w-full accent-[#0F766E]"
-        />
-        <p className="text-xs text-[#475569] mt-2">
-          <span className="font-semibold text-[#0F172A]">
-            ${monthlyTotal}/month
-          </span>{" "}
-          total for {seats} clients. Adjust anytime from billing.
-        </p>
-      </div>
-
-      <ul className="space-y-3 mb-8 flex-1">
-        {tier.features.map((f) => (
-          <li
-            key={f}
-            className="flex items-start gap-2.5 text-[#475569] text-sm leading-relaxed"
-          >
-            <Check className="w-4 h-4 text-[#0F766E] mt-0.5 shrink-0" />
-            {f}
-          </li>
-        ))}
-      </ul>
-
-      <button
-        onClick={() =>
-          onCheckout({
-            priceId: tier.priceId,
-            mode: tier.mode,
-            key: tier.key,
-          })
-        }
-        disabled={!!checkingOut}
-        className="block text-center rounded-lg py-3 px-4 font-semibold text-sm transition-all bg-[#0F766E] hover:bg-[#0B5F5A] text-white shadow-sm disabled:opacity-70"
       >
         {checkingOut === tier.key ? (
           <span className="flex items-center justify-center gap-2">

@@ -60,6 +60,7 @@ export async function POST(request) {
     const [
       { data: sub, error: subError },
       { data: purchases, error: purchaseError },
+      { data: profile, error: profileError },
     ] = await Promise.all([
       service
         .from("subscriptions")
@@ -70,12 +71,17 @@ export async function POST(request) {
         .from("one_time_purchases")
         .select("purchase_type, metadata")
         .eq("user_id", userId),
+      service
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", userId)
+        .maybeSingle(),
     ])
 
-    if (subError || purchaseError) {
+    if (subError || purchaseError || profileError) {
       console.error(
         "Policy entitlement lookup failed:",
-        JSON.stringify(subError || purchaseError)
+        JSON.stringify(subError || purchaseError || profileError)
       )
       return NextResponse.json(
         { error: "Could not verify policy access. Please try again." },
@@ -86,10 +92,12 @@ export async function POST(request) {
     const plan = sub?.plan || "free"
     const status = sub?.status || "inactive"
     const isPaid = isSubscriptionPaid(sub)
+    const isAdmin = profile?.is_admin === true
     // Merged access: plan grants + one-time purchase grants (docs_pack,
     // policy_bundle, etc). access.canAccessPolicies being true here means
-    // the user has full-library access through ANY source.
-    const access = getPlanAccess(plan, status, purchases || [])
+    // the user has full-library access through ANY source. Admin flag
+    // short-circuits to full access.
+    const access = getPlanAccess(plan, status, purchases || [], isAdmin)
 
     const isFreePolicy = FREE_POLICY_SLUGS.includes(policySlug)
     const hasIndividualPurchase = (purchases || []).some(
@@ -142,10 +150,12 @@ export async function POST(request) {
     } else if (hasIndividualPurchase) {
       authorized = true
     } else if (access.canAccessPolicies) {
-      // Any source of full-library access: Protection / Agency subscription,
-      // legacy Professional / MSP subscription, legacy Policy Bundle purchase,
-      // or Documentation Pack purchase. getPlanAccess has already merged
-      // these into a single flag, so this branch handles all of them.
+      // Any source of full-library access: Ongoing Protection subscription,
+      // a grandfathered legacy plan that includes the library, a legacy
+      // Policy Bundle purchase, a Documentation Pack purchase, or an admin
+      // profile.
+      // getPlanAccess has already merged these into a single flag, so this
+      // branch handles all of them.
       authorized = true
     } else if (isPaid && plan === "starter") {
       // Starter: 2 paid policies. Editing existing never counts.

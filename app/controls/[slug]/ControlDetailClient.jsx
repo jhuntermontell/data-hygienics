@@ -29,16 +29,30 @@ const functionColors = {
 
 const industryLabels = {
   healthcare: "Healthcare (HIPAA)",
-  legal: "Legal (ABA Guidelines)",
   financial: "Financial Services (GLBA/PCI-DSS)",
   retail: "Retail / E-commerce (PCI-DSS)",
   government: "Government / Defense (CMMC 2.0)",
 }
 
 const threatLabels = {
+  "voice-cloning-and-deepfake-scams": "Voice Cloning and Deepfake Scams",
+  "ai-powered-phishing-and-bec": "AI-Powered Phishing and Business Email Compromise",
+  "ai-scaled-romance-and-investment-scams": "AI-Scaled Romance and Investment Scams",
+  "ai-chatbot-data-leaks": "AI Chatbot Data Leaks",
+  "prompt-injection-and-ai-agent-hijacking": "Prompt Injection and AI Agent Hijacking",
   healthcare: "Healthcare Threats",
-  legal: "Legal Threats",
   financial: "Financial Services Threats",
+}
+
+// Fallback for a threat slug without an entry above: "some-threat" -> "Some Threat"
+function threatLabel(slug) {
+  return (
+    threatLabels[slug] ||
+    slug
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  )
 }
 
 export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay }) {
@@ -117,7 +131,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
           </div>
         </motion.div>
 
-        {/* Insurance relevance */}
+        {/* Why it matters (stored in the insuranceRelevance field) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -127,7 +141,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-[#1D4ED8]" />
             <h2 className="text-lg font-bold text-[#0F172A]">
-              Why Insurers Care
+              Why It Matters
             </h2>
           </div>
           <div className="text-[#475569] text-sm leading-relaxed space-y-4">
@@ -267,7 +281,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
           </motion.div>
         )}
 
-        {/* Related Industry Threats */}
+        {/* Related threats */}
         {control.relatedThreats?.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -278,11 +292,11 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="w-5 h-5 text-[#DC2626]" />
               <h2 className="text-lg font-bold text-[#0F172A]">
-                Related Industry Threats
+                Related Threats
               </h2>
             </div>
             <p className="text-[#475569] text-sm leading-relaxed mb-4">
-              See how this control stops real-world attacks in industries where it matters most:
+              See how this control stops real-world attacks, including AI-enabled scams:
             </p>
             <div className="grid sm:grid-cols-2 gap-3">
               {control.relatedThreats.map((slug) => (
@@ -291,7 +305,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
                   href={`/threats/${slug}`}
                   className="flex items-center justify-between gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#0F172A] hover:border-[#1D4ED8] hover:text-[#1D4ED8] transition-colors"
                 >
-                  {threatLabels[slug]}
+                  {threatLabel(slug)}
                   <ArrowRight className="w-4 h-4 shrink-0" />
                 </Link>
               ))}
@@ -313,7 +327,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
             href="/tools/cyber-audit"
             className="inline-flex items-center gap-2 bg-[#1D4ED8] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#1E40AF] transition-colors"
           >
-            Take the free assessment
+            Start the free Quick Check
           </Link>
         </motion.div>
       </div>

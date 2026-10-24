@@ -23,7 +23,7 @@ const functionColors = {
 const explainers = [
   {
     title: "What is a cybersecurity control?",
-    body: "A cybersecurity control is any practice, process, or technology that reduces your risk of a breach. Think of controls as the locks, alarms, and habits that protect your business. Some are technical (like requiring strong passwords). Some are procedural (like having an incident response plan). Together, they form your security posture.",
+    body: "A cybersecurity control is any practice, process, or technology that reduces your risk of a breach. Think of controls as the locks, alarms, and habits that protect your business. Some are technical (like requiring strong passwords). Some are procedural (like having an incident response plan, or a written rule for how your team uses AI tools). Together, they form your security posture.",
   },
   {
     title: "What is NIST CSF 2.0?",
@@ -60,7 +60,7 @@ export default function ControlsIndexPage() {
         // Build one searchable blob per control from every field that
         // carries content the user might type in the search box. This
         // covers metadata (name, framework, category), the long-form
-        // explanation, insurance relevance, implementation steps, and
+        // explanation, why it matters (insuranceRelevance), implementation steps, and
         // industry-specific notes (so "HIPAA", "PCI", "ransomware", etc.
         // all surface matching controls).
         const searchable = [
@@ -108,7 +108,7 @@ export default function ControlsIndexPage() {
             Controls Library
           </h1>
           <p className="text-[#475569] text-base max-w-xl">
-            Every security control explained in plain English: what it is, why it matters, and what insurance providers look for.
+            Every security control explained in plain English: what it is, why it matters now that attackers use AI, and how to put it in place.
           </p>
         </motion.div>
 

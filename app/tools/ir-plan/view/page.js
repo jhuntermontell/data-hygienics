@@ -26,6 +26,8 @@ import {
   ShieldAlert,
   Fish,
   Smartphone,
+  Mic,
+  Bot,
   Phone,
   Printer,
 } from "lucide-react"
@@ -35,7 +37,7 @@ const IrPlanPdf = dynamic(
   { ssr: false }
 )
 
-const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone }
+const ICON_MAP = { Lock, Mail, ShieldAlert, Fish, Smartphone, Mic, Bot }
 
 export default function IrPlanViewPage() {
   return (
@@ -96,7 +98,7 @@ function IrPlanViewInner() {
       <div className="min-h-screen bg-[#F8FAFC]">
         <Navbar />
         <div className="max-w-2xl mx-auto px-6 pt-32 pb-20 text-center">
-          <p className="text-[#475569] mb-4">You haven't built a plan yet.</p>
+          <p className="text-[#475569] mb-4">You haven&apos;t built a plan yet.</p>
           <Link
             href="/tools/ir-plan/builder"
             className="inline-flex items-center gap-2 bg-[#0F766E] text-white text-sm font-semibold px-5 py-2.5 rounded-lg"

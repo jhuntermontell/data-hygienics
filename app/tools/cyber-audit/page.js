@@ -7,6 +7,7 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
+import { QUICK_SECTIONS } from "@/lib/questions/quick"
 import {
   Shield,
   Clock,
@@ -16,22 +17,47 @@ import {
   X,
 } from "lucide-react"
 
+// Derived so the copy stays right when questions are added or removed.
+const QUICK_QUESTION_COUNT = QUICK_SECTIONS.reduce(
+  (total, section) => total + section.questions.length,
+  0
+)
+
 const comparison = [
-  { feature: "Questions", quick: "12", comprehensive: "60 to 80, industry-specific" },
+  { feature: "Questions", quick: String(QUICK_QUESTION_COUNT), comprehensive: "60+, industry-specific" },
   { feature: "Score and grade", quick: "yes", comprehensive: "yes" },
   { feature: "Gap identification", quick: "Top 3 visible", comprehensive: "All gaps visible" },
   { feature: "I don't know discovery guides", quick: "yes", comprehensive: "yes" },
   { feature: "Remediation plan", quick: "no", comprehensive: "Yes, prioritized" },
   { feature: "Product-specific drill-downs", quick: "no", comprehensive: "yes" },
-  { feature: "Insurance carrier mapping", quick: "no", comprehensive: "yes" },
-  { feature: "PDF reports", quick: "no", comprehensive: "Yes (insurance + remediation)" },
+  { feature: "AI use and data handling", quick: "yes", comprehensive: "yes" },
+  { feature: "PDF reports", quick: "no", comprehensive: "Yes (summary + remediation)" },
   { feature: "Score tracking over time", quick: "no", comprehensive: "yes" },
-  { feature: "Industry-specific frameworks", quick: "no", comprehensive: "HIPAA, PCI, CMMC, GLBA, and more" },
+  {
+    feature: "Industry-specific frameworks",
+    quick: "no",
+    comprehensive: [
+      "Health Insurance Portability and Accountability Act (HIPAA)",
+      "Payment Card Industry Data Security Standard (PCI DSS)",
+      "Cybersecurity Maturity Model Certification (CMMC)",
+      "Gramm-Leach-Bliley Act (GLBA)",
+      "and more",
+    ],
+  },
 ]
 
 function CheckOrText({ value }) {
   if (value === "yes") return <Check className="w-4 h-4 text-[#059669] mx-auto" />
   if (value === "no") return <X className="w-4 h-4 text-[#CBD5E1] mx-auto" />
+  if (Array.isArray(value)) {
+    return (
+      <ul className="text-[#475569] text-xs leading-snug space-y-1 list-none p-0">
+        {value.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    )
+  }
   return <span className="text-[#475569] text-xs">{value}</span>
 }
 
@@ -83,7 +109,7 @@ export default function CyberAuditLanding() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-[#475569] text-lg max-w-xl mx-auto leading-relaxed"
           >
-            Pick the assessment that fits where you are today. Start free in 5 minutes, or go deep with a comprehensive audit built for your industry.
+            Pick the assessment that fits where you are today. Both ask how your team uses AI tools. Start free in 5 minutes, or go deep with a comprehensive audit built for your industry.
           </motion.p>
         </div>
       </section>
@@ -91,7 +117,7 @@ export default function CyberAuditLanding() {
       {/* Two paths */}
       <section className="px-6 pb-16">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
-          {/* Quick Assessment card */}
+          {/* Free Quick Check card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,14 +132,14 @@ export default function CyberAuditLanding() {
                 Free, 5 minutes
               </span>
             </div>
-            <h2 className="text-xl font-bold text-[#0F172A] mb-2">Quick Security Check</h2>
+            <h2 className="text-xl font-bold text-[#0F172A] mb-2">Free Quick Check</h2>
             <p className="text-[#475569] text-sm leading-relaxed mb-6 flex-1">
-              Answer 12 questions and see where your business stands. No account required to start. Get your score, gaps, and specific next steps.
+              Answer {QUICK_QUESTION_COUNT} questions and see where your business stands. No account required to start. Get your score, gaps, and specific next steps.
             </p>
             <Link href="/tools/cyber-audit/quick">
               <Button className="w-full">
                 <span className="flex items-center justify-center gap-2">
-                  Start Quick Assessment
+                  Start the free Quick Check
                   <ArrowRight className="w-4 h-4" />
                 </span>
               </Button>
@@ -136,12 +162,12 @@ export default function CyberAuditLanding() {
                 <Shield className="w-5 h-5 text-[#1D4ED8]" />
               </div>
               <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-[#EFF6FF] text-[#1D4ED8] uppercase tracking-wide">
-                Subscription, 20 to 30 minutes
+                Paid, 20 to 30 minutes
               </span>
             </div>
             <h2 className="text-xl font-bold text-[#0F172A] mb-2">Comprehensive Cyber Audit</h2>
             <p className="text-[#475569] text-sm leading-relaxed mb-6 flex-1">
-              A deep-dive assessment tailored to your industry with product-specific questions, configuration checks, insurance carrier mapping, and a prioritized remediation plan.
+              A deep-dive assessment tailored to your industry with product-specific questions, configuration checks, a section on AI use and data handling, and a prioritized remediation plan.
             </p>
             <Link href={comprehensiveHref}>
               <Button className="w-full">

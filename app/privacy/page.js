@@ -31,7 +31,7 @@ export default function PrivacyPage() {
             <ul className="space-y-2 text-[#475569] text-sm leading-relaxed">
               <li>To provide and improve the platform.</li>
               <li>To generate your assessment score and reports.</li>
-              <li>To send you your industry news feed if you subscribe.</li>
+              <li>To send you your news feed if you subscribe.</li>
             </ul>
             <p className="text-[#475569] text-sm leading-relaxed mt-3 font-medium">
               We do not sell your data. We do not share it with advertisers. We do not use it to train AI models.

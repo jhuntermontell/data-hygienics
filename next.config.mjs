@@ -9,6 +9,18 @@ const nextConfig = {
         destination: "/how-it-works",
         permanent: true,
       },
+      // Retired in the AI-era pivot (2026-10). Vendor scorecards gave way to
+      // the Toolkit; the legal industry brief was removed.
+      { source: "/vendors", destination: "/toolkit", permanent: true },
+      { source: "/vendors/:slug", destination: "/toolkit", permanent: true },
+      { source: "/vendor-reviews", destination: "/toolkit", permanent: true },
+      { source: "/tools/vendor-scorecard", destination: "/toolkit", permanent: true },
+      { source: "/tools/vendor-scorecard/:slug", destination: "/toolkit", permanent: true },
+      { source: "/threats/legal", destination: "/threats", permanent: true },
+      // Common guesses for the Home hub, which lives at /household so it
+      // never competes with the homepage.
+      { source: "/home", destination: "/household", permanent: true },
+      { source: "/sovereignty", destination: "/digital-sovereignty", permanent: true },
     ]
   },
 };

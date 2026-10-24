@@ -84,7 +84,7 @@ export default function QuickAssessmentRunnerPage() {
           <div className="max-w-5xl mx-auto px-6 py-2.5 flex items-center justify-center gap-2">
             <Shield className="w-3.5 h-3.5 text-white" />
             <span className="text-white text-xs font-semibold tracking-wide uppercase">
-              Quick Security Check &nbsp;&middot;&nbsp; 12 Questions
+              Quick Security Check &nbsp;&middot;&nbsp; {TOTAL_STEPS} Questions
             </span>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function QuickAssessmentRunnerPage() {
               )}
               {question.insuranceCritical && (
                 <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E]">
-                  Insurance Critical
+                  Insurers ask about this
                 </span>
               )}
             </div>

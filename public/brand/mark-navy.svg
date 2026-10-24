@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Data Hygienics mark in navy" fill="none">
+  <defs>
+    <mask id="mark-navy-ring-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400">
+      <rect width="400" height="400" fill="black"/>
+      <path d="M200 24 L354 112 Q370 121 370 140 L370 260 Q370 279 354 288 L216 367 Q200 376 184 367 L46 288 Q30 279 30 260 L30 140 Q30 121 46 112 L184 33 Q200 24 216 33 Z" fill="white"/>
+      <path d="M200 122 L286 171 Q300 179 300 195 L300 205 Q300 221 286 229 L214 270 Q200 278 186 270 L114 229 Q100 221 100 205 L100 195 Q100 179 114 171 L186 130 Q200 122 214 130 Z" fill="black"/>
+      <path d="M328 94 L351 107 L292 190 L269 177 Z" fill="black"/>
+    </mask>
+  </defs>
+  <rect width="400" height="400" fill="#0F172A" mask="url(#mark-navy-ring-mask)"/>
+</svg>

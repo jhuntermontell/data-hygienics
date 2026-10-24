@@ -26,7 +26,8 @@ export default function PolicyHubPage() {
   const [showUpgrade, setShowUpgrade] = useState(false)
   // Full subscription + purchases snapshot so we can compute per-slug
   // entitlement (new docs_pack purchase, legacy policy bundle, legacy
-  // individual purchases, legacy Starter policy cap, or Professional / MSP).
+  // individual purchases, legacy Starter policy cap, or another
+  // grandfathered legacy plan; see isLegacyPlan in lib/stripe/access.js).
   const [plan, setPlan] = useState("free")
   const [canAccessFullLibrary, setCanAccessFullLibrary] = useState(false)
   const [individualPurchaseSlugs, setIndividualPurchaseSlugs] = useState(new Set())
@@ -49,10 +50,9 @@ export default function PolicyHubPage() {
 
       setPlan(subData.plan || "free")
       // access.canAccessPolicies is now the single merged flag that
-      // accounts for Ongoing Protection / Agency subscriptions, legacy
-      // Professional / MSP subscriptions, Documentation Pack purchase,
-      // and legacy Policy Bundle purchase. Starter's policy cap is
-      // handled separately below.
+      // accounts for Ongoing Protection subscriptions, grandfathered legacy
+      // plans, Documentation Pack purchase, and legacy Policy Bundle
+      // purchase. Starter's policy cap is handled separately below.
       setCanAccessFullLibrary(subData.access.canAccessPolicies)
 
       // Extract the slugs the user has individually purchased (legacy
@@ -121,8 +121,9 @@ export default function PolicyHubPage() {
             Cybersecurity Policy Library
           </h1>
           <p className="text-[#475569] text-base max-w-2xl">
-            The 9 policies your cyber insurance provider wants to see. Generated in minutes,
-            customized for your organization.
+            The 9 policies a small business actually needs, including an AI Acceptable Use
+            Policy. Generated in minutes, customized for your organization. Start with the AI
+            policy: it is free.
           </p>
         </motion.div>
 
@@ -193,7 +194,7 @@ export default function PolicyHubPage() {
           >
             <div className="flex items-center gap-2 text-sm text-[#475569]">
               <Check className="w-4 h-4 text-[#059669]" />
-              You have completed {completedCount} of 9 insurance-required policies
+              You have completed {completedCount} of 9 security policies
             </div>
             <div className="w-full h-1.5 bg-[#E2E8F0] rounded-full mt-2 overflow-hidden">
               <div
@@ -218,13 +219,22 @@ export default function PolicyHubPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.08 * i }}
-                className="bg-white rounded-xl border border-[#E2E8F0] p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col"
+                className={`bg-white rounded-xl border p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col ${
+                  policy.featured
+                    ? "border-[#1D4ED8]/40 ring-1 ring-[#1D4ED8]/15"
+                    : "border-[#E2E8F0]"
+                }`}
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
                     <FileText className="w-5 h-5 text-[#1D4ED8]" />
                   </div>
                   <div className="flex items-center gap-2">
+                    {policy.featured && (
+                      <span className="text-[10px] font-semibold text-white bg-[#1D4ED8] px-2 py-0.5 rounded-full">
+                        Start here
+                      </span>
+                    )}
                     {isCompleted && (
                       <span className="text-[10px] font-medium text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
                         Done

@@ -1,11 +1,11 @@
 {
   "name": "Data Hygienics",
   "short_name": "Data Hygienics",
-  "description": "Cybersecurity tools for business leaders.",
+  "description": "The independent field guide to living and working securely alongside AI, for households and small businesses.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F8FAFC",
-  "theme_color": "#1D4ED8",
+  "theme_color": "#0F172A",
   "icons": [
     {
       "src": "/favicon-16x16.png",
