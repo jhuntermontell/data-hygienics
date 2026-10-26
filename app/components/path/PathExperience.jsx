@@ -82,7 +82,7 @@ export default function PathExperience({ audience, links }) {
           onChange={setDraft}
           onExit={() => {
             if (editing) setEditing(false)
-            else window.location.assign("/path")
+            else window.location.assign("/#start")
           }}
           onComplete={(latest) => {
             const finalAnswers = { ...(latest || answers), completedAt: new Date().toISOString() }

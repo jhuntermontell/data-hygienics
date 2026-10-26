@@ -22,8 +22,6 @@ export default function sitemap() {
 
   const staticPages = [
     { url: baseUrl, lastModified: staticReview, changeFrequency: "weekly", priority: 1.0 },
-    { url: `${baseUrl}/start`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${baseUrl}/path`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.9 },
     { url: `${baseUrl}/household`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/business`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/digital-sovereignty`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },

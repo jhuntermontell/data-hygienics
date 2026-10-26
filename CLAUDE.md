@@ -38,12 +38,12 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 
 ## Site map
 
-- `/` homepage, `/start` audience chooser, hubs `/household`, `/business`, `/digital-sovereignty`
-- Clear Path: `/path` (indexable landing), `/path/home` and `/path/business` (personal paths, noindex)
+- `/` homepage, the Clear Path front door: "What would you hate to lose?" chips (`#start`, `app/components/FrontDoor.jsx`), then our promise, how the Path works, and the three doors. Hubs `/household`, `/business`, `/digital-sovereignty`
+- Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer)
 - Research library: `/threats`, `/threats/[slug]`, `/guides`, `/guides/[slug]`, `/digital-sovereignty/[slug]` (explainers), `/toolkit`, `/glossary`, `/controls`, `/controls/[slug]`
 - Business tools: `/tools`, `/tools/cyber-audit/*`, `/tools/policies/*`, `/tools/ir-plan/*`, `/pricing`
 - Company: `/about`, `/how-it-works` ("How we work"), `/contact`, `/privacy`, `/terms`
-- Retired URLs 301 in `next.config.mjs` (`/vendors*`, `/vendor-reviews`, `/tools/vendor-scorecard*` to `/toolkit`; `/threats/legal` to `/threats`; `/why-data-hygienics` to `/how-it-works`).
+- Retired URLs 301 in `next.config.mjs` (`/vendors*`, `/vendor-reviews`, `/tools/vendor-scorecard*` to `/toolkit`; `/threats/legal` to `/threats`; `/why-data-hygienics` to `/how-it-works`; `/start` and `/path` to `/`).
 
 ## Content system
 
@@ -75,7 +75,7 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 
 - Plain English, second person, active voice, short paragraphs. Creative headlines, literal instructions. Translate acronyms on first use.
 - No fear-mongering ("lurking", "unprecedented", "rapidly evolving landscape", "guarantee", countdowns). Numbers only with a named, dated source.
-- **"AI" is the public term.** "SI" (superintelligence) appears only in the glossary, the stance explainer `/digital-sovereignty/ai-or-si-what-we-call-it`, the homepage GlossaryTeaser that defines it, `SITE.terms` in `lib/site.js`, and when quoting US federal notices (Executive Order 14434 of Sept 29, 2026 directs federal agencies to say "Super Intelligence"; translate it for readers on first use). If the stance changes, change those places, not copy site-wide.
+- **"AI" is the public term.** "SI" (superintelligence) appears only in the glossary, the stance explainer `/digital-sovereignty/ai-or-si-what-we-call-it`, the Digital Sovereignty hub's GlossaryTeaser that defines it, `SITE.terms` in `lib/site.js`, and when quoting US federal notices (Executive Order 14434 of Sept 29, 2026 directs federal agencies to say "Super Intelligence"; translate it for readers on first use). If the stance changes, change those places, not copy site-wide.
 - Say "IT provider" or "outside IT company", never "MSP", in user-facing copy.
 
 ## Business tools and entitlement

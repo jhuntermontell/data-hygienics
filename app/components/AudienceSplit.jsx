@@ -48,9 +48,10 @@ const DOORS = [
   {
     key: "sovereignty",
     icon: KeyRound,
-    title: "Digital Sovereignty",
+    title: "Take control of your digital life",
     href: "/digital-sovereignty",
-    description: "Owning your data, identity and choices as AI moves into everything. Non-partisan, for home and work.",
+    description:
+      "Own your data, your identity and your choices as AI moves into everything. For home and for work, without the politics.",
     items: [
       "Who owns your AI conversations",
       "Passkeys, portability and exit plans",
@@ -81,13 +82,13 @@ export default function AudienceSplit() {
     <section aria-labelledby="audience-split-heading" className="px-4 sm:px-6 py-16 sm:py-24 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold tracking-[0.1em] uppercase text-[#1D4ED8]">Find your way in</p>
+          <p className="text-xs font-semibold tracking-[0.1em] uppercase text-[#1D4ED8]">Rather browse?</p>
           <h2 id="audience-split-heading" className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A]">
-            Two front doors and a thread through both
+            Three doors into the library
           </h2>
           <p className="mt-3 text-lg leading-relaxed text-[#475569]">
-            Home and Business each get their own threats, habits and tools. Digital Sovereignty runs through
-            both.
+            Home and Business each get their own threats, habits and tools. Digital Sovereignty is the part about
+            taking control, and it runs through both.
           </p>
         </div>
 

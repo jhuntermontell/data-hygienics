@@ -21,6 +21,11 @@ const nextConfig = {
       // never competes with the homepage.
       { source: "/home", destination: "/household", permanent: true },
       { source: "/sovereignty", destination: "/digital-sovereignty", permanent: true },
+      // One front door (2026-10): the homepage is the Clear Path entrance.
+      // Exact matches only, so /path/home, /path/business and /path/save
+      // keep working.
+      { source: "/start", destination: "/", permanent: true },
+      { source: "/path", destination: "/", permanent: true },
     ]
   },
 };

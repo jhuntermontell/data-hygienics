@@ -1,21 +1,13 @@
 import Navbar from "./components/Navbar"
-import Hero from "./components/Hero"
-import PathBand from "./components/PathBand"
-import WhatChanged from "./components/WhatChanged"
-import StartThisWeek from "./components/StartThisWeek"
+import FrontDoor from "./components/FrontDoor"
+import OurPromise from "./components/OurPromise"
+import HowThePathWorks from "./components/HowThePathWorks"
 import AudienceSplit from "./components/AudienceSplit"
-import LatestResearch from "./components/LatestResearch"
-import ToolkitTeaser from "./components/ToolkitTeaser"
-import HowWeWork from "./components/HowWeWork"
-import BusinessToolsStrip from "./components/BusinessToolsStrip"
-import GlossaryTeaser from "./components/GlossaryTeaser"
 import Footer from "./components/Footer"
 import SchemaScript from "./components/SchemaScript"
-import { toSpotlightItem } from "./components/ThreatSpotlight"
-import { getFeaturedThreats, getThreatBySlug } from "@/lib/threats"
 import { SITE } from "@/lib/site"
 
-const title = `${SITE.name} | ${SITE.tagline.replace(/\.$/, "")}`
+const title = `${SITE.name} | ${SITE.headline.replace(/\.$/, "")}`
 
 export const metadata = {
   title,
@@ -33,41 +25,19 @@ const websiteSchema = {
   publisher: { "@type": "Organization", name: SITE.name, url: SITE.url },
 }
 
-// Hand-picked so the spotlight covers the biggest household loss (romance
-// and investment scams) alongside voice cloning and payment fraud. Slugs
-// resolve through getThreatBySlug, so a draft drops out and featured
-// threats fill the gap.
-const SPOTLIGHT_SLUGS = [
-  "voice-cloning-and-deepfake-scams",
-  "ai-scaled-romance-and-investment-scams",
-  "ai-powered-phishing-and-bec",
-]
-const SPOTLIGHT_LIMIT = 3
-
-function getSpotlightThreats() {
-  const picked = SPOTLIGHT_SLUGS.map(getThreatBySlug).filter((t) => t?.kind === "threat")
-  const fill = getFeaturedThreats(SPOTLIGHT_LIMIT + picked.length).filter((t) => !picked.includes(t))
-  return [...picked, ...fill].slice(0, SPOTLIGHT_LIMIT)
-}
-
+// One front door: the homepage is the Clear Path entrance (/start and /path
+// redirect here). Four calm sections: pick what matters, our promise, how
+// the path works, and the three doors into the rest of the site.
 export default function HomePage() {
-  const spotlight = getSpotlightThreats().map(toSpotlightItem)
-
   return (
     <>
       <SchemaScript schema={websiteSchema} />
       <Navbar />
       <main className="bg-white text-[#0F172A]">
-        <Hero threats={spotlight} />
-        <PathBand />
-        <WhatChanged />
-        <StartThisWeek />
+        <FrontDoor />
+        <OurPromise />
+        <HowThePathWorks />
         <AudienceSplit />
-        <LatestResearch />
-        <ToolkitTeaser />
-        <HowWeWork />
-        <BusinessToolsStrip />
-        <GlossaryTeaser />
       </main>
       <Footer />
     </>
