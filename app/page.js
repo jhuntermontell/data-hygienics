@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar"
 import FrontDoor from "./components/FrontDoor"
 import WhyItMatters from "./components/WhyItMatters"
 import OurPromise from "./components/OurPromise"
+import MembershipBand from "./components/MembershipBand"
 import HowThePathWorks from "./components/HowThePathWorks"
 import AudienceSplit from "./components/AudienceSplit"
 import Footer from "./components/Footer"
@@ -27,9 +28,10 @@ const websiteSchema = {
 }
 
 // One front door: the homepage is the Clear Path entrance (/start and /path
-// redirect here). Five calm sections: pick what matters, what changed (the
-// FBI's reported losses by year, sourced), our promise, how the path works,
-// and the three doors into the rest of the site.
+// redirect here). Six calm sections: pick what matters, what changed (the
+// FBI's reported losses by year, sourced), our promise, the membership band
+// (the one ask, after the promise that earns it), how the path works, and the
+// three doors into the rest of the site. The chips stay the first action.
 export default function HomePage() {
   return (
     <>
@@ -39,6 +41,7 @@ export default function HomePage() {
         <FrontDoor />
         <WhyItMatters />
         <OurPromise />
+        <MembershipBand />
         <HowThePathWorks />
         <AudienceSplit />
       </main>

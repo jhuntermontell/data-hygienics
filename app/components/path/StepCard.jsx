@@ -1,5 +1,5 @@
 "use client"
-import { useId, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import Link from "next/link"
 import {
   Check,
@@ -17,6 +17,7 @@ import {
 import { HORIZONS, HORIZON_STYLES } from "@/lib/horizons"
 import { STATUS, matchesWhen, minutesFor } from "@/lib/path"
 import { EVENTS, track } from "@/lib/analytics"
+import { MEMBERSHIP } from "@/lib/content/membership"
 
 // One Clear Path step. Written once (lib/content/path/*), told four ways:
 //   do      numbered actions and a check (always present)
@@ -105,9 +106,34 @@ export function SayThis({ step }) {
   )
 }
 
+// One line, once per device, after the third step done (PathView decides
+// when and records answers.nudgedAt). Never shown to members.
+function MemberNudge({ audience }) {
+  const door = audience === "business" ? "business" : "home"
+  const viewed = useRef(false)
+  useEffect(() => {
+    if (viewed.current) return
+    viewed.current = true
+    track(EVENTS.joinViewed, { surface: "nudge" })
+  }, [])
+  return (
+    <p className="mt-2 text-sm leading-relaxed text-[#475569]">
+      {MEMBERSHIP.nudge.text}{" "}
+      <Link
+        href={`/pricing?door=${door}`}
+        onClick={() => track(EVENTS.joinStarted, { surface: "nudge", door })}
+        className="font-semibold text-[#1D4ED8] underline underline-offset-2 hover:text-[#1E40AF]"
+      >
+        {MEMBERSHIP.nudge.cta}
+      </Link>
+    </p>
+  )
+}
+
 // The done ritual: one calm sentence naming what is now true. The live
 // region stays mounted so the sentence is announced when it appears.
-export function DoneRitual({ ritual }) {
+// `nudge` (the path's audience) adds the one-time member line beneath it.
+export function DoneRitual({ ritual, nudge }) {
   return (
     <div role="status">
       {ritual ? (
@@ -119,6 +145,7 @@ export function DoneRitual({ ritual }) {
           </span>
         </p>
       ) : null}
+      {nudge ? <MemberNudge audience={nudge} /> : null}
     </div>
   )
 }
@@ -280,6 +307,7 @@ export default function StepCard({
   onOpenStep,
   audience,
   ritual,
+  nudge = false,
 }) {
   const id = useId()
   const [localView, setLocalView] = useState(null)
@@ -478,7 +506,7 @@ export default function StepCard({
 
           <div className="pt-1">
             <Actions step={step} mark={mark} onMark={onMark} audience={audience} />
-            <DoneRitual ritual={handled ? ritual : null} />
+            <DoneRitual ritual={handled ? ritual : null} nudge={handled && nudge ? audience || "home" : null} />
           </div>
         </div>
       </div>

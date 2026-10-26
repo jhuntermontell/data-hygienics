@@ -16,6 +16,8 @@ import Link from "next/link"
 import { ArrowRight, LifeBuoy, Lock, Send, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { DAILY_MESSAGE_CAP, MAX_QUESTION_CHARS, MONTHLY_TOKEN_CAP } from "@/lib/assistant/limits"
+import { MEMBERSHIP } from "@/lib/content/membership"
+import { EVENTS, track } from "@/lib/analytics"
 
 const STARTERS = [
   "Someone says they're from my bank's fraud team. What do I do?",
@@ -155,38 +157,71 @@ function UsageMeter({ usage }) {
   )
 }
 
+// The locked panel for a signed-in non-member: the chat frame, disabled,
+// with one example question as the proof. Copy is MEMBERSHIP.ask.
 function NotMember() {
+  const viewed = useRef(false)
+  useEffect(() => {
+    if (viewed.current) return
+    viewed.current = true
+    track(EVENTS.joinViewed, { surface: "ask" })
+  }, [])
+  const price = MEMBERSHIP.prices.home.monthly
   return (
-    <section className="rounded-2xl border border-[#E2E8F0] bg-white p-6 sm:p-8">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-[#EFF6FF] flex items-center justify-center">
-          <Lock className="w-5 h-5 text-[#1D4ED8]" aria-hidden="true" />
+    <section aria-labelledby="ask-locked-title" className="rounded-2xl border border-[#E2E8F0] bg-white p-4 sm:p-6">
+      <div className="rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5 sm:p-6">
+        <h2 id="ask-locked-title" className="flex items-center gap-2.5 text-lg font-bold text-[#0F172A]">
+          <Lock className="w-5 h-5 shrink-0 text-[#1D4ED8]" aria-hidden="true" />
+          {MEMBERSHIP.ask.headline}
+        </h2>
+        <p className="mt-2 text-[15px] leading-relaxed text-[#334155]">{MEMBERSHIP.ask.body}</p>
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Link
+            href="/pricing?door=home"
+            onClick={() => track(EVENTS.joinStarted, { surface: "ask", door: "home" })}
+            className="inline-flex items-center gap-1.5 bg-[#1D4ED8] text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#1E40AF] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
+          >
+            {MEMBERSHIP.ask.cta} for ${price} <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+          </Link>
+          <Link
+            href="/check"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0F766E] hover:text-[#115E59]"
+          >
+            <LifeBuoy className="w-4 h-4" aria-hidden="true" />
+            {MEMBERSHIP.ask.urgent}
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+          </Link>
         </div>
-        <h2 className="text-lg font-bold text-[#0F172A]">For members</h2>
       </div>
-      <p className="text-[#475569] text-[15px] leading-relaxed mb-3">
-        Ask Data Hygienics is included with Ongoing Protection and the Documentation Pack. It answers questions about
-        securing your home or small business using only our published research, links to the page each answer comes
-        from, and tells you plainly when we don&apos;t know yet.
-      </p>
-      <p className="text-[#475569] text-[15px] leading-relaxed mb-6">
-        Everything it draws on is free to read: the guides, threats, glossary and toolkit are open to everyone.
-      </p>
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href="/pricing"
-          className="inline-flex items-center gap-1.5 bg-[#1D4ED8] text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#1E40AF] transition-colors"
-        >
-          See plans <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
-        </Link>
-        <Link
-          href="/guides"
-          className="inline-flex items-center gap-1.5 border border-[#E2E8F0] text-[#0F172A] text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#F8FAFC] transition-colors"
-        >
-          Read the guides
-        </Link>
+
+      {/* The chat as members see it, shown but not usable. */}
+      <div aria-hidden="true" className="mt-4 select-none opacity-70">
+        <p className="text-[11px] font-semibold tracking-[0.12em] uppercase text-[#94A3B8] mb-2">For example</p>
+        <div className="flex justify-end">
+          <p className="max-w-[85%] rounded-2xl rounded-br-md bg-[#F1F5F9] px-4 py-2.5 text-[15px] text-[#475569]">
+            {MEMBERSHIP.ask.example}
+          </p>
+        </div>
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5">
+          <span className="flex-1 text-[15px] text-[#94A3B8]">Ask a question about your home or business security</span>
+          <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#CBD5E1] px-4 py-2 text-sm font-semibold text-white">
+            Ask <Send className="w-3.5 h-3.5" />
+          </span>
+        </div>
       </div>
     </section>
+  )
+}
+
+function PrivacyNote({ id }) {
+  return (
+    <p id={id} className="flex items-start gap-2 text-xs text-[#475569] leading-relaxed">
+      <ShieldCheck className="w-4 h-4 shrink-0 text-[#0F766E]" aria-hidden="true" />
+      <span>
+        Answers come only from our published research. We never ask for passwords, codes or account numbers;
+        don&apos;t paste them here. This chat isn&apos;t saved: it clears when you leave the page.
+      </span>
+    </p>
   )
 }
 
@@ -385,9 +420,9 @@ export default function AskChat() {
   }
   if (state === "not-member") {
     return (
-      <div className="space-y-6">
+      <div className="space-y-5">
         <NotMember />
-        {checkLink}
+        <PrivacyNote />
       </div>
     )
   }
@@ -513,13 +548,7 @@ export default function AskChat() {
         )}
       </form>
 
-      <p id="ask-note" className="flex items-start gap-2 text-xs text-[#475569] leading-relaxed">
-        <ShieldCheck className="w-4 h-4 shrink-0 text-[#0F766E]" aria-hidden="true" />
-        <span>
-          Answers come only from our published research. We never ask for passwords, codes or account numbers;
-          don&apos;t paste them here. This chat isn&apos;t saved: it clears when you leave the page.
-        </span>
-      </p>
+      <PrivacyNote id="ask-note" />
     </div>
   )
 }

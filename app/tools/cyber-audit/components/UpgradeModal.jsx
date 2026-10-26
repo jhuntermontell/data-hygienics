@@ -10,7 +10,7 @@ import PromoCodeInput from "@/app/components/PromoCodeInput"
 const PRICES = getActivePrices()
 
 // The upgrade modal surfaces the two conversion paths: one-time
-// Documentation Pack or Ongoing Protection subscription. These are the only
+// Documentation Pack or Business membership. These are the only
 // plans on sale.
 const upgradeOptions = [
   {
@@ -30,18 +30,18 @@ const upgradeOptions = [
     ],
   },
   {
-    key: "protection_monthly",
-    label: "Ongoing Protection",
-    price: "$49",
+    key: "member_business_monthly",
+    label: "Business membership",
+    price: "$39",
     priceLabel: "/month",
-    desc: "Keep your security current as AI tools and scams change.",
+    desc: "The audit, policies and response planner, plus Ask: answers drawn only from our research.",
     icon: ShieldCheck,
-    priceId: PRICES.protectionMonthly,
+    priceId: PRICES.memberBusinessMonthly,
     mode: "subscription",
     bullets: [
-      "Everything in the Documentation Pack",
-      "Quarterly reassessments with new AI-era questions",
-      "Policy update workflow",
+      "The full Cyber Audit, Policy Library and Incident Response Planner",
+      "Ask Data Hygienics, with the page each answer came from",
+      "Cancel in two clicks",
     ],
   },
 ]

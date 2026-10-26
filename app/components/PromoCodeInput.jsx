@@ -8,6 +8,9 @@ import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 const PLAN_LABELS = {
   free: "Free",
   // Current catalog
+  member_home: "Membership (Home)",
+  member_business: "Membership (Business)",
+  // Retired from sale, still honored
   protection: "Ongoing Protection",
   // Legacy catalog (grandfathered, no longer sold)
   starter: "Starter",

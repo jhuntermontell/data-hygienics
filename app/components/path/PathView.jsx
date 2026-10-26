@@ -1,5 +1,5 @@
 "use client"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
 import {
@@ -19,8 +19,33 @@ import {
 import StepCard, { StepTiming, VIEWS } from "./StepCard"
 import { HORIZONS, HORIZON_ORDER, HORIZON_STYLES, longViewYear } from "@/lib/horizons"
 import { INDUSTRIES, STATUS, stageProgress, thisWeek, whereYouStand } from "@/lib/path"
+import { MEMBERSHIP } from "@/lib/content/membership"
+import { EVENTS, track } from "@/lib/analytics"
 
 const HANDLED = (mark) => Boolean(STATUS[mark?.status]?.handled)
+
+// Membership, as the Path sees it. `plan` comes from PathExperience:
+// undefined while it's still being looked up (or couldn't be), null when
+// signed out, otherwise the plan string. A `member_` plan is a member, and so
+// is any other paid plan (they include Ask too): neither is pitched to.
+export function isMemberPlan(plan) {
+  return typeof plan === "string" && plan !== "free"
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000
+// "Not now" on the JoinCard hides the member half this long; the step nudge
+// stays quiet for a day after it.
+const JOIN_DISMISS_DAYS = 30
+const NUDGE_QUIET_DAYS = 1
+const NUDGE_AFTER = 3
+
+function within(iso, days, now) {
+  const at = iso ? Date.parse(iso) : NaN
+  return Number.isFinite(at) && now - at < days * DAY_MS
+}
+
+const memberPrice = (audience) => `$${MEMBERSHIP.prices[audience === "business" ? "business" : "home"].monthly} a month`
+const doorFor = (audience) => (audience === "business" ? "business" : "home")
 
 function joinList(items) {
   if (items.length <= 1) return items.join("")
@@ -354,54 +379,146 @@ function Routines({ routines }) {
   )
 }
 
-function SaveCard({ sync, user, audience }) {
+const SYNC_LABELS = {
+  account: "Saved to your account. It's still yours: export or delete it any time.",
+  saving: "Saving to your account...",
+  offline: "Saved on this device. We couldn't reach your account just now; we'll try again on your next change.",
+  device: "Saved on this device.",
+}
+
+// Save first, membership second. Three states:
+//   not saved  the save-first card, with the member button beside the save
+//   saved      "You're saved. Members also get Ask..." and Learn more
+//   member     the saved-to-account line only
+// "Not now" stores answers.joinDismissedAt and hides the member half for 30
+// days (the save half stays). Signed in with the plan still unknown, only the
+// saved line shows, so a paying member is never pitched by mistake.
+function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
+  const [now] = useState(() => Date.now())
+  const viewed = useRef(false)
   const next = `/path/${audience}`
+  const door = doorFor(audience)
+  const pricing = `/pricing?door=${door}`
+  const savedToAccount = sync === "account" || sync === "saving"
+  const askable =
+    !within(dismissedAt, JOIN_DISMISS_DAYS, now) && (!user || (plan !== undefined && !isMemberPlan(plan) && savedToAccount))
+
+  useEffect(() => {
+    if (!askable || viewed.current) return
+    viewed.current = true
+    track(EVENTS.joinViewed, { surface: "reveal" })
+  }, [askable])
+
+  const started = () => track(EVENTS.joinStarted, { surface: "reveal", door })
+  const notNow = (
+    <button
+      type="button"
+      onClick={onDismiss}
+      className="rounded-lg px-2 py-1 text-sm font-semibold text-[#475569] hover:bg-white hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+    >
+      {MEMBERSHIP.reveal.notNow}
+    </button>
+  )
+
   if (user) {
-    const labels = {
-      account: "Saved to your account. It's still yours: export or delete it any time.",
-      saving: "Saving to your account...",
-      offline: "Saved on this device. We couldn't reach your account just now; we'll try again on your next change.",
-      device: "Saved on this device.",
+    if (!askable) {
+      return (
+        <p className="flex items-start gap-2 rounded-2xl border border-[#E2E8F0] bg-white p-4 text-sm text-[#475569]">
+          <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
+          {SYNC_LABELS[sync] || SYNC_LABELS.device}
+        </p>
+      )
     }
     return (
-      <p className="flex items-start gap-2 rounded-2xl border border-[#E2E8F0] bg-white p-4 text-sm text-[#475569]">
-        <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
-        {labels[sync] || labels.device}
-      </p>
+      <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-sm leading-relaxed text-[#475569]">
+        <p className="flex items-start gap-2">
+          <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
+          <span>
+            {MEMBERSHIP.reveal.saved} {memberPrice(audience)}.{" "}
+            <Link
+              href={pricing}
+              onClick={started}
+              className="font-semibold text-[#1D4ED8] underline underline-offset-2 hover:text-[#1E40AF]"
+            >
+              {MEMBERSHIP.reveal.learn}
+            </Link>
+          </span>
+        </p>
+        <div className="mt-2 flex justify-end">{notNow}</div>
+      </div>
     )
   }
+
+  const save = `/path/save?for=${audience}`
+  const signIn = (
+    <Link
+      href={`/tools/cyber-audit/login?next=${encodeURIComponent(next)}`}
+      className="inline-flex items-center rounded-lg px-2 py-1 text-sm font-semibold text-[#1D4ED8] hover:bg-white"
+    >
+      Sign in
+    </Link>
+  )
+
+  if (!askable) {
+    return (
+      <div className="rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
+        <p className="flex items-center gap-2 text-sm font-bold text-[#0F172A]">
+          <CloudUpload className="w-4 h-4 text-[#1D4ED8]" aria-hidden="true" />
+          Saved on this device
+        </p>
+        <p className="mt-1 text-sm leading-relaxed text-[#334155]">
+          Want it on your phone too? Save your path to a free account. Nothing leaves this device until you do.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Link
+            href={save}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF]"
+          >
+            Save my path
+          </Link>
+          {signIn}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
-      <p className="flex items-center gap-2 text-sm font-bold text-[#0F172A]">
-        <CloudUpload className="w-4 h-4 text-[#1D4ED8]" aria-hidden="true" />
-        Saved on this device
-      </p>
-      <p className="mt-1 text-sm leading-relaxed text-[#334155]">
-        Want it on your phone too? Save your path to a free account. Nothing leaves this device until you do.
-      </p>
-      <div className="mt-3 flex flex-wrap gap-2">
+    <section aria-labelledby="join-card-title" className="rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
+      <h2 id="join-card-title" className="flex items-start gap-2 text-base font-bold leading-snug text-[#0F172A]">
+        <CloudUpload className="w-4 h-4 mt-1 shrink-0 text-[#1D4ED8]" aria-hidden="true" />
+        {MEMBERSHIP.reveal.headline}
+      </h2>
+      <p className="mt-2 text-sm leading-relaxed text-[#334155]">{MEMBERSHIP.reveal.body}</p>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <Link
-          href={`/path/save?for=${audience}`}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF]"
+          href={save}
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-[15px] font-semibold text-white hover:bg-[#1E40AF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
         >
-          Save my path
+          {MEMBERSHIP.reveal.save}
         </Link>
         <Link
-          href={`/tools/cyber-audit/login?next=${encodeURIComponent(next)}`}
-          className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-[#1D4ED8] hover:bg-white"
+          href={pricing}
+          onClick={started}
+          className="inline-flex items-center justify-center rounded-lg border border-[#1D4ED8]/30 bg-white px-3 py-2 text-sm font-semibold text-[#1D4ED8] hover:border-[#1D4ED8]/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
         >
-          Sign in
+          {MEMBERSHIP.reveal.join} ({memberPrice(audience)})
         </Link>
       </div>
-    </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        {signIn}
+        {notNow}
+      </div>
+    </section>
   )
 }
 
 function Manage({ onEdit, onExport, onDelete }) {
   const button =
     "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+  // The dashboard's "Export my path" and "Delete my data" link here
+  // (/path/<audience>#manage-path); PathView scrolls to it once it renders.
   return (
-    <div className="flex flex-wrap gap-1 print:hidden">
+    <div id="manage-path" className="flex flex-wrap gap-1 scroll-mt-24 print:hidden">
       <button type="button" onClick={onEdit} className={button}>
         <RefreshCw className="w-4 h-4" aria-hidden="true" />
         Change my answers
@@ -436,6 +553,9 @@ export default function PathView({
   onDelete,
   view,
   onView,
+  plan,
+  flags = {},
+  onStamp,
 }) {
   const year = longViewYear()
   const [openIds, setOpenIds] = useState(() => new Set())
@@ -444,12 +564,37 @@ export default function PathView({
   const [endState, setEndState] = useState(null)
   // The step most recently marked done, for the done ritual.
   const [ritualId, setRitualId] = useState(null)
+  // The step whose done ritual carries the one-time member nudge.
+  const [nudgeId, setNudgeId] = useState(null)
   const knowledge = path.answers.knowledge
 
+  // Linked from the dashboard: bring Export and Start over into view. The
+  // browser's own jump misses it because the path renders after loading.
+  useEffect(() => {
+    if (window.location.hash !== "#manage-path") return
+    requestAnimationFrame(() => document.getElementById("manage-path")?.scrollIntoView({ block: "center" }))
+  }, [])
+
+  // After the third step done on this device, once (answers.nudgedAt), never
+  // for members or while the plan is unknown, and not within a day of "Not
+  // now" on the JoinCard.
+  const shouldNudge = (id, status) => {
+    if (nudgeId || flags.nudgedAt || plan === undefined || isMemberPlan(plan)) return false
+    if (within(flags.joinDismissedAt, NUDGE_QUIET_DAYS, Date.now())) return false
+    const after = { ...progress, [id]: { status } }
+    const done = Object.values(after).filter((m) => m?.status === "done" || m?.status === "checked").length
+    return done >= NUDGE_AFTER
+  }
+
   const mark = (id, status) => {
-    onMark(id, status)
     const done = status === "done" || status === "checked"
+    const nudge = done && shouldNudge(id, status)
+    onMark(id, status)
     setRitualId((current) => (done ? id : current === id ? null : current))
+    if (nudge) {
+      setNudgeId(id)
+      onStamp?.("nudgedAt")
+    }
   }
   // "Now true: {after}" when the step has one; otherwise the stage's end
   // state, framed as one step closer. Once the stage is complete its own
@@ -590,6 +735,7 @@ export default function PathView({
                           onMark={mark}
                           audience={path.audience}
                           ritual={ritualFor(step, stage, complete)}
+                          nudge={step.id === nudgeId && step.id === ritualId}
                           open={openIds.has(step.id)}
                           onToggle={() => toggle(step.id)}
                           highlighted={highlighted.has(step.id)}
@@ -633,7 +779,14 @@ export default function PathView({
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24" aria-label="Your progress and options">
-          <SaveCard sync={sync} user={user} audience={path.audience} />
+          <JoinCard
+            sync={sync}
+            user={user}
+            audience={path.audience}
+            plan={plan}
+            dismissedAt={flags.joinDismissedAt}
+            onDismiss={() => onStamp?.("joinDismissedAt")}
+          />
           <WhereYouStand rows={stand} onOpen={openStep} />
           <Routines routines={content.routines} />
           <Manage onEdit={onEdit} onExport={onExport} onDelete={onDelete} />
