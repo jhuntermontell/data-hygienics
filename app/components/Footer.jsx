@@ -15,7 +15,7 @@ export default function Footer() {
             <Link href="/" className="inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]">
               <Image src="/logo.svg" alt="Data Hygienics" width={919} height={220} unoptimized className="h-10 w-auto" />
             </Link>
-            <p className="mt-4 text-[#0F172A] font-semibold">{SITE.tagline}</p>
+            <p className="mt-4 text-[#0F172A] font-semibold">{SITE.tagline.replace(/\.$/, "")}</p>
             <p className="mt-2 text-sm leading-relaxed text-[#475569]">
               The independent field guide to living and working securely alongside AI, for households and small
               businesses.

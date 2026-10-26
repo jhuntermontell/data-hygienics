@@ -1,7 +1,7 @@
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import Link from "next/link"
-import { Shield, FileText, BookOpen, ArrowRight, LifeBuoy } from "lucide-react"
+import { Shield, FileText, BookOpen, ArrowRight, LifeBuoy, MessageCircle } from "lucide-react"
 
 export const metadata = {
   title: "Business Tools for AI-Era Security | Data Hygienics",
@@ -39,6 +39,16 @@ const activeTools = [
     consequence: "Ransomware (malware that locks your files for a ransom), business email compromise and deepfake payment requests move fast. A plan that is written, tested, and reachable outside your normal network gives your team a decision path before stress takes over.",
     cta: "Build your plan",
     href: "/tools/ir-plan",
+  },
+  {
+    icon: MessageCircle,
+    name: "Ask Data Hygienics",
+    badge: "Members",
+    badgeColor: "bg-[#EFF6FF] text-[#1D4ED8]",
+    description: "Ask a question about securing your home or small business and get a short answer drawn only from our published research, with a link to every page it uses. When our research doesn't cover something, it says we don't know yet. Included with Ongoing Protection and the Documentation Pack.",
+    consequence: null,
+    cta: "Ask a question",
+    href: "/tools/ask",
   },
   {
     icon: BookOpen,
@@ -112,7 +122,7 @@ export default function ToolsPage() {
       {/* CTA */}
       <section className="py-20 px-6 bg-[#1D4ED8]">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-3">Start with what you have.</h2>
+          <h2 className="text-3xl font-bold text-white mb-3">Start with what you have</h2>
           <p className="text-blue-100 text-base mb-8">
             Start with the free Quick Check, browse the Controls Library or get the AI Acceptable Use Policy (free with a free account). None of it needs a credit card or a sales call. Upgrade when you&apos;re ready.
           </p>

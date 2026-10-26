@@ -88,7 +88,7 @@ export default function ShareCard({ title, chip, sayThis, url, tone = "home" }) 
       </p>
 
       <div className={`share-card-face rounded-2xl border bg-gradient-to-br ${styles.face} p-6 sm:p-8`}>
-        <p className={`text-xs font-semibold tracking-[0.12em] uppercase mb-3 ${styles.eyebrow}`}>Is this real?</p>
+        <p className={`text-xs font-semibold tracking-[0.12em] uppercase mb-3 ${styles.eyebrow}`}>Threat Check</p>
         <p className="text-2xl sm:text-3xl font-black text-[#0F172A] leading-tight tracking-tight text-balance">{chip}?</p>
         <p className="mt-4 text-lg sm:text-xl leading-snug text-[#334155]">{sayThis}</p>
         <div className="mt-6 flex items-center gap-3">

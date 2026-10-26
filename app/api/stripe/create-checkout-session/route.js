@@ -7,6 +7,9 @@ import {
   isNewCheckoutPriceId,
   isSubscriptionPriceId,
   isOneTimePriceId,
+  isFoundingPriceId,
+  foundingOpen,
+  doorForPriceId,
 } from '@/lib/stripe/prices'
 
 export async function POST(request) {
@@ -41,6 +44,16 @@ export async function POST(request) {
       )
     }
 
+    // ----- Founding rate sunset ---------------------------------------------
+    // Founding prices are sold only before FOUNDING_UNTIL. After that they
+    // drop out of the allow-list below anyway; this check runs first so the
+    // visitor gets a plain answer instead of "Invalid price". Existing
+    // founding subscriptions are untouched: they renew in Stripe and the
+    // webhook still maps them.
+    if (isFoundingPriceId(priceId) && !foundingOpen()) {
+      return NextResponse.json({ error: 'That rate has ended' }, { status: 400 })
+    }
+
     // ----- Allow-list: current-catalog SKUs only ----------------------------
     // Every LEGACY_PRICES ID (grandfathered subscription plans, including
     // retired ones, and the old one-time bundles) is deliberately NOT
@@ -70,6 +83,12 @@ export async function POST(request) {
     // No SKU in the current catalog is billed per unit, so any client-sent
     // quantity is ignored.
     const quantity = 1
+
+    // ----- Membership door, from the priceId only ---------------------------
+    // "home" | "business" | null (Documentation Pack). Never read from the
+    // request body. The plan value already encodes the door; this copy on
+    // the session and subscription metadata is for the Stripe dashboard.
+    const door = doorForPriceId(priceId)
 
     // ----- Whitelist client metadata. Add new keys explicitly here. ---------
     const allowedClientMetadata = {}
@@ -187,12 +206,17 @@ export async function POST(request) {
     }
 
     // ----- Build redirect URLs from the request origin (server-side only) --
+    // Home members land back on their Path; Business members and
+    // Documentation Pack buyers land on the dashboard as before.
     const origin = new URL(request.url).origin
     // checkout=<mode> tells the dashboard what the webhook will grant: a
     // subscription changes the plan, a one-time payment (Documentation
     // Pack) adds a purchase row and leaves the plan at "free".
-    const success_url = `${origin}/tools/cyber-audit/dashboard?welcome=true&checkout=${mode}`
-    const cancel_url = `${origin}/pricing`
+    const success_url =
+      door === 'home'
+        ? `${origin}/path/home?joined=1`
+        : `${origin}/tools/cyber-audit/dashboard?welcome=true&checkout=${mode}`
+    const cancel_url = `${origin}/pricing?canceled=1`
 
     // ----- Build session params. supabase_user_id is the LAST field set so
     //       any client-side spread cannot override it. For payment mode the
@@ -209,13 +233,17 @@ export async function POST(request) {
       metadata: {
         ...allowedClientMetadata,
         ...(mode === 'payment' ? { price_id: priceId } : {}),
+        ...(door ? { door } : {}),
         supabase_user_id: userId,
       },
     }
 
     if (mode === 'subscription') {
       sessionParams.subscription_data = {
-        metadata: { supabase_user_id: userId },
+        metadata: {
+          ...(door ? { door } : {}),
+          supabase_user_id: userId,
+        },
       }
     } else {
       // payment_intent_data.metadata is duplicated for Stripe dashboard

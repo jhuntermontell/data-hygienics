@@ -250,7 +250,7 @@ export default function QuickCreateAccountPage() {
           </div>
 
           <h1 className="text-2xl font-bold text-[#0F172A] text-center mb-2">
-            Your results are ready.
+            Your results are ready
           </h1>
           <p className="text-[#475569] text-sm text-center leading-relaxed mb-2">
             Create a free account to view your full security report in a secure, private space.

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { getQuestionsForIndustry, RETIRED_INDUSTRIES } from "@/lib/questions"
 import { getSubscription, clearSubscriptionCache } from "@/lib/stripe/subscription"
 import { clearAccountPaths } from "@/lib/path/storage"
+import { MEMBERSHIP } from "@/lib/content/membership"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import ScoreTimeline from "../components/ScoreTimeline"
@@ -25,11 +26,17 @@ import {
   CreditCard,
   Sparkles,
   X,
+  MessageCircle,
+  Download,
+  Trash2,
+  ShieldCheck,
 } from "lucide-react"
 
 const PLAN_LABELS = {
   free: "Free",
   // Current catalog
+  member_home: "Membership (Home)",
+  member_business: "Membership (Business)",
   protection: "Ongoing Protection",
   // Legacy catalog (grandfathered, no longer sold)
   starter: "Starter (Legacy)",
@@ -39,6 +46,8 @@ const PLAN_LABELS = {
 }
 
 const PLAN_FEATURES = {
+  member_home: MEMBERSHIP.pricing.home.includes,
+  member_business: MEMBERSHIP.pricing.business.includes,
   protection: [
     "Full assessment, reports, all 9 policies, and IR plan",
     "Quarterly reassessment with new AI-era questions",
@@ -52,6 +61,15 @@ const PLAN_FEATURES = {
   professional: ["Unlimited assessments & reports", "All 9 policies", "Score tracking over time"],
   msp: ["Everything in Professional", "Grandfathered: your access continues unchanged"],
   agency: ["Everything in Ongoing Protection", "Grandfathered: your access continues unchanged"],
+}
+
+const fmt = (n) => Number(n || 0).toLocaleString("en-US")
+
+// "Export my path" and "Delete my data" open the Path's own Export and
+// Start over controls (PathView's Manage row, #manage-path). Home members go
+// to the home path; everyone else here to the business path.
+function pathFor(plan) {
+  return plan === "member_home" ? "/path/home" : "/path/business"
 }
 
 function getFirstName(profile, user) {
@@ -108,6 +126,8 @@ function DashboardContent() {
   // opened. Without this, clicking "Manage Billing" silently did nothing
   // on failure and the user had no idea why.
   const [portalError, setPortalError] = useState("")
+  // This month's Ask numbers, for members (GET /api/assistant/usage).
+  const [askUsage, setAskUsage] = useState(null)
 
   const plan = sub.plan
   const access = sub.access
@@ -159,6 +179,7 @@ function DashboardContent() {
 
         setProfile(profileResult.data)
         setSub(subData)
+        if (subData.access?.canAccessAssistant) loadAskUsage(session.access_token)
         setPolicies(policyResult.data || [])
         setIrPlan(irPlanResult.data || null)
 
@@ -223,6 +244,7 @@ function DashboardContent() {
               // the assessment, policy and IR pages read the new access.
               clearSubscriptionCache()
               setSub(fresh)
+              if (fresh.access?.canAccessAssistant) loadAskUsage(session.access_token)
               setShowWelcome(true)
               setPendingSync(false)
               return
@@ -246,6 +268,21 @@ function DashboardContent() {
 
       setLoading(false)
     }
+    // The meter is a nicety: if it can't be read, the Ask row just links.
+    async function loadAskUsage(token) {
+      try {
+        const res = await fetch("/api/assistant/usage", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          cache: "no-store",
+        })
+        if (!res.ok || cancelled) return
+        const data = await res.json()
+        if (!cancelled) setAskUsage(data)
+      } catch {
+        // Leave the row without numbers.
+      }
+    }
+
     load()
 
     return () => {
@@ -458,20 +495,7 @@ function DashboardContent() {
                     </p>
                   )}
                 </div>
-                {!isPromo && (
-                  <Button size="sm" variant="outline" onClick={handleManageBilling}>
-                    Manage Billing
-                  </Button>
-                )}
               </div>
-              {portalError && (
-                <p
-                  role="alert"
-                  className="mt-3 text-xs text-[#DC2626] bg-[#FEF2F2] border border-[#DC2626]/20 rounded-lg px-3 py-2"
-                >
-                  {portalError}
-                </p>
-              )}
             </>
           ) : ownsDocsPack ? (
             <div className="flex items-center justify-between">
@@ -513,6 +537,50 @@ function DashboardContent() {
               </Link>
             </div>
           )}
+
+          {/* Account: who, billing, and your data */}
+          <div className="mt-5 border-t border-[#E2E8F0] pt-4">
+            {user?.email && (
+              <p className="text-xs text-[#94A3B8] mb-3">
+                Signed in as <span className="font-semibold text-[#475569] break-all">{user.email}</span>
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              {isPaid && !isPromo && (
+                <Button size="sm" variant="outline" onClick={handleManageBilling}>
+                  <span className="flex items-center gap-2">
+                    <CreditCard className="w-3.5 h-3.5" /> Manage billing
+                  </span>
+                </Button>
+              )}
+              <Link
+                href={`${pathFor(plan)}#manage-path`}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
+              >
+                <Download className="w-4 h-4" /> Export my path
+              </Link>
+              <Link
+                href={`${pathFor(plan)}#manage-path`}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#B91C1C]"
+              >
+                <Trash2 className="w-4 h-4" /> Delete my data
+              </Link>
+            </div>
+            {portalError && (
+              <p
+                role="alert"
+                className="mt-3 text-xs text-[#DC2626] bg-[#FEF2F2] border border-[#DC2626]/20 rounded-lg px-3 py-2"
+              >
+                {portalError}
+              </p>
+            )}
+            <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-[#475569]">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-[#0F766E]" />
+              <span>
+                Questions you ask the assistant are processed by Anthropic to produce the answer and are not stored by us.
+              </span>
+            </p>
+          </div>
         </motion.div>
 
         {/* Your Tools */}
@@ -628,6 +696,32 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
+          <Link
+            href="/tools/ask"
+            className="mt-4 flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-5 py-3.5 shadow-sm hover:border-[#1D4ED8]/40 transition-colors"
+          >
+            <MessageCircle className="w-5 h-5 text-[#1D4ED8] shrink-0" />
+            <span className="text-sm text-[#475569] flex-1">
+              <span className="font-bold text-[#0F172A]">Ask Data Hygienics</span>
+              {access.canAccessAssistant ? (
+                askUsage ? (
+                  <>
+                    <span className="block text-xs text-[#475569] mt-0.5">
+                      {fmt(askUsage.messagesToday)} of {fmt(askUsage.dailyCap)} questions today
+                      <span aria-hidden="true"> · </span>
+                      <span className="sr-only">, </span>
+                      {fmt(askUsage.monthUsed)} of {fmt(askUsage.monthCap)} tokens this month
+                    </span>
+                  </>
+                ) : (
+                  ": questions answered from our research."
+                )
+              ) : (
+                ": questions answered from our research, for members."
+              )}
+            </span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#1D4ED8]" />
+          </Link>
         </motion.div>
 
         {/* Your Reports */}

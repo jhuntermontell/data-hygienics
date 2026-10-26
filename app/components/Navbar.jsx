@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut, ArrowRight, LifeBuoy } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
-import { clearSubscriptionCache } from "@/lib/stripe/subscription"
+import { clearSubscriptionCache, getSubscription } from "@/lib/stripe/subscription"
 import { clearAccountPaths } from "@/lib/path/storage"
 import { NAV } from "@/lib/site"
 
@@ -17,14 +17,18 @@ import { NAV } from "@/lib/site"
 
 const ALL_TOOLS_LINK = { href: "/tools", label: "All business tools" }
 
-// Color key: teal is Home, blue is Business, the blend is Digital Sovereignty.
+// Color key: teal is Home, blue is Business.
 const PRIMARY_DOTS = {
   "/household": "bg-[#0F8F83]",
   "/business": "bg-[#1D4ED8]",
-  "/digital-sovereignty": "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]",
 }
 
 const FOCUSABLE = "a[href], button:not([disabled])"
+
+// The member slot between "Sign in" and "Map your path": signed-out visitors
+// see a quiet "Members" link (NAV.members); a Home member sees "My path".
+const MY_PATH_LINK = { href: "/path/home", label: "My path" }
+const isHomeMember = (plan) => typeof plan === "string" && plan.startsWith("member_home")
 
 // The checker door (NAV.door) is set apart from the rest of the bar: the
 // LifeBuoy icon and teal text, on desktop and mobile, signed in or not.
@@ -161,6 +165,8 @@ export default function Navbar() {
   const reduce = useReducedMotion()
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
+  // The plan from the cached subscription (getSubscription), signed in only.
+  const [plan, setPlan] = useState(null)
   const [ready, setReady] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -183,7 +189,10 @@ export default function Navbar() {
       setSession(s)
       setReady(true)
       currentUserIdRef.current = s?.user?.id || null
-      if (s?.user) loadProfile(s.user.id)
+      if (s?.user) {
+        loadProfile(s.user.id)
+        loadPlan(s.user.id)
+      }
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
@@ -191,6 +200,7 @@ export default function Navbar() {
         currentUserIdRef.current = null
         setSession(null)
         setProfile(null)
+        setPlan(null)
         setShowNameModal(false)
         setReady(true)
         return
@@ -198,8 +208,13 @@ export default function Navbar() {
       setSession(s)
       setReady(true)
       currentUserIdRef.current = s?.user?.id || null
-      if (s?.user) loadProfile(s.user.id)
-      else setProfile(null)
+      if (s?.user) {
+        loadProfile(s.user.id)
+        loadPlan(s.user.id)
+      } else {
+        setProfile(null)
+        setPlan(null)
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -229,6 +244,14 @@ export default function Navbar() {
     if (!data?.full_name) {
       setShowNameModal(true)
     }
+  }
+
+  // Reads the plan through the same five-minute cache the rest of the site
+  // uses, so the navbar adds no query on most page views.
+  async function loadPlan(userId) {
+    const sub = await getSubscription(userId)
+    if (currentUserIdRef.current !== userId) return
+    setPlan(sub?.plan || null)
   }
 
   async function saveFirstName() {
@@ -293,6 +316,8 @@ export default function Navbar() {
   else if (user?.user_metadata?.full_name) firstName = user.user_metadata.full_name.split(" ")[0]
 
   const toolsLinks = NAV.businessTools
+  // Signed out: "Members". Signed in as a Home member: "My path". Otherwise none.
+  const memberSlot = !ready ? null : user ? (isHomeMember(plan) ? MY_PATH_LINK : null) : NAV.members
   // Identical props on server and client; reduced motion only zeroes the
   // duration, so the SSR style never gets stranded after hydration.
   const drawerMotion = {
@@ -373,59 +398,73 @@ export default function Navbar() {
           </div>
 
           {/* Desktop right: the checker door, then auth-aware links */}
-          <div className="hidden lg:flex items-center gap-2 shrink-0">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2 shrink-0">
             <Link
               href={NAV.door.href}
               aria-current={isActive(pathname, NAV.door.href) ? "page" : undefined}
               aria-label={NAV.door.label}
               title={NAV.door.label}
-              className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2 xl:px-2.5 py-2 xl:py-1.5 rounded-lg border border-[#0F8F83]/30 bg-[#F0FDFA] hover:bg-[#CCFBF1]/60 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${DOOR_TEXT}`}
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2.5 py-1.5 rounded-lg border border-[#0F8F83]/30 bg-[#F0FDFA] hover:bg-[#CCFBF1]/60 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${DOOR_TEXT}`}
             >
               <LifeBuoy className="w-4 h-4 shrink-0" aria-hidden="true" />
               {/* Short label on purpose: the bar has no room for a sentence. */}
-              <span className="hidden xl:inline text-sm whitespace-nowrap">{NAV.door.label}</span>
+              <span className="hidden lg:inline text-sm whitespace-nowrap">{NAV.door.label}</span>
             </Link>
             {!ready ? (
               <div className="w-44 h-9" />
             ) : user ? (
-              <Dropdown
-                id="nav-user"
-                label={`Hi, ${firstName || "there"}`}
-                open={openMenu === "user"}
-                onToggle={() => toggleMenu("user")}
-                onClose={closeMenu}
-                align="right"
-                panelClassName="w-52"
-              >
-                <Link href="/tools/cyber-audit/dashboard" onClick={closeMenu}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
-                  <LayoutDashboard className="w-4 h-4" aria-hidden="true" /> Dashboard
-                </Link>
-                <Link href="/tools/cyber-audit/results" onClick={closeMenu}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
-                  <FileText className="w-4 h-4" aria-hidden="true" /> My Assessments
-                </Link>
-                <Link href="/tools/policies" onClick={closeMenu}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
-                  <ShieldCheck className="w-4 h-4" aria-hidden="true" /> My Policies
-                </Link>
-                <div className="border-t border-[#F1F5F9]" />
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#DC2626] hover:bg-[#FEF2F2] focus-visible:bg-[#FEF2F2] focus-visible:outline-none transition-colors w-full text-left cursor-pointer"
+              <>
+                {memberSlot ? (
+                  <Link href={memberSlot.href}
+                    aria-current={isActive(pathname, memberSlot.href) ? "page" : undefined}
+                    className="whitespace-nowrap text-[#475569] hover:text-[#0F172A] text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
+                    {memberSlot.label}
+                  </Link>
+                ) : null}
+                <Dropdown
+                  id="nav-user"
+                  label={`Hi, ${firstName || "there"}`}
+                  open={openMenu === "user"}
+                  onToggle={() => toggleMenu("user")}
+                  onClose={closeMenu}
+                  align="right"
+                  panelClassName="w-52"
                 >
-                  <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
-                </button>
-              </Dropdown>
+                  <Link href="/tools/cyber-audit/dashboard" onClick={closeMenu}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
+                    <LayoutDashboard className="w-4 h-4" aria-hidden="true" /> Dashboard
+                  </Link>
+                  <Link href="/tools/cyber-audit/results" onClick={closeMenu}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
+                    <FileText className="w-4 h-4" aria-hidden="true" /> My Assessments
+                  </Link>
+                  <Link href="/tools/policies" onClick={closeMenu}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#475569] hover:bg-[#F8FAFC] hover:text-[#1D4ED8] focus-visible:bg-[#F1F5F9] focus-visible:outline-none transition-colors">
+                    <ShieldCheck className="w-4 h-4" aria-hidden="true" /> My Policies
+                  </Link>
+                  <div className="border-t border-[#F1F5F9]" />
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#DC2626] hover:bg-[#FEF2F2] focus-visible:bg-[#FEF2F2] focus-visible:outline-none transition-colors w-full text-left cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" aria-hidden="true" /> Sign out
+                  </button>
+                </Dropdown>
+              </>
             ) : (
               <>
                 <Link href="/tools/cyber-audit/login"
-                  className="text-[#475569] hover:text-[#0F172A] text-sm font-medium px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
+                  className="whitespace-nowrap text-[#475569] hover:text-[#0F172A] text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
                   Sign in
                 </Link>
+                <Link href={NAV.members.href}
+                  aria-current={isActive(pathname, NAV.members.href) ? "page" : undefined}
+                  className="whitespace-nowrap text-[#475569] hover:text-[#0F172A] text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
+                  {NAV.members.label}
+                </Link>
                 <Link href={NAV.start.href}
-                  className="inline-flex items-center bg-[#0F172A] text-white text-sm font-semibold px-4 xl:px-5 py-2.5 rounded-lg hover:bg-[#1E293B] transition-colors duration-150 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
+                  className="inline-flex items-center whitespace-nowrap bg-[#0F172A] text-white text-sm font-semibold px-3 xl:px-5 py-2.5 rounded-lg hover:bg-[#1E293B] transition-colors duration-150 shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]">
                   {NAV.start.label}
                 </Link>
               </>
@@ -476,6 +515,16 @@ export default function Navbar() {
               {NAV.door.label}
               <ArrowRight className="w-4 h-4 ml-auto shrink-0" aria-hidden="true" />
             </Link>
+            {memberSlot ? (
+              <Link
+                href={memberSlot.href}
+                onClick={closeMobile}
+                aria-current={isActive(pathname, memberSlot.href) ? "page" : undefined}
+                className="flex items-center py-3 text-base font-semibold border-b border-[#F1F5F9] text-[#334155] hover:text-[#0F172A]"
+              >
+                {memberSlot.label}
+              </Link>
+            ) : null}
             <ul className="list-none m-0 p-0">
               {NAV.primary.map((link) => {
                 const active = isActive(pathname, link.href)

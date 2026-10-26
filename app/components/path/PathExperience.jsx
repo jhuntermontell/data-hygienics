@@ -1,26 +1,47 @@
 "use client"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { LifeBuoy } from "lucide-react"
+import { CheckCircle2, LifeBuoy } from "lucide-react"
 import QuizRunner from "./QuizRunner"
-import PathView from "./PathView"
+import PathView, { isMemberPlan } from "./PathView"
 import FirstStep from "./FirstStep"
 import { usePathRecord } from "@/lib/hooks/usePathRecord"
 import { AUDIENCE_PATHS, QUIZZES, buildPath, initialProgress } from "@/lib/path"
 import { PATH_CONTENT } from "@/lib/content/path/long-view"
 import { EVENTS, track } from "@/lib/analytics"
+import { MEMBERSHIP } from "@/lib/content/membership"
+import { clearSubscriptionCache, getSubscription } from "@/lib/stripe/subscription"
+
+// Back from a membership checkout (/path/home?joined=1): a calm line, gone on
+// the next click anywhere. Nothing is stored.
+function JoinedBanner() {
+  return (
+    <div role="status" className="mb-6 rounded-2xl border border-[#0F8F83]/30 bg-[#F0FDFA] p-5">
+      <p className="flex items-center gap-2 text-base font-bold text-[#0F172A]">
+        <CheckCircle2 className="w-5 h-5 shrink-0 text-[#0F766E]" aria-hidden="true" />
+        {MEMBERSHIP.joined.headline}
+      </p>
+      <p className="mt-1 text-sm leading-relaxed text-[#134E4A]">{MEMBERSHIP.joined.body}</p>
+    </div>
+  )
+}
+
+// Right after checkout the webhook may not have landed: look again a few
+// times, uncached, before deciding there's no membership to welcome.
+const JOINED_RETRIES = 5
+const JOINED_RETRY_MS = 2000
 
 const COPY = {
   home: {
     eyebrow: "Clear Path for Home",
     intro: "A few questions, then your path. About two minutes.",
-    help: { href: "/household#already-happened", label: "Dealing with something right now? Get help first." },
+    help: { href: "/household#already-happened", label: "Dealing with something right now? Get help first" },
   },
   business: {
     eyebrow: "Clear Path for Business",
     intro: "A few questions, then your path. About three minutes.",
-    help: { href: "/threats/ai-powered-phishing-and-bec#if-it-happens", label: "Money already moved, or an account taken over? Get help first." },
+    help: { href: "/threats/ai-powered-phishing-and-bec#if-it-happens", label: "Money already moved, or an account taken over? Get help first" },
   },
 }
 
@@ -36,6 +57,46 @@ const COPY = {
 export default function PathExperience({ audience, links }) {
   const params = useSearchParams()
   const { record, ready, user, sync, update, reset } = usePathRecord(audience)
+  const joinedParam = params.get("joined") === "1"
+  const [joinedOpen, setJoinedOpen] = useState(joinedParam)
+  // The plan behind the session usePathRecord already read, looked up once
+  // per signed-in user through the cached subscription. `plan` is undefined
+  // until known (or when it couldn't be read), null when signed out.
+  const [planState, setPlanState] = useState({ userId: null, plan: undefined })
+  const plan = !ready ? undefined : !user ? null : planState.userId === user.id ? planState.plan : undefined
+  const userId = user?.id || null
+
+  useEffect(() => {
+    if (!userId) return
+    let cancelled = false
+    let timer = null
+    let tries = 0
+    // A fresh checkout makes the cached copy stale for every page.
+    if (joinedParam) clearSubscriptionCache()
+    const look = async () => {
+      const sub = await getSubscription(userId, { skipCache: joinedParam })
+      if (cancelled) return
+      const found = sub.entitlementUnknown ? undefined : sub.plan
+      if (joinedParam && !isMemberPlan(found) && !sub.entitlementUnknown && ++tries < JOINED_RETRIES) {
+        timer = setTimeout(look, JOINED_RETRY_MS)
+        return
+      }
+      setPlanState({ userId, plan: found })
+    }
+    look()
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [userId, joinedParam])
+
+  const showJoined = joinedOpen && Boolean(user) && isMemberPlan(plan)
+  useEffect(() => {
+    if (!showJoined) return
+    const close = () => setJoinedOpen(false)
+    document.addEventListener("click", close)
+    return () => document.removeEventListener("click", close)
+  }, [showJoined])
   const [editing, setEditing] = useState(false)
   const [fresh, setFresh] = useState(false)
   const first = QUIZZES[audience][0]
@@ -96,6 +157,11 @@ export default function PathExperience({ audience, links }) {
     const showFirst = Boolean(start) && !completed
     return (
       <div>
+        {showJoined ? (
+          <div className="max-w-2xl mx-auto">
+            <JoinedBanner />
+          </div>
+        ) : null}
         <div className="max-w-2xl mx-auto mb-8">
           <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">{copy.eyebrow}</p>
           <p className="mt-2 text-[15px] text-[#475569]">
@@ -171,8 +237,15 @@ export default function PathExperience({ audience, links }) {
 
   const view = record.answers.style || "do"
 
+  // Small dated flags ride in answers, like `style`, so they survive the
+  // account save and sync without a new column: joinDismissedAt ("Not now"
+  // on the JoinCard) and nudgedAt (the one-time member nudge).
+  const onStamp = (key) =>
+    update((current) => ({ ...current, answers: { ...current.answers, [key]: new Date().toISOString() } }))
+
   return (
     <div>
+      {showJoined ? <JoinedBanner /> : null}
       <div className="mb-6">
         <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">{copy.eyebrow}</p>
         <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A] text-balance">
@@ -191,6 +264,9 @@ export default function PathExperience({ audience, links }) {
         user={user}
         view={view}
         onView={(style) => update((current) => ({ ...current, answers: { ...current.answers, style } }))}
+        plan={plan}
+        flags={{ joinDismissedAt: record.answers.joinDismissedAt, nudgedAt: record.answers.nudgedAt }}
+        onStamp={onStamp}
         onEdit={() => {
           setDraft(record.answers)
           setEditing(true)

@@ -25,7 +25,7 @@ export default function HowWeWork() {
                 <Link2 className="w-5 h-5 text-[#0F766E]" aria-hidden="true" />
               </span>
               <div>
-                <p className="font-bold text-[#0F172A]">Every number has a source.</p>
+                <p className="font-bold text-[#0F172A]">Every number has a source</p>
                 <p className="mt-1 text-sm leading-relaxed text-[#475569]">
                   If a sentence has a statistic, it links to a named, dated source. If we can&apos;t find one we
                   trust, we say &ldquo;we don&apos;t know yet.&rdquo;

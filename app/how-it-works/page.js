@@ -47,19 +47,19 @@ const NEVER = [
 
 const INDEPENDENCE = [
   {
-    title: "We sell only our own tools.",
+    title: "We sell only our own tools",
     text: "The only things we sell are our own business tools, and we label them clearly wherever they appear.",
   },
   {
-    title: "No referral fees, no affiliate links.",
+    title: "No referral fees, no affiliate links",
     text: "Links to products are clean, with no tracking codes. We earn nothing when you click or buy.",
   },
   {
-    title: "No sponsorships.",
+    title: "No sponsorships",
     text: "Nobody pays to appear in the Toolkit, the Threat Library or anywhere else.",
   },
   {
-    title: "Recommendations only where they help.",
+    title: "Recommendations only where they help",
     text: "We recommend specific products only in the Toolkit, in step-by-step guides, and where a fix depends on one product's setting. We explain why each one made the cut.",
   },
 ]
@@ -276,7 +276,7 @@ export default function HowWeWorkPage() {
         <section aria-labelledby="how-cta-heading" className="px-4 sm:px-6 py-20">
           <div className="max-w-2xl mx-auto text-center">
             <h2 id="how-cta-heading" className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A]">
-              You deserve a straight answer.
+              You deserve a straight answer
             </h2>
             <p className="mt-3 text-lg text-[#475569]">Pick a door. Everything we publish is free to read.</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">

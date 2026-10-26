@@ -11,7 +11,7 @@ import { SITE } from "@/lib/site"
 
 // The headline's last phrase gets the cobalt-to-teal treatment: cobalt is
 // Business, teal is Home, and the brand sits across both.
-const HIGHLIGHT = "in order."
+const HIGHLIGHT = "in order"
 
 // The front door: one headline, one line of what we are, one action. The
 // action is the first Clear Path question, so picking what matters is the

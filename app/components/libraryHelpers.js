@@ -72,7 +72,7 @@ export function entryMetadata(entry) {
 // missing or draft entry, so an image route never throws.
 export const SITE_OG_CARD = {
   eyebrow: SITE.kicker,
-  title: SITE.tagline,
+  title: SITE.tagline.replace(/\.$/, ""),
   line: "The independent field guide to living and working securely alongside AI, for households and small businesses.",
   tone: "home",
 }

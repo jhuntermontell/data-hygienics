@@ -12,6 +12,12 @@ function getServiceSupabase() {
   return createClient(url, key)
 }
 
+// Membership needs nothing here: getActivePriceToPlan() maps every Home price
+// (founding included) to 'member_home' and every Business price to
+// 'member_business', so checkout.session.completed and
+// customer.subscription.updated store the door as the plan value. The `door`
+// key the checkout route puts on session and subscription metadata is for
+// the Stripe dashboard only and is not stored.
 function planForPriceId(priceId) {
   return getActivePriceToPlan()[priceId] || 'free'
 }
@@ -128,8 +134,12 @@ export async function POST(request) {
             (subscription.plan && subscription.plan.id) ||
             null
           const plan = planForPriceId(priceId)
-          const periodEnd = subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000).toISOString()
+          // Stripe API 2025-03+ moved current_period_end onto the subscription
+          // items; older API versions keep it on the subscription. Read both.
+          const periodEndRaw =
+            subscription.items?.data?.[0]?.current_period_end || subscription.current_period_end
+          const periodEnd = periodEndRaw
+            ? new Date(periodEndRaw * 1000).toISOString()
             : null
           // Per-seat billing: Agency Plan subscribers carry a quantity that
           // determines their client cap. Other plans are always quantity 1.
@@ -291,8 +301,8 @@ export async function POST(request) {
           stripe_price_id: priceId,
           plan,
           status: subscription.status,
-          current_period_end: subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000).toISOString()
+          current_period_end: (subscription.items?.data?.[0]?.current_period_end || subscription.current_period_end)
+            ? new Date((subscription.items?.data?.[0]?.current_period_end || subscription.current_period_end) * 1000).toISOString()
             : null,
           quantity,
           updated_at: new Date().toISOString(),
@@ -396,9 +406,10 @@ export async function POST(request) {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object
-        const subId = typeof invoice.subscription === 'string'
-          ? invoice.subscription
-          : invoice.subscription?.id
+        // Newer Stripe API versions put the subscription under
+        // invoice.parent.subscription_details; older ones on invoice.subscription.
+        const subRef = invoice.subscription ?? invoice.parent?.subscription_details?.subscription
+        const subId = typeof subRef === 'string' ? subRef : subRef?.id
 
         if (!subId) break
 

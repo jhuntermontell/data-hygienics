@@ -60,7 +60,7 @@ export default function sitemap() {
     priority: 0.6,
   }))
 
-  // "Is this real?" verdicts (lib/content/verdicts) and the public step pages
+  // Threat Check verdicts (lib/content/verdicts) and the public step pages
   // (/steps/<id>, one per Clear Path step across both audiences).
   const verdictPages = verdicts.map((entry) => ({
     url: `${baseUrl}${hrefFor(entry)}`,

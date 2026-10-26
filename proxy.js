@@ -12,6 +12,7 @@ const PROTECTED_ROUTES = [
   "/tools/cyber-audit/results",
   "/tools/policies",
   "/tools/ir-plan",
+  "/tools/ask",
 ]
 
 export async function proxy(request) {
