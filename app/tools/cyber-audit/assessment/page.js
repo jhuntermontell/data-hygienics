@@ -8,7 +8,6 @@ import { getQuestionsForIndustry } from "@/lib/questions"
 import { calculateTotalScore, calculateSectionScores } from "@/lib/cyber-audit/scoring"
 import { getActiveDrillDowns } from "@/lib/cyber-audit/drill-downs"
 import { getSubscription } from "@/lib/stripe/subscription"
-import { isSubscriptionPaid } from "@/lib/stripe/entitlement"
 import Navbar from "@/app/components/Navbar"
 import ProgressBar from "../components/ProgressBar"
 import QuestionRenderer from "../components/QuestionRenderer"
@@ -87,14 +86,12 @@ export default function AssessmentPage() {
         // re-check.
         setIsPaid(false)
       } else {
-        // A user counts as "paid" for assessment purposes if they have an
-        // active paid subscription OR they bought the one-time Assessment
-        // Bundle. Without the bundle check a bundle buyer would be stuck
-        // at the 3-question free-tier wall.
-        const hasBundle = (subData.purchases || []).some(
-          (p) => p.purchase_type === "assessment_bundle"
-        )
-        setIsPaid(isSubscriptionPaid(subData.subscription) || hasBundle)
+        // access is the merged view from getPlanAccess: paid subscription or
+        // promo plan, one-time purchases (Documentation Pack, legacy
+        // Assessment Bundle) and the admin override. Checking the
+        // subscription row alone left Documentation Pack buyers, promo users
+        // and admins stuck at the 3-question free-tier wall.
+        setIsPaid(subData.access?.canTakeAssessment === true)
       }
       setSubLoading(false)
 
@@ -217,9 +214,8 @@ export default function AssessmentPage() {
   }
 
   // Immediate persist for one (questionKey, answer) pair. Returns the
-  // Supabase result so callers can check for errors. Always clears its
-  // own promise out of savePromisesRef in `finally` so a retry gets a
-  // fresh slot instead of awaiting the same already-rejected promise.
+  // Supabase result so callers can check for errors. Never rejects. Callers
+  // go through startSave, which serializes saves per key.
   const doSave = useCallback(
     async (questionKey, answer) => {
       if (!assessmentId) return { error: null }
@@ -279,9 +275,29 @@ export default function AssessmentPage() {
         setSaveError("Answer could not be saved. Please try again.")
         setSaveStatus("error")
         return { error: err }
-      } finally {
-        // Always clear this key's in-flight slot so a retry can run.
-        savePromisesRef.current.delete(questionKey)
+      }
+    },
+    [assessmentId, sections, supabase]
+  )
+
+  // Save the latest answer for questionKey. Saves for one key run one at a
+  // time, each queued behind the previous one, so two upserts for the same
+  // question never race and the newest answer always lands last. A queued
+  // save that has been superseded skips its write, since the newer save
+  // will send the same latest answer. savePromisesRef holds the newest save
+  // per key, and a settled save removes its entry only if it is still the
+  // newest, so flushPendingSaves can always find a save that is pending.
+  const startSave = useCallback(
+    (questionKey) => {
+      const previous = savePromisesRef.current.get(questionKey) || Promise.resolve()
+      const run = () =>
+        savePromisesRef.current.get(questionKey) === promise
+          ? doSave(questionKey, latestAnswerRef.current[questionKey])
+          : { error: null }
+      const promise = previous.then(run, run).finally(() => {
+        if (savePromisesRef.current.get(questionKey) === promise) {
+          savePromisesRef.current.delete(questionKey)
+        }
         // Update the top-level status pill only once everything has settled.
         if (
           savePromisesRef.current.size === 0 &&
@@ -291,9 +307,11 @@ export default function AssessmentPage() {
           setSaveStatus("saved")
           setSaveError(null)
         }
-      }
+      })
+      savePromisesRef.current.set(questionKey, promise)
+      return promise
     },
-    [assessmentId, sections, supabase]
+    [doSave]
   )
 
   // Schedule a debounced save. Tracks the timer by key so we can flush
@@ -308,12 +326,11 @@ export default function AssessmentPage() {
       setSaveStatus("saving")
       const timerId = setTimeout(() => {
         pendingSavesRef.current.delete(questionKey)
-        const promise = doSave(questionKey, latestAnswerRef.current[questionKey])
-        savePromisesRef.current.set(questionKey, promise)
+        startSave(questionKey)
       }, 300)
       pendingSavesRef.current.set(questionKey, timerId)
     },
-    [assessmentId, doSave]
+    [assessmentId, startSave]
   )
 
   // Fire every pending debounced save immediately, then wait for all
@@ -325,30 +342,37 @@ export default function AssessmentPage() {
     // Phase 1: drain pending debounce timers
     for (const [key, timerId] of pendingSavesRef.current.entries()) {
       clearTimeout(timerId)
-      const promise = doSave(key, latestAnswerRef.current[key])
-      savePromisesRef.current.set(key, promise)
+      startSave(key)
     }
     pendingSavesRef.current.clear()
 
     // Phase 2: retry any previously errored keys that aren't already
-    // in flight. doSave clears its slot in `finally`, so a key is
-    // "errored but not in flight" when it's in erroredKeysRef and NOT
-    // in savePromisesRef. We fire a fresh save for each and add it
-    // to the wait list.
+    // in flight. A settled save clears its slot, so a key is "errored but
+    // not in flight" when it's in erroredKeysRef and NOT in
+    // savePromisesRef. We fire a fresh save for each.
     for (const key of Array.from(erroredKeysRef.current)) {
       if (savePromisesRef.current.has(key)) continue
-      const answer = latestAnswerRef.current[key]
-      if (answer === undefined) continue
-      const promise = doSave(key, answer)
-      savePromisesRef.current.set(key, promise)
+      if (latestAnswerRef.current[key] === undefined) continue
+      startSave(key)
     }
 
-    // Phase 3: wait for every in-flight save to resolve (success or error)
-    const results = await Promise.all(
-      Array.from(savePromisesRef.current.values())
-    )
-    return results.every((r) => !r?.error)
-  }, [doSave])
+    // Phase 3: wait for the newest save of every key to resolve (success
+    // or error). A save started while we wait (the user changed an answer
+    // again) replaces its key's entry, so loop until no unseen save is left
+    // and judge each key by its newest result.
+    const seen = new Set()
+    const latestResults = new Map()
+    for (;;) {
+      const fresh = Array.from(savePromisesRef.current.entries()).filter(
+        ([, promise]) => !seen.has(promise)
+      )
+      if (fresh.length === 0) break
+      fresh.forEach(([, promise]) => seen.add(promise))
+      const results = await Promise.all(fresh.map(([, promise]) => promise))
+      fresh.forEach(([key], i) => latestResults.set(key, results[i]))
+    }
+    return Array.from(latestResults.values()).every((r) => !r?.error)
+  }, [startSave])
 
   const handleAnswer = (questionKey, value) => {
     setAnswers((prev) => ({ ...prev, [questionKey]: value }))
