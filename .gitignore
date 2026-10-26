@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Stripe live webhook signing secret (written by scripts/stripe-setup.mjs --live)
+.stripe-live-webhook-secret

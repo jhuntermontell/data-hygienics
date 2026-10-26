@@ -144,7 +144,7 @@ Goal: the join moments after value, and the member's own screens.
 
 Owner, in order:
 1. Apply both Supabase migrations in production.
-2. Create the live catalog: run `scripts/stripe-setup-test.mjs` logic against the live key (the script refuses live keys by design; the owner either creates the seven prices in the live dashboard with the same lookup keys or the lead ships a `--live` flag that requires typing the word LIVE), copy the IDs into `LIVE_PRICES`, set `STRIPE_MODE=live` and the live keys in Vercel, set `FOUNDING_UNTIL` to launch day plus 90.
+2. Create the live catalog: put the live key in `.env.local` as `STRIPE_LIVE_SECRET_KEY` and run `node scripts/stripe-setup.mjs --live` (requires typing the word LIVE; also covers steps 3, 5 and 6 below, except setting `STRIPE_WEBHOOK_SECRET` and making the portal configuration the account default, which the API cannot do), copy the IDs into `LIVE_PRICES`, set `STRIPE_MODE=live` and the live keys in Vercel, set `FOUNDING_UNTIL` to launch day plus 90.
 3. Register the live webhook endpoint for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed` and set `STRIPE_WEBHOOK_SECRET`.
 4. Privacy page: the sentence about questions to Ask being processed by Anthropic and not stored by us, plus the membership billing data line.
 5. Billing portal configured in the Stripe dashboard with cancellation enabled (two clicks) and the portal link verified from the dashboard.
