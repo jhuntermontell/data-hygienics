@@ -1,0 +1,5 @@
+Contact: mailto:dhygienics@gmail.com
+Contact: https://datahygienics.com/contact
+Expires: 2027-10-26T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://datahygienics.com/.well-known/security.txt

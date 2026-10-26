@@ -6,7 +6,6 @@ import {
   ArrowRight,
   CalendarCheck,
   CheckCircle2,
-  Clock,
   CloudUpload,
   Download,
   Flag,
@@ -17,9 +16,9 @@ import {
   Trash2,
   Users,
 } from "lucide-react"
-import StepCard, { VIEWS } from "./StepCard"
+import StepCard, { StepTiming, VIEWS } from "./StepCard"
 import { HORIZONS, HORIZON_ORDER, HORIZON_STYLES, longViewYear } from "@/lib/horizons"
-import { INDUSTRIES, STATUS, minutesFor, stageProgress, thisWeek, whereYouStand } from "@/lib/path"
+import { INDUSTRIES, STATUS, stageProgress, thisWeek, whereYouStand } from "@/lib/path"
 
 const HANDLED = (mark) => Boolean(STATUS[mark?.status]?.handled)
 
@@ -30,9 +29,12 @@ function joinList(items) {
 
 // The reveal: a field of dots, one per step we publish, gets the brand's
 // clean cut; what doesn't fit fades and the rest is the path. Reduced motion
-// renders the end state directly.
-function Reveal({ path, total, mirror, headStart }) {
+// renders the end state directly. The badge is endowed progress: steps
+// already handled when the path appeared (quiz "already in place" answers,
+// and a first step done before the questions), counted once, at the reveal.
+function Reveal({ path, total, mirror, headStart, progress }) {
   const reduce = useReducedMotion()
+  const [doneBefore] = useState(() => path.steps.filter((s) => HANDLED(progress[s.id])).length)
   const kept = new Set(path.steps.map((s) => s.id))
   const dots = path.allIds
   return (
@@ -51,6 +53,12 @@ function Reveal({ path, total, mirror, headStart }) {
               ? ` You're not starting from zero: you said ${headStart === 1 ? "one is" : `${headStart} are`} already in place.`
               : ""}
           </p>
+          {doneBefore > 0 ? (
+            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#0F766E] px-3 py-1 text-sm font-semibold text-white">
+              <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+              {doneBefore} of {path.steps.length} done before you started
+            </p>
+          ) : null}
         </div>
         <div className="grid grid-cols-10 gap-1.5 w-full max-w-[16rem] lg:w-64" role="img" aria-label={`${path.steps.length} of ${total} steps kept for your path`}>
           {dots.map((id, i) => {
@@ -96,10 +104,7 @@ function ThisWeek({ picks, onStart, progress, answers }) {
             <p className="text-xs font-semibold text-[#0F766E]">Step {i + 1}</p>
             <p className="mt-1 text-[15px] font-semibold leading-snug text-[#0F172A] flex-1">{step.title}</p>
             <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#64748B]">
-              <span className="inline-flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-                About {minutesFor(step, answers)} min
-              </span>
+              <StepTiming step={step} answers={answers} />
               {step.involves ? (
                 <span className="inline-flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" aria-hidden="true" />
@@ -437,7 +442,24 @@ export default function PathView({
   const [filter, setFilter] = useState("all")
   const [mode, setMode] = useState("today")
   const [endState, setEndState] = useState(null)
+  // The step most recently marked done, for the done ritual.
+  const [ritualId, setRitualId] = useState(null)
   const knowledge = path.answers.knowledge
+
+  const mark = (id, status) => {
+    onMark(id, status)
+    const done = status === "done" || status === "checked"
+    setRitualId((current) => (done ? id : current === id ? null : current))
+  }
+  // "Now true: {after}" when the step has one; otherwise the stage's end
+  // state, framed as one step closer. Once the stage is complete its own
+  // "What's different now" box says it, so the card stays quiet.
+  const ritualFor = (step, stage, complete) => {
+    if (step.id !== ritualId) return null
+    if (step.after) return { label: "Now true", text: step.after }
+    if (complete || !stage.milestone) return null
+    return { label: "One step closer to this", text: stage.milestone }
+  }
 
   const picks = useMemo(() => thisWeek(path, progress), [path, progress])
   const stand = useMemo(() => whereYouStand(path, progress), [path, progress])
@@ -473,7 +495,7 @@ export default function PathView({
 
   return (
     <div className="space-y-8">
-      {fresh ? <Reveal path={path} total={path.allIds.length} mirror={mirror} headStart={headStart} /> : null}
+      {fresh ? <Reveal path={path} total={path.allIds.length} mirror={mirror} headStart={headStart} progress={progress} /> : null}
 
       <ThisWeek picks={picks} onStart={openStep} progress={progress} answers={path.answers} />
 
@@ -547,7 +569,13 @@ export default function PathView({
                       {handled} of {total} done
                     </p>
                   </div>
-                  {stage.summary ? <p className="mt-1 text-[15px] leading-relaxed text-[#475569]">{stage.summary}</p> : null}
+                  {stage.milestone ? (
+                    <p className="mt-1 text-[15px] leading-relaxed text-[#0F172A]">
+                      <span className="font-semibold">After this stage: </span>
+                      {stage.milestone}
+                    </p>
+                  ) : null}
+                  {stage.summary ? <p className="mt-1 text-sm leading-relaxed text-[#475569]">{stage.summary}</p> : null}
                   {stage.id === "industry" && industry ? <IndustryBrief industry={industry} /> : null}
                   <ul className="mt-4 space-y-3 list-none p-0 m-0">
                     {steps.map((step) => (
@@ -559,7 +587,9 @@ export default function PathView({
                           knowledge={knowledge}
                           answers={path.answers}
                           links={links}
-                          onMark={onMark}
+                          onMark={mark}
+                          audience={path.audience}
+                          ritual={ritualFor(step, stage, complete)}
                           open={openIds.has(step.id)}
                           onToggle={() => toggle(step.id)}
                           highlighted={highlighted.has(step.id)}

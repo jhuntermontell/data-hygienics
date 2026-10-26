@@ -41,8 +41,8 @@ export default function HeroScoreGauge() {
   // cancel them if the component unmounts before the animation finishes.
   // Without this, unmounting during the 400-800ms tail would fire
   // setShowMetrics on an unmounted component and leak memory across route
-  // transitions (HeroScoreGauge lives on the homepage, which users bounce
-  // away from frequently).
+  // transitions (HeroScoreGauge lives on the Business hub, which users
+  // bounce away from frequently).
   const metricTimersRef = useRef([])
 
   const animate = useCallback((timestamp) => {

@@ -1,9 +1,22 @@
 "use client"
 import { useId, useState } from "react"
 import Link from "next/link"
-import { Check, ChevronDown, Clock, Copy, CornerDownRight, Mail, RotateCcw, ShieldCheck, Users } from "lucide-react"
+import {
+  Check,
+  ChevronDown,
+  Clock,
+  Copy,
+  CornerDownRight,
+  Mail,
+  MessageSquareQuote,
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react"
 import { HORIZONS, HORIZON_STYLES } from "@/lib/horizons"
 import { STATUS, matchesWhen, minutesFor } from "@/lib/path"
+import { EVENTS, track } from "@/lib/analytics"
 
 // One Clear Path step. Written once (lib/content/path/*), told four ways:
 //   do      numbered actions and a check (always present)
@@ -18,6 +31,10 @@ import { STATUS, matchesWhen, minutesFor } from "@/lib/path"
 // The card follows the brand's three faces: Why now (navy, Judgment), your
 // status (cobalt, Clarity), Do it (teal, Action). Status is always a label,
 // never color alone.
+//
+// Optional step fields: `after` (what is true once it's done) opens the body;
+// `sayThis` (the if-then line) follows the actions; `cadence` overrides the
+// "Set once" or "Ongoing" label that otherwise comes from `type`.
 
 export const VIEWS = [
   { key: "do", label: "Steps" },
@@ -33,12 +50,77 @@ function resolveView(step, view) {
   return FALLBACK[view].find((v) => v === "do" || step[v]) || "do"
 }
 
+// "Set once" or "Ongoing". Derived from `type`, so no step data has to
+// change for the label to appear; `cadence: "once" | "ongoing"` overrides it.
+const CADENCE_BY_TYPE = { setup: "once", conversation: "once", decision: "once", habit: "ongoing", rehearsal: "ongoing" }
+const CADENCE_LABELS = { once: "Set once", ongoing: "Ongoing" }
+
+export function cadenceFor(step) {
+  const key = CADENCE_LABELS[step.cadence] ? step.cadence : CADENCE_BY_TYPE[step.type]
+  return CADENCE_LABELS[key] || null
+}
+
+// The kind of step, shown only where the cadence label doesn't already say it.
 const TYPE_LABELS = {
-  setup: "Set up once",
-  habit: "Habit",
   conversation: "A conversation",
   rehearsal: "Practice run",
   decision: "A decision",
+}
+
+// Minutes and cadence, one label: "About 15 min · Set once".
+export function StepTiming({ step, answers, className = "" }) {
+  const cadence = cadenceFor(step)
+  const handoff = answers?.it === "provider" && step.handoff
+  return (
+    <span className={`inline-flex items-center gap-1 ${className}`}>
+      <Clock className="w-3.5 h-3.5" aria-hidden="true" />
+      About {minutesFor(step, answers)} min{handoff ? " to hand off" : ""}
+      {cadence ? <span className="font-semibold text-[#334155]">· {cadence}</span> : null}
+    </span>
+  )
+}
+
+// "After this:" the end state, the motivation line that opens a step.
+export function AfterLine({ step }) {
+  if (!step.after) return null
+  return (
+    <p className="text-[15px] leading-relaxed text-[#0F172A]">
+      <span className="font-semibold">After this: </span>
+      {step.after}
+    </p>
+  )
+}
+
+// "Say this:" the if-then line, ready to say aloud or write on the card.
+export function SayThis({ step }) {
+  if (!step.sayThis) return null
+  return (
+    <p className="flex gap-2 rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-3 text-sm leading-relaxed text-[#1E3A8A]">
+      <MessageSquareQuote className="w-4 h-4 mt-0.5 shrink-0 text-[#1D4ED8]" aria-hidden="true" />
+      <span>
+        <span className="font-semibold text-[#0F172A]">Say this: </span>
+        &ldquo;{step.sayThis}&rdquo;
+      </span>
+    </p>
+  )
+}
+
+// The done ritual: one calm sentence naming what is now true. The live
+// region stays mounted so the sentence is announced when it appears.
+export function DoneRitual({ ritual }) {
+  return (
+    <div role="status">
+      {ritual ? (
+        <p className="mt-3 flex gap-2 rounded-xl border border-[#0F8F83]/30 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
+          <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
+          <span>
+            <span className="font-semibold">{ritual.label}: </span>
+            {ritual.text}
+          </span>
+        </p>
+      ) : null}
+    </div>
+  )
 }
 
 function StatusChip({ mark }) {
@@ -66,7 +148,11 @@ function StatusChip({ mark }) {
   )
 }
 
-function Actions({ step, mark, onMark }) {
+function Actions({ step, mark, onMark: setMark, audience }) {
+  const onMark = (id, status) => {
+    if (status === "done" || status === "checked") track(EVENTS.stepDone, { audience, id, status })
+    setMark(id, status)
+  }
   const button =
     "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
   if (mark?.status && mark.status !== "skipped") {
@@ -159,7 +245,7 @@ function Handoff({ text }) {
 
 // Actions can carry a `when` (e.g. Microsoft 365 vs Google Workspace
 // settings); only the ones that match the answers are shown and numbered.
-function DoList({ step, answers }) {
+export function DoList({ step, answers }) {
   const items = (Array.isArray(step.do) ? step.do : []).filter((item) => typeof item === "string" || matchesWhen(item.when, answers))
   return (
     <ol className="space-y-2 list-none p-0 m-0">
@@ -192,6 +278,8 @@ export default function StepCard({
   dimmed,
   bestAfter = [],
   onOpenStep,
+  audience,
+  ritual,
 }) {
   const id = useId()
   const [localView, setLocalView] = useState(null)
@@ -232,10 +320,7 @@ export default function StepCard({
               {step.title}
             </span>
             <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-[#64748B] font-medium">
-              <span className="inline-flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" aria-hidden="true" />
-                About {minutesFor(step, answers)} min{answers?.it === "provider" && step.handoff ? " to hand off" : ""}
-              </span>
+              <StepTiming step={step} answers={answers} />
               <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold ${HORIZON_STYLES[horizon.key].chip}`}>
                 <span aria-hidden="true" className={`w-1.5 h-1.5 rounded-full ${HORIZON_STYLES[horizon.key].dot}`} />
                 {horizon.label}
@@ -253,6 +338,7 @@ export default function StepCard({
 
       <div id={`${id}-body`} hidden={!open} className="px-4 sm:px-5 pb-5">
         <div className="border-t border-[#F1F5F9] pt-4 space-y-4">
+          <AfterLine step={step} />
           <p className="text-[15px] leading-relaxed text-[#0F172A]">
             <span className="font-semibold">Why now: </span>
             {step.why}
@@ -333,6 +419,8 @@ export default function StepCard({
             </div>
           </div>
 
+          <SayThis step={step} />
+
           {step.check ? (
             <p className="flex gap-2 rounded-xl border border-[#0F8F83]/25 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
@@ -389,7 +477,8 @@ export default function StepCard({
           ) : null}
 
           <div className="pt-1">
-            <Actions step={step} mark={mark} onMark={onMark} />
+            <Actions step={step} mark={mark} onMark={onMark} audience={audience} />
+            <DoneRitual ritual={handled ? ritual : null} />
           </div>
         </div>
       </div>

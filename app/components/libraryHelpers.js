@@ -2,7 +2,7 @@
 // explainers, toolkit, glossary). Rendering lives in the components; this
 // file only shapes metadata and citation numbering.
 import { SITE } from "@/lib/site"
-import { hrefFor, splitCitations, stripCitations } from "@/lib/content"
+import { hrefFor, splitCitations, stripCitations, KIND_LABELS } from "@/lib/content"
 import { getSource } from "@/lib/sources"
 
 const OG_IMAGE = {
@@ -12,10 +12,17 @@ const OG_IMAGE = {
   alt: "Data Hygienics",
 }
 
+// Kinds whose route has its own opengraph-image.js (guides, threats and
+// industry briefs, explainers). Other entries share the site card.
+const ROUTE_IMAGE_KINDS = new Set(["guide", "threat", "industry-brief", "explainer"])
+
 // Page metadata with canonical, OpenGraph and Twitter set together, so a
-// page never inherits the root layout's old card copy.
-export function libraryMetadata({ title, description, path, type = "website", publishedTime, modifiedTime }) {
+// page never inherits the root layout's old card copy. Pass `image` (the
+// route's own `${path}/opengraph-image`) when the route has one; otherwise
+// the static site card is used.
+export function libraryMetadata({ title, description, path, type = "website", publishedTime, modifiedTime, image }) {
   const url = `${SITE.url}${path}`
+  const ogImage = image ? { ...OG_IMAGE, url: image, alt: title } : OG_IMAGE
   return {
     title,
     description,
@@ -27,13 +34,13 @@ export function libraryMetadata({ title, description, path, type = "website", pu
       url,
       type,
       ...(type === "article" ? { publishedTime, modifiedTime } : {}),
-      images: [OG_IMAGE],
+      images: [ogImage],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [OG_IMAGE.url],
+      images: [ogImage.url],
     },
   }
 }
@@ -49,14 +56,49 @@ export function entryDescription(entry) {
 }
 
 export function entryMetadata(entry) {
+  const path = hrefFor(entry)
   return libraryMetadata({
     title: entryTitle(entry),
     description: entryDescription(entry),
-    path: hrefFor(entry),
+    path,
+    image: ROUTE_IMAGE_KINDS.has(entry.kind) ? `${path}/opengraph-image` : undefined,
     type: "article",
     publishedTime: entry.datePublished,
     modifiedTime: entry.lastReviewed ? `${entry.lastReviewed}-01` : undefined,
   })
+}
+
+// Open Graph cards (lib/og.js). The site card is the fallback for a
+// missing or draft entry, so an image route never throws.
+export const SITE_OG_CARD = {
+  eyebrow: SITE.kicker,
+  title: SITE.tagline,
+  line: "The independent field guide to living and working securely alongside AI, for households and small businesses.",
+  tone: "home",
+}
+
+// One line for a card: citation markers stripped, cut at a word boundary
+// near `max` characters.
+export function ogLine(text, max = 110) {
+  const plain = stripCitations(text || "")
+  if (plain.length <= max) return plain
+  const cut = plain.slice(0, max - 3)
+  const space = cut.lastIndexOf(" ")
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).replace(/[\s,;:.]+$/, "")}...`
+}
+
+// Card fields for a library entry. Explainers take the sovereignty tone;
+// anything written for home (including both audiences) takes home.
+export function entryOgCard(entry) {
+  if (!entry) return SITE_OG_CARD
+  const tone =
+    entry.kind === "explainer" ? "sovereignty" : entry.audience?.includes("home") || !entry.audience?.length ? "home" : "business"
+  return {
+    eyebrow: KIND_LABELS[entry.kind] || SITE.kicker,
+    title: entry.title,
+    line: ogLine(entry.metaDescription || entry.shortAnswer || entry.tldr),
+    tone,
+  }
 }
 
 // Drop ids that don't resolve in the source registry and renumber, so the

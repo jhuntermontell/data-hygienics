@@ -3,6 +3,8 @@ import { threats } from "@/lib/threats"
 import { guides } from "@/lib/guides"
 import { explainers } from "@/lib/sovereignty"
 import { hrefFor } from "@/lib/content"
+import { verdicts } from "@/lib/verdicts"
+import { allStepParams } from "@/lib/steps"
 
 // Expand a YYYY-MM review month to an ISO Date pinned to day 01 of that
 // month so sitemap lastModified values are stable across rebuilds. Without
@@ -22,8 +24,8 @@ export default function sitemap() {
 
   const staticPages = [
     { url: baseUrl, lastModified: staticReview, changeFrequency: "weekly", priority: 1.0 },
-    { url: `${baseUrl}/start`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${baseUrl}/path`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${baseUrl}/check`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${baseUrl}/steps`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/household`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/business`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/digital-sovereignty`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
@@ -58,5 +60,21 @@ export default function sitemap() {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...contentPages, ...controlPages]
+  // "Is this real?" verdicts (lib/content/verdicts) and the public step pages
+  // (/steps/<id>, one per Clear Path step across both audiences).
+  const verdictPages = verdicts.map((entry) => ({
+    url: `${baseUrl}${hrefFor(entry)}`,
+    lastModified: reviewDate(entry.lastReviewed || "2026-10"),
+    changeFrequency: "monthly",
+    priority: 0.8,
+  }))
+
+  const stepPages = allStepParams().map(({ id }) => ({
+    url: `${baseUrl}/steps/${id}`,
+    lastModified: staticReview,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...verdictPages, ...contentPages, ...stepPages, ...controlPages]
 }

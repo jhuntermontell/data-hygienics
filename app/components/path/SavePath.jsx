@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { ArrowLeft, ArrowRight, Mail, MailCheck } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { loadLocal } from "@/lib/path/storage"
+import { EVENTS, track } from "@/lib/analytics"
 
 const ACCENTS = {
   home: { button: "bg-[#0F766E] hover:bg-[#115E59]", link: "text-[#0F766E]", icon: "text-[#0F8F83]", field: "focus:border-[#0F766E] focus:ring-[#0F766E]/25" },
@@ -90,6 +91,9 @@ export default function SavePath() {
       } else if (otpError) {
         setError(ERRORS.send)
       } else {
+        // A save, not someone opening a path saved elsewhere. Resends count
+        // once: the first link is the decision to save.
+        if (hasPath && !sentTo) track(EVENTS.pathSaved, { audience })
         setSentTo(address)
         holdResend()
       }

@@ -4,7 +4,7 @@ import { glossary } from "@/lib/glossary"
 import { getExplainerBySlug } from "@/lib/sovereignty"
 import { glossaryHref, hrefFor, stripCitations } from "@/lib/content"
 
-// Homepage teaser: the glossary's AI entry and its superintelligence entry
+// Digital Sovereignty hub teaser: the glossary's AI entry and its superintelligence entry
 // side by side, linking to the stance explainer. The terms themselves come
 // from the glossary data (the only place outside the stance piece and
 // SITE.terms where the longer term may appear). Hides if either is missing.

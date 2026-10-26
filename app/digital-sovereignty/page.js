@@ -3,6 +3,7 @@ import { ArrowRight, Briefcase, House, Scale } from "lucide-react"
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import HubPage, { EntryGrid, HubSection, ToolGrid } from "@/app/components/hub/HubPage"
+import GlossaryTeaser from "@/app/components/GlossaryTeaser"
 import { HUBS, hubMetadata } from "@/lib/hubs"
 import { PRINCIPLES, explainers } from "@/lib/sovereignty"
 import { getGuideBySlug } from "@/lib/guides"
@@ -163,6 +164,8 @@ export default function DigitalSovereigntyPage() {
             <ToolGrid tools={featuredTools} />
           </HubSection>
         ) : null}
+
+        <GlossaryTeaser />
 
         {stance ? (
           <HubSection

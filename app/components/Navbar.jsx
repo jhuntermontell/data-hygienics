@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut, ArrowRight } from "lucide-react"
+import { Menu, X, ChevronDown, LayoutDashboard, FileText, ShieldCheck, LogOut, ArrowRight, LifeBuoy } from "lucide-react"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { clearSubscriptionCache } from "@/lib/stripe/subscription"
 import { clearAccountPaths } from "@/lib/path/storage"
@@ -25,6 +25,10 @@ const PRIMARY_DOTS = {
 }
 
 const FOCUSABLE = "a[href], button:not([disabled])"
+
+// The checker door (NAV.door) is set apart from the rest of the bar: the
+// LifeBuoy icon and teal text, on desktop and mobile, signed in or not.
+const DOOR_TEXT = "text-[#0F766E] hover:text-[#115E59]"
 
 function isActive(pathname, href) {
   if (!pathname) return false
@@ -101,7 +105,7 @@ function Dropdown({ id, label, open, onToggle, onClose, align = "left", panelCla
         aria-controls={panelId}
         onClick={onToggle}
         onKeyDown={handleButtonKeyDown}
-        className={`flex items-center gap-1 text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] ${
+        className={`flex items-center gap-1 whitespace-nowrap text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] ${
           open ? "text-[#0F172A] bg-[#F1F5F9]" : "text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
         } ${buttonClassName}`}
       >
@@ -306,7 +310,7 @@ export default function Navbar() {
             : "border-b border-transparent"
         }`}
       >
-        <nav aria-label="Main" className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <nav aria-label="Main" className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2 xl:gap-4">
           <Link href="/" className="flex items-center shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1D4ED8]">
             <Image src="/logo.svg" alt="Data Hygienics" width={919} height={220} loading="eager" unoptimized className="h-9 xl:h-10 w-auto" />
           </Link>
@@ -320,7 +324,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   aria-current={active ? "page" : undefined}
-                  className={`inline-flex items-center gap-2 text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] ${
+                  className={`inline-flex items-center gap-2 whitespace-nowrap text-sm font-medium px-2 xl:px-3 py-2 rounded-lg transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] ${
                     active ? "text-[#0F172A] bg-[#F1F5F9]" : "text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC]"
                   }`}
                 >
@@ -368,8 +372,19 @@ export default function Navbar() {
             </Dropdown>
           </div>
 
-          {/* Desktop right: auth-aware */}
+          {/* Desktop right: the checker door, then auth-aware links */}
           <div className="hidden lg:flex items-center gap-2 shrink-0">
+            <Link
+              href={NAV.door.href}
+              aria-current={isActive(pathname, NAV.door.href) ? "page" : undefined}
+              aria-label={NAV.door.label}
+              title={NAV.door.label}
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2 xl:px-2.5 py-2 xl:py-1.5 rounded-lg border border-[#0F8F83]/30 bg-[#F0FDFA] hover:bg-[#CCFBF1]/60 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${DOOR_TEXT}`}
+            >
+              <LifeBuoy className="w-4 h-4 shrink-0" aria-hidden="true" />
+              {/* Short label on purpose: the bar has no room for a sentence. */}
+              <span className="hidden xl:inline text-sm whitespace-nowrap">{NAV.door.label}</span>
+            </Link>
             {!ready ? (
               <div className="w-44 h-9" />
             ) : user ? (
@@ -417,18 +432,30 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile toggle */}
-          <button
-            ref={mobileToggleRef}
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden -mr-2 p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
-          >
-            {mobileOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
-          </button>
+          {/* Mobile: the checker door stays one tap away, then the menu toggle */}
+          <div className="lg:hidden flex items-center gap-1 -mr-2">
+            <Link
+              href={NAV.door.href}
+              onClick={closeMobile}
+              aria-current={isActive(pathname, NAV.door.href) ? "page" : undefined}
+              aria-label={NAV.door.label}
+              className={`inline-flex items-center gap-1.5 font-semibold px-2.5 py-1.5 rounded-lg border border-[#0F8F83]/30 bg-[#F0FDFA] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${DOOR_TEXT}`}
+            >
+              <LifeBuoy className="w-4 h-4 shrink-0" aria-hidden="true" />
+              <span className="max-[359px]:hidden block max-w-[6rem] text-xs leading-tight text-left">{NAV.door.label}</span>
+            </Link>
+            <button
+              ref={mobileToggleRef}
+              type="button"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-2 rounded-lg text-[#475569] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+            >
+              {mobileOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+            </button>
+          </div>
         </nav>
 
         {/* Mobile drawer: mirrors the desktop structure */}
@@ -439,6 +466,16 @@ export default function Navbar() {
           className="lg:hidden border-t border-[#F1F5F9] bg-white max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain"
         >
           <nav aria-label="Mobile" className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col">
+            <Link
+              href={NAV.door.href}
+              onClick={closeMobile}
+              aria-current={isActive(pathname, NAV.door.href) ? "page" : undefined}
+              className={`flex items-center gap-3 mb-2 px-3 py-3 rounded-xl border border-[#0F8F83]/30 bg-[#F0FDFA] text-base font-semibold ${DOOR_TEXT}`}
+            >
+              <LifeBuoy className="w-5 h-5 shrink-0" aria-hidden="true" />
+              {NAV.door.label}
+              <ArrowRight className="w-4 h-4 ml-auto shrink-0" aria-hidden="true" />
+            </Link>
             <ul className="list-none m-0 p-0">
               {NAV.primary.map((link) => {
                 const active = isActive(pathname, link.href)
