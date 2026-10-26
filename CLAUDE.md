@@ -91,6 +91,10 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 - The AI Acceptable Use Policy is free and featured first in the Policy Library. The IR Planner includes AI scenarios (`deepfake_wire`, `ai_data_leak`) and incident types (`deepfake_fraud`, `ai_data_exposure`).
 - Don't rename stored keys (e.g. IR builder `is_msp`, remediation `mspQuestion`); saved plans and assessments depend on them.
 
+### Member assistant
+
+"Ask Data Hygienics" (`/tools/ask`, `app/components/assistant/AskChat.jsx`, `app/api/assistant`) answers members' questions from the published library only, gated by `canAccessAssistant` (every paid plan and the Documentation Pack). Silo: our published research only, cite the page, "We don't know yet" when it's silent, cybersecurity and digital hygiene only, no outside statistics or vendor pitches, never ask for passwords, codes or account numbers. Logic lives in `lib/assistant/` (relative imports only, so the harness runs in plain Node): `corpus.js` (documents and chunks), `retrieve.js` (BM25), `prompt.js` (frozen `SYSTEM_PROMPT`, cached), `pipeline.js` (shared request shape: `claude-sonnet-5-5`, effort low, `fallbacks: "default"`), `limits.js` (model, caps, prices), `usage.js`. Caps (question length, 40 messages a day, 250,000 tokens a month) live in `limits.js`; usage is counted per member per month in `assistant_usage` (`supabase/migrations/20261027_assistant_usage.sql`), and a missing table fails closed with a 503. Compare models with `node scripts/assistant-eval.mjs` (`--dry` for retrieval only, `--only sonnet|haiku`); reports land in `output/assistant-eval/`.
+
 ## Removed in the 2026-10 pivot (do not reintroduce)
 
 The Agency/MSP plan and its multi-client and branded-report features; the legal industry track; insurance carrier mapping (carrier readiness, proof pack, "insurance-ready" messaging); vendor security scorecards. Generic insurer context ("insurers often ask about this", the `cyber-insurance` control, IR plan insurance contacts) is fine.

@@ -25,6 +25,7 @@ import {
   CreditCard,
   Sparkles,
   X,
+  MessageCircle,
 } from "lucide-react"
 
 const PLAN_LABELS = {
@@ -584,6 +585,16 @@ function DashboardContent() {
               </Link>
             </div>
           </div>
+          <Link
+            href="/tools/ask"
+            className="mt-4 flex items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-5 py-3.5 shadow-sm hover:border-[#1D4ED8]/40 transition-colors"
+          >
+            <MessageCircle className="w-5 h-5 text-[#1D4ED8] shrink-0" />
+            <span className="text-sm text-[#475569] flex-1">
+              <span className="font-bold text-[#0F172A]">Ask Data Hygienics</span>: questions answered from our research, for members.
+            </span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#1D4ED8]" />
+          </Link>
         </motion.div>
 
         {/* Your Reports */}

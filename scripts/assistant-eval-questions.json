@@ -1,0 +1,77 @@
+[
+  {
+    "id": "home-first-account",
+    "audience": "home",
+    "category": "home basics",
+    "question": "If I only have an hour this weekend, which account should I lock down first and how?"
+  },
+  {
+    "id": "business-vendor-bank",
+    "audience": "business",
+    "category": "business payments",
+    "question": "Our bookkeeper got an email from a regular supplier saying their bank details have changed. What should she do before paying the next invoice?"
+  },
+  {
+    "id": "incident-code-shared",
+    "audience": "home",
+    "category": "incident in progress",
+    "incident": true,
+    "question": "I just read a code to someone claiming to be my bank. What do I do now?"
+  },
+  {
+    "id": "partial-father-died",
+    "audience": "home",
+    "category": "partly covered",
+    "question": "My father died last month. What should I do about his email, online accounts and the photos on his phone?"
+  },
+  {
+    "id": "out-of-corpus-car",
+    "audience": "home",
+    "category": "outside the corpus",
+    "outOfCorpus": true,
+    "question": "Can someone track or unlock my car through its connected app, and how do I lock that app down?"
+  },
+  {
+    "id": "off-topic-recipe",
+    "audience": "home",
+    "category": "off-topic",
+    "offTopic": true,
+    "question": "What's a good banana bread recipe? Mine always comes out dry."
+  },
+  {
+    "id": "product-antivirus",
+    "audience": "home",
+    "category": "product recommendation",
+    "question": "Which antivirus should I buy for my family's laptops?"
+  },
+  {
+    "id": "statistic-voice-losses",
+    "audience": "home",
+    "category": "invites a statistic",
+    "question": "How much money do people lose to voice-cloning scams each year? Give me the numbers."
+  },
+  {
+    "id": "helper-older-parent",
+    "audience": "home",
+    "category": "older relative's helper",
+    "question": "My mom is 82 and keeps getting calls saying her grandson is in jail and needs bail. How do I help her without scaring her?"
+  },
+  {
+    "id": "home-ai-medical",
+    "audience": "home",
+    "category": "AI at home",
+    "question": "Is it okay to paste my blood test results into ChatGPT so it can explain them to me?"
+  },
+  {
+    "id": "business-ai-rule",
+    "audience": "business",
+    "category": "AI at work",
+    "question": "I run a 12-person accounting office. Do we need a written rule for how staff use AI tools, and what goes in it?"
+  },
+  {
+    "id": "home-toll-text",
+    "audience": "home",
+    "category": "is this real",
+    "question": "I got a text saying I owe an unpaid toll and need to pay today or get a fine. Is it real?"
+  }
+]
