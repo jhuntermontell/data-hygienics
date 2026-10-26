@@ -78,6 +78,18 @@ function getFirstName(profile, user) {
   return "there"
 }
 
+// The Documentation Pack is a one-time purchase, so its owners stay on plan
+// "free". The welcome banner and plan card describe the purchase instead.
+const DOCS_PACK_LABEL = "Documentation Pack"
+const DOCS_PACK_FEATURES = [
+  "Full assessment with downloadable reports",
+  "All 9 policies",
+  "Incident response plan",
+]
+
+const hasDocsPack = (purchases) =>
+  (purchases || []).some((p) => p.purchase_type === "docs_pack")
+
 export default function DashboardPage() {
   return (
     <Suspense fallback={
@@ -123,6 +135,9 @@ function DashboardContent() {
   const purchases = sub.purchases
   const isPaid = plan !== "free"
   const isPromo = sub.isPromo
+  const ownsDocsPack = !isPaid && hasDocsPack(purchases)
+  const planLabel = ownsDocsPack ? DOCS_PACK_LABEL : PLAN_LABELS[plan]
+  const planFeatures = ownsDocsPack ? DOCS_PACK_FEATURES : PLAN_FEATURES[plan]
 
   useEffect(() => {
     // Lifecycle flag + tracked timeout id so the welcome polling loop can
@@ -194,20 +209,25 @@ function DashboardContent() {
           }
         }
 
+        // What the checkout webhook grants. A subscription moves the plan
+        // off "free"; a one-time Documentation Pack (checkout=payment)
+        // leaves the plan at "free" and adds a docs_pack purchase instead.
+        const isWelcome = searchParams.get("welcome") === "true"
+        const checkoutLanded = (s) =>
+          searchParams.get("checkout") === "payment"
+            ? hasDocsPack(s.purchases)
+            : s.plan !== "free"
+
         // Show welcome banner if returning from payment
-        if (searchParams.get("welcome") === "true" && subData.plan !== "free") {
+        if (isWelcome && checkoutLanded(subData)) {
           setShowWelcome(true)
         }
 
-        // Welcome flow but plan is still free → the webhook hasn't landed
-        // yet. Poll Supabase (bypassing the cache) until we see a paid
-        // plan or until we hit a 20-second cap. Tracked via cancelled +
+        // Welcome flow but the purchase isn't visible yet → the webhook
+        // hasn't landed. Poll Supabase (bypassing the cache) until it is
+        // or until we hit a 20-second cap. Tracked via cancelled +
         // pollTimeoutId so unmount cleanly stops the loop.
-        if (
-          searchParams.get("welcome") === "true" &&
-          subData.plan === "free" &&
-          !subData.entitlementUnknown
-        ) {
+        if (isWelcome && !checkoutLanded(subData) && !subData.entitlementUnknown) {
           setPendingSync(true)
           let attempts = 0
           const maxAttempts = 10
@@ -219,7 +239,10 @@ function DashboardContent() {
               skipCache: true,
             })
             if (cancelled) return
-            if (fresh.plan && fresh.plan !== "free") {
+            if (checkoutLanded(fresh)) {
+              // The initial load cached the pre-webhook state; drop it so
+              // the assessment, policy and IR pages read the new access.
+              clearSubscriptionCache()
               setSub(fresh)
               if (fresh.access?.canAccessAssistant) loadAskUsage(session.access_token)
               setShowWelcome(true)
@@ -322,7 +345,7 @@ function DashboardContent() {
             <div className="w-5 h-5 border-2 border-[#1D4ED8]/30 border-t-[#1D4ED8] rounded-full animate-spin shrink-0" />
             <div>
               <p className="text-sm font-semibold text-[#0F172A]">
-                Activating your subscription...
+                Activating your purchase...
               </p>
               <p className="text-xs text-[#475569]">
                 Stripe is processing your payment. This usually takes just a few seconds.
@@ -350,11 +373,11 @@ function DashboardContent() {
                 <Sparkles className="w-5 h-5 text-[#1D4ED8] mt-0.5 shrink-0" />
                 <div>
                   <h3 className="text-sm font-bold text-[#0F172A] mb-2">
-                    Welcome to {PLAN_LABELS[plan] || "your plan"}!
+                    Welcome to {planLabel || "your plan"}!
                   </h3>
                   <p className="text-xs text-[#475569] mb-2">Here&apos;s what you can do now:</p>
                   <ul className="space-y-1">
-                    {(PLAN_FEATURES[plan] || []).map((f) => (
+                    {(planFeatures || []).map((f) => (
                       <li key={f} className="flex items-center gap-2 text-xs text-[#475569]">
                         <CheckCircle2 className="w-3.5 h-3.5 text-[#059669] shrink-0" />
                         {f}
@@ -474,6 +497,27 @@ function DashboardContent() {
                 </div>
               </div>
             </>
+          ) : ownsDocsPack ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-[#0F172A]">
+                  {DOCS_PACK_LABEL}
+                  <span className="ml-2 text-[10px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">
+                    Owned
+                  </span>
+                </p>
+                <p className="text-xs text-[#94A3B8] mt-1">
+                  One-time purchase, no renewal
+                </p>
+              </div>
+              <Link href="/pricing">
+                <Button size="sm" variant="outline">
+                  <span className="flex items-center gap-2">
+                    Add Ongoing Protection <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </Button>
+              </Link>
+            </div>
           ) : (
             <div className="flex items-center justify-between">
               <div>

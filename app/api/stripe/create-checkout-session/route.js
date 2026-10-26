@@ -209,10 +209,13 @@ export async function POST(request) {
     // Home members land back on their Path; Business members and
     // Documentation Pack buyers land on the dashboard as before.
     const origin = new URL(request.url).origin
+    // checkout=<mode> tells the dashboard what the webhook will grant: a
+    // subscription changes the plan, a one-time payment (Documentation
+    // Pack) adds a purchase row and leaves the plan at "free".
     const success_url =
       door === 'home'
         ? `${origin}/path/home?joined=1`
-        : `${origin}/tools/cyber-audit/dashboard?welcome=true`
+        : `${origin}/tools/cyber-audit/dashboard?welcome=true&checkout=${mode}`
     const cancel_url = `${origin}/pricing?canceled=1`
 
     // ----- Build session params. supabase_user_id is the LAST field set so
