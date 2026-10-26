@@ -39,7 +39,9 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 ## Site map
 
 - `/` homepage, the Clear Path front door: "What would you hate to lose?" chips (`#start`, `app/components/FrontDoor.jsx`), then our promise, how the Path works, and the three doors. Hubs `/household`, `/business`, `/digital-sovereignty`
-- Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer)
+- "Is this real?": `/check` (the grid of verdict chips) and `/check/[slug]` (one verdict per message type, with a share card and a Path chip). The navbar door `NAV.door` points here on every page.
+- Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer and shows a provisional first step before any question, `app/components/path/FirstStep.jsx`)
+- Step pages: `/steps` and `/steps/[id]`, one indexable public page per Path step across both audiences (`lib/steps.js`, `app/components/steps/StepArticle.jsx`). Step ids are public URLs now: never rename one.
 - Research library: `/threats`, `/threats/[slug]`, `/guides`, `/guides/[slug]`, `/digital-sovereignty/[slug]` (explainers), `/toolkit`, `/glossary`, `/controls`, `/controls/[slug]`
 - Business tools: `/tools`, `/tools/cyber-audit/*`, `/tools/policies/*`, `/tools/ir-plan/*`, `/pricing`
 - Company: `/about`, `/how-it-works` ("How we work"), `/contact`, `/privacy`, `/terms`
@@ -49,11 +51,11 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 
 All research content is pure-data JS modules under `lib/content/` (import-free so `scripts/validate-content.mjs` can load them in Node):
 
-- `lib/content/threats/<slug>.js`, `guides/<slug>.js`, `explainers/<slug>.js`: one entry per file, `export default { kind, ... }`
+- `lib/content/threats/<slug>.js`, `guides/<slug>.js`, `explainers/<slug>.js`, `verdicts/<slug>.js`: one entry per file, `export default { kind, ... }`
 - `lib/content/toolkit.js`, `glossary.js`, `sovereignty.js` (PRINCIPLES), `home.js` (WHAT_CHANGED)
 - `lib/content/sources/<group>.js`: source records `{ id, label, publisher, url, published, type, tier, accessed, notes }`
 
-Aggregators own registration and expose getters: `lib/threats.js`, `lib/guides.js`, `lib/sovereignty.js`, `lib/toolkit.js`, `lib/glossary.js`, `lib/sources.js`, plus `lib/library.js` (latest, related resolution, hub content). **Adding an entry means creating the file and importing it in its aggregator.** Helpers live in `lib/content.js`.
+Aggregators own registration and expose getters: `lib/threats.js`, `lib/guides.js`, `lib/sovereignty.js`, `lib/verdicts.js`, `lib/toolkit.js`, `lib/glossary.js`, `lib/sources.js`, plus `lib/library.js` (latest, related resolution, hub content). **Adding an entry means creating the file and importing it in its aggregator.** Helpers live in `lib/content.js`.
 
 Rules:
 - Prose fields are plain text. Cite inline with `[^source-id]` right after the claim; `citationOrder()` numbers sources by first appearance in the order given by `CITATION_FIELD_ORDER`, so article renderers must lay fields out in that order.
@@ -61,6 +63,7 @@ Rules:
 - Entries have `status: "draft" | "published"`; only published entries render in production and appear in the sitemap.
 - Toolkit URLs are clean vendor URLs. Never add affiliate or tracking parameters (the validator rejects them).
 - Industry briefs (`kind: "industry-brief"`, healthcare and financial) keep hand-authored HTML in `content`; markers inside that HTML are converted by `htmlWithCitations()`.
+- Verdicts (`kind: "verdict"`, rendered at `/check/<slug>`): `tldr`, `verdict`, `nextTwoMinutes`, `whoToTell` and `sayThis` sit above the fold and may carry no statistic or marker at all (the validator errors); figures live only in `why` and `stats` with sources. `whoToTell[].href` must be an official `.gov` address or null, `pathChip.start` must be an option of that quiz's first question, and detection wording ("detect", "spot the fake") is rejected.
 
 ## Clear Path
 
@@ -68,8 +71,10 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 
 - Content is pure data in `lib/content/path/`: `quiz.js` (questions; option values are stored keys), `home.js` and `business.js` (stages and steps; step ids are stored keys), `long-view.js` (end states, "What we cut", routines). Logic is in `lib/path.js` (inclusion via `when`/`unless`, stage and step ordering, "this week", "Where you stand"); `lib/path-links.js` resolves step link keys like `guide:slug` on the server.
 - Steps are written once and told four ways (`do`, `simple`, `detail`, `story`); knowledge level adds `newcomer` or shows "go further". Steps carry no citations, so they carry no statistics; link to the sourced library entry instead. The validator checks links, quiz keys, enums and tone.
+- Steps may carry optional `after` (one present-tense sentence of what is true afterwards), `sayThis` (an if-then line to say aloud) and `cadence: "once" | "ongoing"`; the "Set once" or "Ongoing" label otherwise derives from `type`. Add fields, never rename keys.
 - Horizons (`lib/horizons.js`): `now`, `next`, `future` ("Long View", always five years out, never hard-coded). The glossary tags every term with one. Horizons are directions, never deadlines: no dates or countdowns on steps.
 - Progress is counts per outcome (Hard to break into, Hard to fool, Quick to recover, In your control). No composite score or grade; the Cyber Audit does grading.
+- Analytics (`lib/analytics.js`, Vercel Web Analytics): exactly four events, `chip_clicked`, `path_completed`, `step_done`, `path_saved`. Do not add events without a reason written down.
 
 ## Voice and terminology
 

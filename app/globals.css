@@ -242,3 +242,43 @@ sup.cite a:focus-visible {
     break-inside: avoid;
   }
 }
+
+/* ── Verdict share card (app/components/check/ShareCard.jsx) ── */
+
+/* Printing a verdict page prints only its share card, as a half-page card
+   with the mark and the short URL: the rule for the fridge or the desk. */
+@media print {
+  @page {
+    margin: 0.5in;
+  }
+  body:has(.verdict-article) .fixed,
+  body:has(.verdict-article) footer,
+  .verdict-article > :not(.share-card),
+  .share-card .share-controls {
+    display: none !important;
+  }
+  body:has(.verdict-article),
+  body:has(.verdict-article) .min-h-screen {
+    background: #ffffff !important;
+    min-height: 0 !important;
+  }
+  body:has(.verdict-article) main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+  .share-card {
+    margin: 0 !important;
+    break-inside: avoid;
+  }
+  .share-card-face {
+    min-height: 4.5in;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 2px solid #0f172a !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

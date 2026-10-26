@@ -6,6 +6,7 @@ import ContinuePath from "./path/ContinuePath"
 import PathIcon from "./path/PathIcon"
 import { BUSINESS_QUIZ, HOME_QUIZ } from "@/lib/content/path/quiz"
 import { loadLocal } from "@/lib/path/storage"
+import { EVENTS, track } from "@/lib/analytics"
 import { SITE } from "@/lib/site"
 
 // The headline's last phrase gets the cobalt-to-teal treatment: cobalt is
@@ -165,6 +166,7 @@ export default function FrontDoor() {
                   <li key={o.value}>
                     <Link
                       href={`/path/${tab.key}?start=${o.value}`}
+                      onClick={() => track(EVENTS.chipClicked, { audience: tab.key, value: o.value, from: "front-door" })}
                       className={`inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-[15px] font-semibold text-[#0F172A] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${tab.chip}`}
                     >
                       <PathIcon name={o.icon} className={`w-4 h-4 shrink-0 ${tab.chipIcon}`} />

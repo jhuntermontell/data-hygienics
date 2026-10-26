@@ -2,6 +2,24 @@
 const nextConfig = {
   output: "standalone",
   serverExternalPackages: ["@react-pdf/renderer"],
+  // Security headers on every route. X-Frame-Options applies site-wide:
+  // nothing frames the site's own pages (policy, audit and IR PDFs download
+  // as blobs, no iframe or embed). A content security policy is M2, after
+  // an allowlist audit against Stripe and Supabase.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+    ]
+  },
   async redirects() {
     return [
       {

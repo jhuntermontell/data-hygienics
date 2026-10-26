@@ -8,6 +8,10 @@
 // and sourceId resolves, published entries rest on tier 1-2 sources, related
 // links resolve, no tracking/affiliate parameters, duplicate source ids
 // agree, uncited statistics, banned tone words, and stray "SI" usage.
+// Verdicts (/check) add: no statistics or markers above the fold, Path
+// chips that land on a real quiz answer, official-only "who to tell" links,
+// and no detection claims. Path steps add: optional `after`, `sayThis` and
+// `cadence` fields, and step ids unique across both audiences.
 
 import { fileURLToPath, pathToFileURL } from "node:url"
 import path from "node:path"
@@ -25,6 +29,7 @@ const { SOURCES, SOURCE_GROUPS } = await load("lib/sources.js")
 const { ALL_THREATS } = await load("lib/threats.js")
 const { ALL_GUIDES } = await load("lib/guides.js")
 const { ALL_EXPLAINERS, PRINCIPLES } = await load("lib/sovereignty.js")
+const { ALL_VERDICTS } = await load("lib/verdicts.js")
 const { ALL_TOOLS, TOOLKIT_CATEGORIES } = await load("lib/toolkit.js")
 const { GLOSSARY } = await load("lib/content/glossary.js")
 const { WHAT_CHANGED } = await load("lib/content/home.js")
@@ -76,13 +81,19 @@ const BY_KIND = {
   "industry-brief": ["industry", "content"],
   guide: ["timeToComplete", "difficulty", "why", "steps"],
   explainer: ["question", "shortAnswer", "sections", "actions"],
+  verdict: ["chip", "verdict", "nextTwoMinutes", "whoToTell", "sayThis", "pathChip", "why"],
 }
+// Verdict fields shown above the fold: plain instructions, never figures.
+const VERDICT_ABOVE_FOLD = ["chip", "tldr", "verdict", "nextTwoMinutes", "whoToTell", "sayThis", "pathChip"]
+// Verdicts give a procedure, never a detection claim.
+const VERDICT_BANNED = [/\b(detect|spot the fake|tell if it's fake)\b/i]
 
-const entries = [...ALL_THREATS, ...ALL_GUIDES, ...ALL_EXPLAINERS]
+const entries = [...ALL_THREATS, ...ALL_GUIDES, ...ALL_EXPLAINERS, ...ALL_VERDICTS]
 const slugIndex = {
   threats: new Set(ALL_THREATS.map((e) => e.slug)),
   guides: new Set(ALL_GUIDES.map((e) => e.slug)),
   explainers: new Set(ALL_EXPLAINERS.map((e) => e.slug)),
+  verdicts: new Set(ALL_VERDICTS.map((e) => e.slug)),
   toolkit: new Set(ALL_TOOLS.map((t) => t.slug)),
   glossary: new Set(GLOSSARY.map((g) => g.slug)),
   controls: new Set(CONTROLS.map((c) => c.slug)),
@@ -125,7 +136,8 @@ function uncitedStats(text) {
         )
         // The 988 crisis line, "over 21", "112-bit", EU regulation numbers,
         // clock times in stories ("6:52 am").
-        .replace(/\b988\b|\bover \d{2}\b(?!\s?(%|percent|million|billion|thousand))|\b\d+-bit\b|\(EU\) \/\d+|\b\d{1,2}:\d{2}\b/gi, "")
+        // 7726 is the carriers' SPAM short code for forwarding scam texts.
+        .replace(/\b988\b|\b7726\b|\bover \d{2}\b(?!\s?(%|percent|million|billion|thousand))|\b\d+-bit\b|\(EU\) \/\d+|\b\d{1,2}:\d{2}\b/gi, "")
       const hasStat = /\d+(\.\d+)?\s?%|[$€£]\s?\d|\b\d{2,}\b|\b\d+(\.\d+)?\s?(million|billion|thousand)\b/i.test(scrubbed)
       return hasStat && !HAS_MARKER.test(sentence)
     })
@@ -171,8 +183,9 @@ for (const e of entries) {
   const strong = [...listed].filter((id) => SOURCES[id] && SOURCES[id].tier <= 2)
   if (strong.length < 2) (e.status === "published" ? err : warn)(where, `only ${strong.length} tier 1-2 sources`)
 
-  // stats[] cite through their sourceId field, not inline markers.
-  for (const field of (CITATION_FIELD_ORDER[e.kind] || []).filter((f) => f !== "stats")) {
+  // stats[] cite through their sourceId field, not inline markers. A
+  // verdict's tldr is checked more strictly below (no figures at all).
+  for (const field of (CITATION_FIELD_ORDER[e.kind] || []).filter((f) => f !== "stats" && !(e.kind === "verdict" && f === "tldr"))) {
     walkStrings(e[field], (s, trail) => {
       for (const sentence of uncitedStats(s)) warn(where, `uncited statistic in ${field}${trail ? "." + trail : ""}: "${sentence.slice(0, 110)}"`)
     })
@@ -201,6 +214,7 @@ for (const e of entries) {
     if (/\bSI\b/.test(s.replace(CITATION_MARKER, "")) && !SI_ALLOWED.has(e.slug)) warn(where, `"SI" used in ${trail}`)
     if (/\bMSPs?\b/.test(s)) err(where, `"MSP" in ${trail}; say "IT provider"`)
     if (/coalition|cowbell|travelers|beazley/i.test(s)) warn(where, `insurance carrier name in ${trail}`)
+    if (e.kind === "verdict") for (const re of VERDICT_BANNED) if (re.test(s)) warn(where, `detection claim: ${re} in ${trail}`)
   })
 }
 
@@ -299,6 +313,8 @@ const PATH_ENUMS = {
   outcome: ["break-in", "fool", "recover", "control"],
   type: ["setup", "habit", "conversation", "rehearsal", "decision"],
 }
+const CADENCES = ["once", "ongoing"]
+const stepAudience = {}
 let pathSteps = 0
 for (const [audience, config] of Object.entries(AUDIENCE_PATHS)) {
   const quiz = QUIZZES[audience] || []
@@ -332,6 +348,24 @@ for (const [audience, config] of Object.entries(AUDIENCE_PATHS)) {
       if (step[f] === undefined || step[f] === "") err(where, `missing ${f}`)
     if (seen.has(step.id)) err(where, "duplicate step id")
     seen.add(step.id)
+    // Step ids are public URLs (/steps/<id>), so they must be unique across
+    // both audiences, not just within one.
+    if (stepAudience[step.id] && stepAudience[step.id] !== audience)
+      err(where, `step id also used in the ${stepAudience[step.id]} path`)
+    stepAudience[step.id] = stepAudience[step.id] || audience
+    // Optional fields added in milestone 1: "what is true after" and the
+    // if-then line are plain sentences with no figures; cadence overrides
+    // the label derived from `type`.
+    for (const f of ["after", "sayThis"]) {
+      if (step[f] === undefined) continue
+      if (typeof step[f] !== "string" || !step[f].trim()) {
+        err(where, `${f} must be a non-empty string`)
+        continue
+      }
+      if (markersIn(step[f]).length) err(where, `${f} must not contain citation markers`)
+      for (const sentence of uncitedStats(step[f])) err(where, `statistic in ${f} (path steps carry no sources): "${sentence.slice(0, 110)}"`)
+    }
+    if (step.cadence !== undefined && !CADENCES.includes(step.cadence)) err(where, `cadence must be one of ${CADENCES.join(", ")}`)
     if (!stageIds.has(step.stage)) err(where, `unknown stage ${step.stage}`)
     for (const [f, allowed] of Object.entries(PATH_ENUMS)) if (step[f] && !allowed.includes(step[f])) err(where, `${f} must be one of ${allowed.join(", ")}`)
     for (const r of [...(step.requires || []), ...(step.extends ? [step.extends] : [])])
@@ -365,8 +399,46 @@ for (const [audience, config] of Object.entries(AUDIENCE_PATHS)) {
     for (const id of e.stepIds) if (!ids.has(id)) err(`path ${audience} end state ${e.id}`, `missing step ${id}`)
 }
 
+// ── Verdicts (/check) ────────────────────────────────────────────────────
+// Shared entry checks ran above (fields, citations, tier 1-2 sources, tone).
+// These are the verdict-only rules: the first screen is a procedure, so it
+// carries no statistics or markers; the Path chip lands on a real first
+// answer; "who to tell" links only to official (.gov) addresses.
+const OFFICIAL_HREF = /^(https:\/\/([a-z0-9-]+\.)+gov(\/[^\s]*)?|mailto:[^@\s]+@([a-z0-9-]+\.)+gov)$/i
+for (const v of ALL_VERDICTS) {
+  const where = `verdict ${v.slug || "?"}`
+  for (const field of VERDICT_ABOVE_FOLD) {
+    if (markersIn(v[field]).length) err(where, `${field} must not contain citation markers (sources go in why and stats)`)
+    walkStrings(v[field], (s, trail) => {
+      for (const sentence of uncitedStats(s))
+        err(where, `statistic above the fold in ${field}${trail ? "." + trail : ""}: "${sentence.slice(0, 110)}"`)
+    })
+  }
+  for (const f of ["chip", "verdict", "sayThis"]) if (v[f] !== undefined && (typeof v[f] !== "string" || !v[f].trim())) err(where, `${f} must be a non-empty string`)
+
+  const steps = v.nextTwoMinutes
+  if (!Array.isArray(steps) || steps.length < 3 || steps.length > 4) err(where, "nextTwoMinutes needs 3 to 4 items")
+  else steps.forEach((s, i) => typeof s === "string" && s.trim() ? null : err(where, `nextTwoMinutes[${i}] must be a non-empty string`))
+
+  if (!Array.isArray(v.whoToTell) || !v.whoToTell.length) err(where, "whoToTell needs at least one item")
+  for (const [i, item] of (Array.isArray(v.whoToTell) ? v.whoToTell : []).entries()) {
+    if (!item?.label) err(where, `whoToTell[${i}] needs a label`)
+    if (item?.href != null && !OFFICIAL_HREF.test(item.href)) err(where, `whoToTell[${i}].href must be an official .gov address or null: ${item.href}`)
+  }
+
+  const chip = v.pathChip || {}
+  const quiz = QUIZZES[chip.audience]
+  if (!quiz) err(where, `pathChip.audience must be one of ${Object.keys(QUIZZES).join(", ")}`)
+  else {
+    const first = quiz[0]
+    if (!first.options.some((o) => o.value === chip.start)) err(where, `pathChip.start "${chip.start}" is not an answer to the ${chip.audience} quiz's first question (${first.id})`)
+  }
+  if (!chip.label) err(where, "pathChip needs a label")
+  if (chip.audience && !(v.audience || []).includes(chip.audience)) warn(where, `pathChip.audience ${chip.audience} is not one of the verdict's audiences`)
+}
+
 // ── Report ───────────────────────────────────────────────────────────────
-const counts = `${entries.length} entries, ${ALL_TOOLS.length} tools, ${GLOSSARY.length} terms, ${Object.keys(SOURCES).length} sources, ${pathSteps} path steps`
+const counts = `${entries.length} entries (${ALL_VERDICTS.length} verdicts), ${ALL_TOOLS.length} tools, ${GLOSSARY.length} terms, ${Object.keys(SOURCES).length} sources, ${pathSteps} path steps`
 for (const w of warnings) console.log(`warn  ${w}`)
 for (const e of errors) console.log(`ERROR ${e}`)
 console.log(`\n${counts}: ${errors.length} errors, ${warnings.length} warnings`)
