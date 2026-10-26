@@ -23,6 +23,8 @@ export default function PrivacyPage() {
               <li><strong>Assessment data:</strong> Your answers to cybersecurity assessment questions.</li>
               <li><strong>Payment information:</strong> Processed by Stripe. We never see or store your card number.</li>
               <li><strong>Usage data:</strong> Pages visited, features used. No third-party ad trackers.</li>
+              <li><strong>Your Path:</strong> Your Clear Path answers and progress live in your browser. They reach our database only if you save your path to an account, and you can export or delete them at any time.</li>
+              <li><strong>Questions to Ask:</strong> If you are a member and use Ask Data Hygienics, the question you type and the recent conversation are sent to Anthropic, our AI provider, to produce the answer. We store a count of your usage, never the questions or the answers.</li>
             </ul>
           </section>
 
@@ -32,6 +34,7 @@ export default function PrivacyPage() {
               <li>To provide and improve the platform.</li>
               <li>To generate your assessment score and reports.</li>
               <li>To send you your news feed if you subscribe.</li>
+              <li>To run your membership: billing through Stripe, and the usage counts that keep Ask within its fair-use limits.</li>
             </ul>
             <p className="text-[#475569] text-sm leading-relaxed mt-3 font-medium">
               We do not sell your data. We do not share it with advertisers. We do not use it to train AI models.
@@ -43,6 +46,8 @@ export default function PrivacyPage() {
             <ul className="space-y-2 text-[#475569] text-sm leading-relaxed">
               <li><strong>Supabase</strong> (our database provider) stores your data on encrypted servers in the United States.</li>
               <li><strong>Stripe</strong> (our payment processor) handles payment data under PCI DSS Level 1 certification.</li>
+              <li><strong>Anthropic</strong> (our AI provider) processes questions sent to Ask Data Hygienics to produce the answer. Anthropic does not use API data to train its models, and we do not store your questions.</li>
+              <li><strong>Vercel</strong> (our hosting provider) serves the site and runs our cookie-free page analytics, which do not identify you.</li>
             </ul>
             <p className="text-[#475569] text-sm leading-relaxed mt-3">
               We do not share your data with any other third parties.
