@@ -32,7 +32,7 @@ const { ALL_EXPLAINERS, PRINCIPLES } = await load("lib/sovereignty.js")
 const { ALL_VERDICTS } = await load("lib/verdicts.js")
 const { ALL_TOOLS, TOOLKIT_CATEGORIES } = await load("lib/toolkit.js")
 const { GLOSSARY } = await load("lib/content/glossary.js")
-const { WHAT_CHANGED } = await load("lib/content/home.js")
+const { WHAT_CHANGED, LOSSES_BY_YEAR } = await load("lib/content/home.js")
 const { CONTROLS } = await load("lib/controls.js")
 const { CITATION_FIELD_ORDER, CITATION_MARKER } = await load("lib/content.js")
 
@@ -289,6 +289,29 @@ for (const [i, item] of (WHAT_CHANGED || []).entries()) {
   checkMarkers(where, item)
   if (item.sourceId && !SOURCES[item.sourceId]) err(where, `unknown source ${item.sourceId}`)
   else if (item.sourceId && SOURCES[item.sourceId].tier > 2) err(where, "homepage facts need a tier 1-2 source")
+}
+// The homepage losses chart: every point and the hero resolve to a tier 1-2
+// source with a page locator; years run ascending with no repeats.
+{
+  const chart = LOSSES_BY_YEAR || { points: [] }
+  const sourced = (where, item) => {
+    if (!item.sourceId || !SOURCES[item.sourceId]) err(where, `unknown source ${item.sourceId}`)
+    else if (SOURCES[item.sourceId].tier > 2) err(where, "homepage facts need a tier 1-2 source")
+    if (!item.locator) err(where, "needs a locator")
+  }
+  let lastYear = -Infinity
+  for (const [i, pt] of (chart.points || []).entries()) {
+    const where = `LOSSES_BY_YEAR.points[${i}]`
+    sourced(where, pt)
+    if (typeof pt.value !== "number" || !Number.isFinite(pt.value)) err(where, "value must be a number")
+    if (!(pt.year > lastYear)) err(where, `year ${pt.year} must be after ${lastYear} (ascending, unique)`)
+    lastYear = pt.year
+  }
+  if (!chart.hero?.figure || !chart.hero?.text) err("LOSSES_BY_YEAR.hero", "needs figure and text")
+  if (chart.hero) sourced("LOSSES_BY_YEAR.hero", chart.hero)
+  walkStrings(chart, (s, trail) => {
+    for (const re of BANNED) if (re.test(s)) warn("LOSSES_BY_YEAR", `tone: ${re} in ${trail}`)
+  })
 }
 for (const [i, p] of (PRINCIPLES || []).entries()) if (!p.title || !p.detail) err(`PRINCIPLES[${i}]`, "needs title and detail")
 

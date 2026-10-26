@@ -38,7 +38,7 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 
 ## Site map
 
-- `/` homepage, the Clear Path front door: "What would you hate to lose?" chips (`#start`, `app/components/FrontDoor.jsx`), then our promise, how the Path works, and the three doors. Hubs `/household`, `/business`, `/digital-sovereignty`
+- `/` homepage, the Clear Path front door: "What would you hate to lose?" chips (`#start`, `app/components/FrontDoor.jsx`), then "What changed" (the FBI IC3 reported-losses chart from `LOSSES_BY_YEAR` in `lib/content/home.js`, `app/components/WhyItMatters.jsx`), our promise, how the Path works, and the three doors. Hubs `/household`, `/business`, `/digital-sovereignty`
 - "Is this real?": `/check` (the grid of verdict chips) and `/check/[slug]` (one verdict per message type, with a share card and a Path chip). The navbar door `NAV.door` points here on every page.
 - Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer and shows a provisional first step before any question, `app/components/path/FirstStep.jsx`)
 - Step pages: `/steps` and `/steps/[id]`, one indexable public page per Path step across both audiences (`lib/steps.js`, `app/components/steps/StepArticle.jsx`). Step ids are public URLs now: never rename one.
