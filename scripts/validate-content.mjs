@@ -7,7 +7,8 @@
 // Checks: required fields, unique slugs, date formats, every citation marker
 // and sourceId resolves, published entries rest on tier 1-2 sources, related
 // links resolve, no tracking/affiliate parameters, duplicate source ids
-// agree, uncited statistics, banned tone words, and stray "SI" usage.
+// agree, uncited statistics, banned tone words, stray "SI" usage, and
+// titles, chips and hub headings that end with a period (a warning).
 // Verdicts (/check) add: no statistics or markers above the fold, Path
 // chips that land on a real quiz answer, official-only "who to tell" links,
 // and no detection claims. Path steps add: optional `after`, `sayThis` and
@@ -458,6 +459,29 @@ for (const v of ALL_VERDICTS) {
   }
   if (!chip.label) err(where, "pathChip needs a label")
   if (chip.audience && !(v.audience || []).includes(chip.audience)) warn(where, `pathChip.audience ${chip.audience} is not one of the verdict's audiences`)
+}
+
+// ── Titles ───────────────────────────────────────────────────────────────
+// Titles, headings and chips never end with a period (internal periods,
+// question marks and exclamation marks stay). A warning, not an error.
+const { HUBS } = await load("lib/hubs.js")
+const TRAILING_PERIOD = /(?<!\.)\.\s*$/
+const titleCheck = (where, field, value) => {
+  if (typeof value === "string" && TRAILING_PERIOD.test(value)) warn(where, `${field} ends with a period: "${value.slice(-60)}"`)
+}
+for (const entry of entries) {
+  const where = `${entry.kind || "entry"} ${entry.slug || "?"}`
+  titleCheck(where, "title", entry.title)
+  if (entry.kind === "verdict") titleCheck(where, "chip", entry.chip)
+}
+for (const [audience, config] of Object.entries(AUDIENCE_PATHS)) {
+  for (const stage of config.stages || []) titleCheck(`path ${audience} stage ${stage.id}`, "title", stage.title)
+  for (const step of config.steps || []) titleCheck(`path ${audience} ${step.id}`, "title", step.title)
+}
+for (const [key, hub] of Object.entries(HUBS)) {
+  titleCheck(`hub ${key}`, "title", hub.title)
+  titleCheck(`hub ${key}`, "alreadyHappened.title", hub.alreadyHappened?.title)
+  for (const [name, section] of Object.entries(hub.sections || {})) titleCheck(`hub ${key}`, `sections.${name}.title`, section?.title)
 }
 
 // ── Report ───────────────────────────────────────────────────────────────

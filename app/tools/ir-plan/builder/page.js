@@ -572,7 +572,7 @@ function CompletionView() {
             <Sparkles className="w-8 h-8 text-[#0F766E]" />
           </div>
           <h1 className="text-2xl font-bold text-[#0F172A] mb-3">
-            Your incident response plan is ready.
+            Your incident response plan is ready
           </h1>
           <p className="text-[#475569] text-base mb-8 max-w-lg mx-auto">
             Every playbook now references your team by name and includes the phone numbers your incident commander needs in a crisis.

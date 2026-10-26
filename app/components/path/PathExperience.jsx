@@ -15,12 +15,12 @@ const COPY = {
   home: {
     eyebrow: "Clear Path for Home",
     intro: "A few questions, then your path. About two minutes.",
-    help: { href: "/household#already-happened", label: "Dealing with something right now? Get help first." },
+    help: { href: "/household#already-happened", label: "Dealing with something right now? Get help first" },
   },
   business: {
     eyebrow: "Clear Path for Business",
     intro: "A few questions, then your path. About three minutes.",
-    help: { href: "/threats/ai-powered-phishing-and-bec#if-it-happens", label: "Money already moved, or an account taken over? Get help first." },
+    help: { href: "/threats/ai-powered-phishing-and-bec#if-it-happens", label: "Money already moved, or an account taken over? Get help first" },
   },
 }
 

@@ -64,9 +64,8 @@ export default function WhyItMatters() {
     <section aria-labelledby="why-heading" className="px-4 sm:px-6 py-16 sm:py-24 bg-[#0F172A] text-white">
       <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16 lg:items-center">
         <div>
-          <p className="text-xs font-semibold tracking-[0.1em] uppercase text-[#94A3B8]">What changed</p>
-          <h2 id="why-heading" className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-white text-balance">
-            The scams changed. The defense didn&apos;t have to.
+          <h2 id="why-heading" className="text-3xl sm:text-4xl font-bold tracking-tight text-white text-balance">
+            The scams changed. The defense didn&apos;t have to
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[#CBD5E1]">
             People reported {chart.hero.figure} in losses to the FBI in 2025, about five times what they reported in
@@ -99,7 +98,7 @@ export default function WhyItMatters() {
               className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#5EEAD4] hover:text-white"
             >
               <LifeBuoy className="w-4 h-4" aria-hidden="true" />
-              Something just happened? Is this real?
+              Something just happened? Run a Threat Check
             </Link>
           </div>
         </div>

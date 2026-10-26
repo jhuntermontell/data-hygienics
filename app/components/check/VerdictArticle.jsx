@@ -64,7 +64,7 @@ export default function VerdictArticle({ entry, url }) {
           className="inline-flex items-center gap-1.5 text-sm text-[#475569] hover:text-[#0F172A] motion-safe:transition-colors mb-6"
         >
           <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-          Is this real? All checks
+          Threat Check: all checks
         </Link>
         <p className={`text-xs font-semibold tracking-[0.12em] uppercase mb-3 ${t.accent}`}>
           {tone === "business" ? "At work" : "At home"}

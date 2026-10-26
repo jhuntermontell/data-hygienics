@@ -355,7 +355,7 @@ export default function ResultsPage() {
               {hiddenGapCount > 0 && (
                 <div className="mt-6 rounded-2xl bg-[#EFF6FF] border border-[#1D4ED8]/15 p-6 text-center">
                   <h4 className="text-base font-bold text-[#0F172A] mb-2">
-                    You have {gaps.length} gaps identified.
+                    You have {gaps.length} gaps identified
                   </h4>
                   <p className="text-[#475569] text-sm leading-relaxed mb-5 max-w-md mx-auto">
                     The comprehensive assessment digs deeper into each of these areas with product-specific questions, configuration checks, a section on how your team uses AI tools, and a prioritized remediation plan.

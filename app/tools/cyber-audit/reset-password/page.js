@@ -156,7 +156,7 @@ export default function ResetPasswordPage() {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] mb-6">
                   <CheckCircle className="w-8 h-8 text-[#059669]" />
                 </div>
-                <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Your password has been updated.</h1>
+                <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Your password has been updated</h1>
                 <p className="text-[#475569] text-sm leading-relaxed mb-6">
                   You can now sign in with your new password.
                 </p>

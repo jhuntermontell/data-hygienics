@@ -376,7 +376,7 @@ export default function AskChat() {
       className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0F766E] hover:text-[#115E59]"
     >
       <LifeBuoy className="w-4 h-4" aria-hidden="true" />
-      Something just happened? Start with Is this real?
+      Something just happened? Start with a Threat Check
     </Link>
   )
 

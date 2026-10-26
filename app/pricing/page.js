@@ -195,7 +195,7 @@ export default function PricingPage() {
             className="text-center mb-12"
           >
             <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] mb-4">
-              Simple pricing for small business security in the AI era.
+              Simple pricing for small business security in the AI era
             </h1>
             <p className="text-[#475569] text-lg max-w-2xl mx-auto">
               Buy the kit once, or subscribe to keep it current as AI changes

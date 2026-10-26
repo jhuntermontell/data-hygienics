@@ -122,7 +122,7 @@ export default function ToolsPage() {
       {/* CTA */}
       <section className="py-20 px-6 bg-[#1D4ED8]">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-3">Start with what you have.</h2>
+          <h2 className="text-3xl font-bold text-white mb-3">Start with what you have</h2>
           <p className="text-blue-100 text-base mb-8">
             Start with the free Quick Check, browse the Controls Library or get the AI Acceptable Use Policy (free with a free account). None of it needs a credit card or a sales call. Upgrade when you&apos;re ready.
           </p>

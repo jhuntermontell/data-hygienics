@@ -32,14 +32,14 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 
 **Brand** (Continuous Fold, `design/brand-book/`): navy `#0F172A` = Judgment, cobalt `#1D4ED8` = Clarity, Action Teal `#0F8F83` = Action, Field White `#F8FAFC`. Brand teal is about 4:1 on white, so use it for fills, icons and large type only; body-size teal text and white-on-teal buttons stay `#0F766E`. Never retype the wordmark: use `/logo.svg` (the outlined lockup), `app/components/BrandMark.jsx` for the inline mark, and `app/components/pdf/BrandLockupPdf.jsx` in PDFs. Mark geometry lives in `lib/brand/mark.js`; `node scripts/generate-icons.mjs` regenerates favicons, app icons, the OG image, `public/brand/*` and `lib/brand/wordmark.js` from the masters.
 
-**Navbar**: `app/components/Navbar.jsx` is fixed-position and must be imported and rendered at the top of each page. There is no global layout that includes it. Navigation and footer links come from `lib/site.js` (`NAV`, `FOOTER_COLUMNS`).
+**Navbar**: `app/components/Navbar.jsx` is fixed-position and must be imported and rendered at the top of each page. There is no global layout that includes it. Navigation and footer links come from `lib/site.js` (`NAV`, `FOOTER_COLUMNS`). The primary bar is For Home and For Business; Digital Sovereignty heads the Library menu.
 
 **Contact form** submits to Formspree via `fetch`.
 
 ## Site map
 
-- `/` homepage, the Clear Path front door: "What would you hate to lose?" chips (`#start`, `app/components/FrontDoor.jsx`), then "What changed" (the FBI IC3 reported-losses chart from `LOSSES_BY_YEAR` in `lib/content/home.js`, `app/components/WhyItMatters.jsx`), our promise, how the Path works, and the three doors. Hubs `/household`, `/business`, `/digital-sovereignty`
-- "Is this real?": `/check` (the grid of verdict chips) and `/check/[slug]` (one verdict per message type, with a share card and a Path chip). The navbar door `NAV.door` points here on every page.
+- `/` homepage, the Clear Path front door: "What would you hate to lose?" chips (`#start`, `app/components/FrontDoor.jsx`), then the reported-losses section (the FBI IC3 chart from `LOSSES_BY_YEAR` in `lib/content/home.js`, `app/components/WhyItMatters.jsx`), our promise, how the Path works, and the three doors. Hubs `/household`, `/business`, `/digital-sovereignty`
+- Threat Check (secondary line "Is this real?"): `/check` (the grid of verdict chips) and `/check/[slug]` (one verdict per message type, with a share card and a Path chip). The navbar door `NAV.door` points here on every page.
 - Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer and shows a provisional first step before any question, `app/components/path/FirstStep.jsx`)
 - Step pages: `/steps` and `/steps/[id]`, one indexable public page per Path step across both audiences (`lib/steps.js`, `app/components/steps/StepArticle.jsx`). Step ids are public URLs now: never rename one.
 - Research library: `/threats`, `/threats/[slug]`, `/guides`, `/guides/[slug]`, `/digital-sovereignty/[slug]` (explainers), `/toolkit`, `/glossary`, `/controls`, `/controls/[slug]`
@@ -63,7 +63,7 @@ Rules:
 - Entries have `status: "draft" | "published"`; only published entries render in production and appear in the sitemap.
 - Toolkit URLs are clean vendor URLs. Never add affiliate or tracking parameters (the validator rejects them).
 - Industry briefs (`kind: "industry-brief"`, healthcare and financial) keep hand-authored HTML in `content`; markers inside that HTML are converted by `htmlWithCitations()`.
-- Verdicts (`kind: "verdict"`, rendered at `/check/<slug>`): `tldr`, `verdict`, `nextTwoMinutes`, `whoToTell` and `sayThis` sit above the fold and may carry no statistic or marker at all (the validator errors); figures live only in `why` and `stats` with sources. `whoToTell[].href` must be an official `.gov` address or null, `pathChip.start` must be an option of that quiz's first question, and detection wording ("detect", "spot the fake") is rejected.
+- Verdicts (`kind: "verdict"`, the Threat Check, rendered at `/check/<slug>`): `tldr`, `verdict`, `nextTwoMinutes`, `whoToTell` and `sayThis` sit above the fold and may carry no statistic or marker at all (the validator errors); figures live only in `why` and `stats` with sources. `whoToTell[].href` must be an official `.gov` address or null, `pathChip.start` must be an option of that quiz's first question, and detection wording ("detect", "spot the fake") is rejected.
 
 ## Clear Path
 
@@ -79,6 +79,7 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 ## Voice and terminology
 
 - Plain English, second person, active voice, short paragraphs. Creative headlines, literal instructions. Translate acronyms on first use.
+- Titles, headings, eyebrows, card titles, button and nav labels never end with a period (internal periods stay; question and exclamation marks stay). Body copy keeps its periods. The validator warns on content titles that end with one.
 - No fear-mongering ("lurking", "unprecedented", "rapidly evolving landscape", "guarantee", countdowns). Numbers only with a named, dated source.
 - **"AI" is the public term.** "SI" (superintelligence) appears only in the glossary, the stance explainer `/digital-sovereignty/ai-or-si-what-we-call-it`, the Digital Sovereignty hub's GlossaryTeaser that defines it, `SITE.terms` in `lib/site.js`, and when quoting US federal notices (Executive Order 14434 of Sept 29, 2026 directs federal agencies to say "Super Intelligence"; translate it for readers on first use). If the stance changes, change those places, not copy site-wide.
 - Say "IT provider" or "outside IT company", never "MSP", in user-facing copy.

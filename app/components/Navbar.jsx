@@ -17,11 +17,10 @@ import { NAV } from "@/lib/site"
 
 const ALL_TOOLS_LINK = { href: "/tools", label: "All business tools" }
 
-// Color key: teal is Home, blue is Business, the blend is Digital Sovereignty.
+// Color key: teal is Home, blue is Business.
 const PRIMARY_DOTS = {
   "/household": "bg-[#0F8F83]",
   "/business": "bg-[#1D4ED8]",
-  "/digital-sovereignty": "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83]",
 }
 
 const FOCUSABLE = "a[href], button:not([disabled])"
@@ -379,11 +378,11 @@ export default function Navbar() {
               aria-current={isActive(pathname, NAV.door.href) ? "page" : undefined}
               aria-label={NAV.door.label}
               title={NAV.door.label}
-              className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2 xl:px-2.5 py-2 xl:py-1.5 rounded-lg border border-[#0F8F83]/30 bg-[#F0FDFA] hover:bg-[#CCFBF1]/60 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${DOOR_TEXT}`}
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold px-2.5 py-1.5 rounded-lg border border-[#0F8F83]/30 bg-[#F0FDFA] hover:bg-[#CCFBF1]/60 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F766E] ${DOOR_TEXT}`}
             >
               <LifeBuoy className="w-4 h-4 shrink-0" aria-hidden="true" />
               {/* Short label on purpose: the bar has no room for a sentence. */}
-              <span className="hidden xl:inline text-sm whitespace-nowrap">{NAV.door.label}</span>
+              <span className="hidden lg:inline text-sm whitespace-nowrap">{NAV.door.label}</span>
             </Link>
             {!ready ? (
               <div className="w-44 h-9" />

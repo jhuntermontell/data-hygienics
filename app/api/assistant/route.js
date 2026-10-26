@@ -35,7 +35,7 @@ export const dynamic = "force-dynamic"
 export const maxDuration = 60
 
 const REFUSAL_MESSAGE =
-  "We can't help with that one here. If something just happened, start with [Is this real?](/check): it walks you through the next two minutes and who to call."
+  "We can't help with that one here. If something just happened, start with a [Threat Check](/check): it walks you through the next two minutes and who to call."
 
 const BUSY_MESSAGE = "The assistant is busy right now. Try again in a minute."
 

@@ -9,23 +9,23 @@ import { collectionPageSchema, breadcrumbSchema } from "@/lib/schema"
 import { verdicts } from "@/lib/verdicts"
 import { hrefFor } from "@/lib/content"
 
-const TITLE = "Is this real? Check a text, call or email | Data Hygienics"
+const TITLE = "Threat Check: is that text, call or email real? | Data Hygienics"
 const DESCRIPTION =
-  "Got a text, call or email that doesn't feel right? Pick what happened and get a calm, two-minute answer: what to do, who to tell, and one rule to keep."
+  "Threat Check: got a text, call or email that doesn't feel right? Pick what happened and get a calm, two-minute answer: what to do, who to tell, and one rule to keep."
 
 export const metadata = libraryMetadata({ title: TITLE, description: DESCRIPTION, path: "/check" })
 
 export default function CheckPage() {
   const schemas = [
     collectionPageSchema({
-      name: "Is this real?",
+      name: "Threat Check",
       description: DESCRIPTION,
       path: "/check",
       items: verdicts.map((entry) => ({ name: entry.title, path: hrefFor(entry) })),
     }),
     breadcrumbSchema([
       { name: "Home", path: "/" },
-      { name: "Is this real?", path: "/check" },
+      { name: "Threat Check", path: "/check" },
     ]),
   ]
 
@@ -38,10 +38,10 @@ export default function CheckPage() {
           <header className="max-w-3xl mb-10">
             <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#0F766E] mb-3">
               <LifeBuoy className="w-4 h-4" aria-hidden="true" />
-              Something just happened?
+              Is this real?
             </p>
             <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
-              Is this real?
+              Threat Check
             </h1>
             <p className="text-[#334155] text-lg sm:text-xl font-semibold leading-snug">What just happened?</p>
             <p className="text-[#475569] text-base sm:text-lg leading-relaxed mt-2">

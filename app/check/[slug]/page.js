@@ -52,7 +52,7 @@ export default async function VerdictPage({ params }) {
       : null,
     breadcrumbSchema([
       { name: "Home", path: "/" },
-      { name: "Is this real?", path: "/check" },
+      { name: "Threat Check", path: "/check" },
       { name: entry.title, path },
     ]),
   ].filter(Boolean)

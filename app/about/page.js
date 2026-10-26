@@ -34,17 +34,17 @@ const personSchema = {
 const beliefs = [
   {
     icon: Lightbulb,
-    title: "Clarity is a right, not a luxury.",
+    title: "Clarity is a right, not a luxury",
     text: "Every household and every business owner deserves to understand their security in plain English. Not just the ones who can afford a dedicated security team.",
   },
   {
     icon: Scale,
-    title: "Independence matters.",
+    title: "Independence matters",
     text: "We sell only our own business tools, and we say so wherever they appear. We take no referral fees, use no affiliate links and have no financial relationship with any company we write about. That independence is the foundation for everything else.",
   },
   {
     icon: ShieldCheck,
-    title: "Knowledge changes outcomes.",
+    title: "Knowledge changes outcomes",
     text: "When an owner or office manager can walk into a conversation with their IT provider and ask the right questions, better decisions get made. We exist to make that possible.",
   },
 ]
@@ -104,7 +104,7 @@ export default function About() {
         <section className="pt-32 pb-16 px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-              Built from the inside out.
+              Built from the inside out
             </h1>
             <p className="mt-4 text-lg text-[#475569] max-w-2xl mx-auto">
               Data Hygienics exists because the gap between cybersecurity expertise and the people who need it most is too wide, and too costly, to ignore.
@@ -206,7 +206,7 @@ export default function About() {
         <section className="py-16 px-6 bg-white">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl font-bold text-[#0F172A] text-center mb-12">
-              What we believe.
+              What we believe
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               {beliefs.map((b) => {
@@ -229,7 +229,7 @@ export default function About() {
         <section className="py-16 px-6 bg-[#F8FAFC]">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold text-[#0F172A] text-center mb-12">
-              Built for households and organizations like yours.
+              Built for households and organizations like yours
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mb-8">
               {industries.map((ind) => {
@@ -252,7 +252,7 @@ export default function About() {
         <section aria-labelledby="about-cta-heading" className="py-20 px-6 bg-[#0F172A]">
           <div className="max-w-2xl mx-auto text-center">
             <h2 id="about-cta-heading" className="text-3xl font-bold text-white mb-3">
-              Start where you are.
+              Start where you are
             </h2>
             <p className="text-[#CBD5E1] text-base mb-8">
               Pick a door. Everything we publish is free to read.
