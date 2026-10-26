@@ -166,7 +166,7 @@ const SITE_URL = "https://www.datahygienics.com"
 
 const COUPON = {
   id: "PACK_TO_MEMBER",
-  name: "Documentation Pack to Business membership",
+  name: "Pack to Business membership",
   percent_off: 100,
   duration: "repeating",
   duration_in_months: 12,
