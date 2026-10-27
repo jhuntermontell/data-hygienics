@@ -37,18 +37,18 @@ export default function GuidesIndexPage() {
         <Navbar />
         <main className="library-page max-w-6xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
           <header className="max-w-3xl mb-10">
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#047857] mb-3">
+            <p className="flex items-center gap-2 readout-label text-[#047857] mb-3">
               <ListChecks className="w-4 h-4" aria-hidden="true" />
               Guides
             </p>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+            <h1 className="font-display font-semibold text-[2.5rem] sm:text-[3.25rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
               Step-by-step hygiene, in plain English
             </h1>
             <p className="text-[#475569] text-lg leading-relaxed">
               Small habits that stop the scams and slip-ups AI makes easier. Pick one, set aside the time it says,
               and work through it.
             </p>
-            <p className="mt-4 inline-flex items-start gap-2 text-sm text-[#065F46]">
+            <p className="mt-4 inline-flex items-start gap-2 text-sm text-[#334155]">
               <CircleCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#047857]" aria-hidden="true" />
               Every step ends with &ldquo;How you know it worked,&rdquo; so you&apos;re never left guessing.
             </p>
@@ -70,7 +70,7 @@ export default function GuidesIndexPage() {
                 }))}
               />
             ) : (
-              <p className="rounded-xl border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
+              <p className="border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
                 The first guides are in final review. Meanwhile, the{" "}
                 <Link href="/threats" className="font-semibold text-[#1D4ED8] underline underline-offset-2">
                   Threat Library

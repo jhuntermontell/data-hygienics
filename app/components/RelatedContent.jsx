@@ -50,8 +50,8 @@ export default function RelatedContent({ related, title = "Keep going" }) {
       {groups.length > 0 ? (
         <div className={`grid gap-4 sm:grid-cols-2 lg:grid-cols-3 ${entries.length ? "mt-4" : ""}`}>
           {groups.map(({ key, title: groupTitle, icon: Icon, links }) => (
-            <div key={key} className="rounded-xl border border-[#E2E8F0] bg-white p-5">
-              <h3 className="flex items-center gap-2 text-sm font-bold text-[#0F172A] mb-3">
+            <div key={key} className="border border-[#E2E8F0] bg-white p-5">
+              <h3 className="flex items-center gap-2 text-sm font-display font-semibold text-[#0F172A] mb-3">
                 <Icon className="w-4 h-4 text-[#64748B]" aria-hidden="true" />
                 {groupTitle}
               </h3>

@@ -93,7 +93,7 @@ function Threat({ entry, number }) {
         backLabel="Threat Library"
         eyebrow="AI-era threat"
         eyebrowIcon={ShieldAlert}
-        eyebrowClassName="text-[#B91C1C]"
+        eyebrowClassName="text-[#64748B]"
         title={entry.title}
         chips={
           <>
@@ -115,7 +115,7 @@ function Threat({ entry, number }) {
           {stops.length > 0 ? (
             <a
               href="#what-stops-it"
-              className="flex-1 inline-flex items-center gap-3 rounded-xl border border-[#059669]/30 bg-[#ECFDF5] px-4 py-3 text-sm font-semibold text-[#065F46] hover:border-[#059669]/60 motion-safe:transition-colors"
+              className="flex-1 inline-flex items-center gap-3 border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#334155] hover:border-[#0F172A] motion-safe:transition-colors"
             >
               <ShieldCheck className="w-5 h-5 shrink-0 text-[#047857]" aria-hidden="true" />
               <span>
@@ -130,12 +130,12 @@ function Threat({ entry, number }) {
           {steps.length > 0 ? (
             <a
               href="#if-it-happens"
-              className="flex-1 inline-flex items-center gap-3 rounded-xl border border-[#D97706]/35 bg-[#FFFBEB] px-4 py-3 text-sm font-semibold text-[#78350F] hover:border-[#D97706]/70 motion-safe:transition-colors"
+              className="flex-1 inline-flex items-center gap-3 border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#475569] hover:border-[#0F172A] motion-safe:transition-colors"
             >
-              <LifeBuoy className="w-5 h-5 shrink-0 text-[#B45309]" aria-hidden="true" />
+              <LifeBuoy className="w-5 h-5 shrink-0 text-[#0F766E]" aria-hidden="true" />
               <span>
                 It already happened
-                <span className="block text-xs font-normal text-[#92400E]">
+                <span className="block text-xs font-normal text-[#475569]">
                   {steps.length} {steps.length === 1 ? "step" : "steps"}, in order
                 </span>
               </span>
@@ -159,12 +159,12 @@ function Threat({ entry, number }) {
           <SectionHeading id="by-the-numbers" icon={ChartColumn}>
             By the numbers
           </SectionHeading>
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
             {stats.map((stat, i) => {
               const source = getSource(stat.sourceId)
               return (
-                <li key={i} className="flex flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5">
-                  <p className="text-3xl font-black text-[#0F172A] tracking-tight leading-tight break-words">
+                <li key={i} className="flex flex-col border-t-2 border-[#0F172A] pt-4">
+                  <p className="font-display text-[2.25rem] font-semibold text-[#0F172A] tracking-[-0.03em] leading-tight break-words">
                     {stat.figure}
                     {stat.sourceId ? (
                       <span className="text-base font-normal">
@@ -204,15 +204,15 @@ function Threat({ entry, number }) {
               const Icon = AUDIENCE_ICONS[item.audience] || ScanEye
               const accent = item.audience === "home" ? "border-l-[#0F766E]" : "border-l-[#1D4ED8]"
               return (
-                <div key={i} className={`rounded-2xl border border-[#E2E8F0] border-l-4 ${accent} bg-white p-5 sm:p-6`}>
+                <div key={i} className={`border border-[#E2E8F0] border-l-4 ${accent} bg-white p-5 sm:p-6`}>
                   <div className="flex items-center gap-2 mb-2">
                     <Icon className="w-4 h-4 text-[#64748B]" aria-hidden="true" />
-                    <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[#64748B]">
+                    <span className="readout-label text-[#64748B]">
                       {item.audience === "home" ? "At home" : item.audience === "business" ? "At work" : "Scenario"}
                     </span>
                   </div>
                   {item.title ? (
-                    <h3 className="text-lg font-bold text-[#0F172A] leading-snug mb-2">
+                    <h3 className="text-lg font-display font-semibold text-[#0F172A] leading-snug mb-2">
                       <CitedText text={item.title} number={number} />
                     </h3>
                   ) : null}
@@ -237,7 +237,7 @@ function Threat({ entry, number }) {
             {entryPoints.map((point, i) => (
               <li
                 key={i}
-                className="flex gap-3 rounded-xl border border-[#E2E8F0] bg-white p-4 text-[15px] leading-relaxed text-[#334155]"
+                className="flex gap-3 border border-[#E2E8F0] bg-white p-4 text-[15px] leading-relaxed text-[#334155]"
               >
                 <DoorOpen className="w-4 h-4 mt-1 shrink-0 text-[#94A3B8]" aria-hidden="true" />
                 <span className="min-w-0">
@@ -259,7 +259,7 @@ function Threat({ entry, number }) {
           >
             What stops it
           </SectionHeading>
-          <ul className="rounded-2xl border border-[#059669]/25 bg-white divide-y divide-[#ECFDF5]">
+          <ul className="border-t border-b border-[#E2E8F0] divide-y divide-[#E2E8F0]">
             {stops.map((item, i) => {
               const guide = item.guideSlug ? getGuideBySlug(item.guideSlug) : null
               const control = item.controlSlug ? CONTROLS.find((c) => c.slug === item.controlSlug) : null
@@ -268,11 +268,11 @@ function Threat({ entry, number }) {
                 : null
               return (
                 <li key={i} className="flex gap-3 sm:gap-4 p-5 sm:p-6">
-                  <CircleCheck className="w-6 h-6 shrink-0 text-[#059669]" aria-hidden="true" />
+                  <CircleCheck className="w-6 h-6 shrink-0 text-[#0F766E]" aria-hidden="true" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1.5">
                       {item.title ? (
-                        <h3 className="text-base sm:text-lg font-bold text-[#0F172A] leading-snug">
+                        <h3 className="text-base sm:text-lg font-display font-semibold text-[#0F172A] leading-snug">
                           <CitedText text={item.title} number={number} />
                         </h3>
                       ) : null}
@@ -332,16 +332,16 @@ function Threat({ entry, number }) {
         <section
           aria-labelledby="if-it-happens-heading"
           id="if-it-happens"
-          className="mt-12 rounded-2xl border border-[#D97706]/30 bg-[#FFFBEB] p-5 sm:p-8"
+          className="mt-12 border border-[#E2E8F0] bg-[#F8FAFC] p-5 sm:p-8"
         >
-          <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#B45309] mb-2">
+          <p className="flex items-center gap-2 readout-label text-[#0F766E] mb-2">
             <LifeBuoy className="w-4 h-4" aria-hidden="true" />
             Response, not prevention
           </p>
-          <h2 id="if-it-happens-heading" className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight leading-snug">
+          <h2 id="if-it-happens-heading" className="text-xl sm:text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em] leading-snug">
             If it already happened
           </h2>
-          <p className="text-[#78350F] text-sm mt-1.5 mb-6">
+          <p className="text-[#475569] text-sm mt-1.5 mb-6">
             Work through these in order. Moving quickly limits the damage, and there is no shame in reporting it.
           </p>
 
@@ -350,7 +350,7 @@ function Threat({ entry, number }) {
               {steps.map((item, i) => (
                 <li key={i} className="flex gap-3 sm:gap-4">
                   <span
-                    className="shrink-0 w-8 h-8 rounded-full bg-[#B45309] text-white text-sm font-bold flex items-center justify-center"
+                    className="shrink-0 w-8 h-8 rounded-full bg-[#0F172A] text-white text-sm font-bold flex items-center justify-center"
                     aria-hidden="true"
                   >
                     {i + 1}
@@ -358,7 +358,7 @@ function Threat({ entry, number }) {
                   <div className="min-w-0 flex-1 pt-0.5">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
                       {item.step ? (
-                        <h3 className="text-base sm:text-lg font-bold text-[#0F172A] leading-snug">
+                        <h3 className="text-base sm:text-lg font-display font-semibold text-[#0F172A] leading-snug">
                           <CitedText text={item.step} number={number} />
                         </h3>
                       ) : null}
@@ -367,7 +367,7 @@ function Threat({ entry, number }) {
                     <Paragraphs
                       value={item.detail}
                       number={number}
-                      className="text-[#44403C] text-[15px] leading-relaxed mb-2 last:mb-0"
+                      className="text-[#475569] text-[15px] leading-relaxed mb-2 last:mb-0"
                     />
                   </div>
                 </li>
@@ -376,7 +376,7 @@ function Threat({ entry, number }) {
           ) : null}
 
           {irLabel ? (
-            <div className="mt-6 flex gap-3 rounded-xl border border-[#1D4ED8]/20 bg-white p-4 sm:p-5">
+            <div className="mt-6 flex gap-3 border border-[#1D4ED8]/20 bg-white p-4 sm:p-5">
               <Briefcase className="w-5 h-5 shrink-0 text-[#1D4ED8] mt-0.5" aria-hidden="true" />
               <div className="min-w-0">
                 <p className="font-semibold text-[#0F172A]">For businesses with an incident plan</p>
@@ -443,19 +443,19 @@ function IndustryBrief({ entry, number }) {
       */}
       {entry.content ? (
         <div
-          className="threat-content rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-8 mt-8"
+          className="threat-content border border-[#E2E8F0] bg-white p-5 sm:p-8 mt-8"
           dangerouslySetInnerHTML={{ __html: htmlWithCitations(entry.content, number) }}
         />
       ) : null}
 
       {cta ? (
-        <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5 sm:p-6">
+        <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-4 border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5 sm:p-6">
           <p className="text-[#1E3A8A] text-sm sm:text-base flex-1">
             See how your organization measures up against these threats.
           </p>
           <Link
             href={cta}
-            className="inline-flex items-center justify-center gap-2 bg-[#1D4ED8] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#1E40AF] motion-safe:transition-colors"
+            className="inline-flex items-center justify-center gap-2 bg-[#1D4ED8] text-white px-5 py-3 font-bold text-sm hover:bg-[#1E40AF] motion-safe:transition-colors"
           >
             {entry.ctaText || "Start the free Quick Check"}
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

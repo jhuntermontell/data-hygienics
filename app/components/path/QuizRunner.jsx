@@ -23,9 +23,9 @@ const ACCENTS = {
 function Option({ option, name, type, on, rank, disabled, onToggle, styles }) {
   return (
     <label
-      className={`relative flex items-start gap-3 rounded-xl border-2 bg-white px-4 py-3.5 cursor-pointer transition-colors ring-offset-2 focus-within:ring-2 ${styles.ring} ${
-        on ? styles.on : "border-[#E2E8F0] hover:border-[#CBD5E1]"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`relative flex items-start gap-3 border-2 bg-white px-4 py-3.5 cursor-pointer transition-colors ring-offset-2 focus-within:ring-2 ${styles.ring} ${
+ on ? styles.on : "border-[#E2E8F0] hover:border-[#CBD5E1]"
+ } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       <input
         type={type}
@@ -178,7 +178,7 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
               <h2
                 ref={focusHeading}
                 tabIndex={-1}
-                className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A] text-balance focus:outline-none"
+                className="text-2xl sm:text-3xl font-display font-semibold tracking-[-0.02em] text-[#0F172A] text-balance focus:outline-none"
               >
                 {q.title}
               </h2>
@@ -204,7 +204,7 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
             {groupOptions(q.options).map(({ group, options }) => (
               <div key={group || "all"} className="mt-6">
                 {group ? (
-                  <p className="mb-2 text-[11px] font-semibold tracking-[0.08em] uppercase text-[#64748B]">{group}</p>
+                  <p className="mb-2 readout-label text-[#64748B]">{group}</p>
                 ) : null}
                 <div className={`grid gap-3 ${q.options.length > 5 ? "sm:grid-cols-2" : ""}`}>
                   {options.map((option) => {
@@ -232,7 +232,7 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
             <button
               type="button"
               onClick={back}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               {index === 0 ? "Change path" : "Back"}
@@ -242,7 +242,7 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
                 <button
                   type="button"
                   onClick={skip}
-                  className="rounded-lg px-3 py-2.5 text-sm font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+                  className="px-3 py-2.5 text-sm font-semibold text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
                 >
                   Skip
                 </button>
@@ -250,7 +250,7 @@ export default function QuizRunner({ questions, answers, onChange, onComplete, o
               <button
                 type="submit"
                 disabled={!isAnswered(q, value)}
-                className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 text-[15px] font-semibold text-white shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A] ${styles.button}`}
+                className={`inline-flex items-center gap-2 px-6 py-3 text-[15px] font-semibold text-white shadow-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A] ${styles.button}`}
               >
                 {last ? "Show my path" : "Continue"}
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />

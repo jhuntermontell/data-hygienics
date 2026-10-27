@@ -1,5 +1,6 @@
 import CitedText from "./CitedText"
 import { stripCitations } from "@/lib/content"
+import FoldRule from "./brand/FoldRule"
 
 // Building blocks shared by ThreatArticle, GuideArticle and ExplainerArticle.
 
@@ -35,12 +36,13 @@ export function TldrBlock({ text, number }) {
 
 export function SectionHeading({ id, icon: Icon, iconClassName = "text-[#64748B]", description, children }) {
   return (
-    <div className="mb-5">
-      <h2 id={id} className="flex items-center gap-2.5 text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight leading-snug">
+    <div className="mb-6">
+      <FoldRule className="mb-5" />
+      <h2 id={id} className="flex items-center gap-2.5 font-display font-semibold text-[1.5rem] sm:text-[1.75rem] text-[#0F172A] tracking-[-0.02em] leading-[1.15]">
         {Icon ? <Icon className={`w-5 h-5 shrink-0 ${iconClassName}`} aria-hidden="true" /> : null}
         <span>{children}</span>
       </h2>
-      {description ? <p className="text-[#64748B] text-sm mt-1.5">{description}</p> : null}
+      {description ? <p className="text-[#475569] text-[0.9375rem] mt-2">{description}</p> : null}
     </div>
   )
 }
@@ -49,7 +51,7 @@ export function SectionHeading({ id, icon: Icon, iconClassName = "text-[#64748B]
 // `srLabel` is read before the visible text so the chip makes sense alone.
 export function MetaChip({ icon: Icon, srLabel, children }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border border-[#E2E8F0] bg-white text-[#334155]">
+    <span className="readout-label inline-flex items-center gap-1.5 px-2.5 py-1 border border-[#CBD5E1] bg-white text-[#334155]">
       {Icon ? <Icon className="w-3.5 h-3.5 text-[#64748B]" aria-hidden="true" /> : null}
       {srLabel ? <span className="sr-only">{srLabel}: </span> : null}
       {children}
@@ -64,10 +66,10 @@ export function FaqSection({ faqs, title = "Common questions" }) {
   return (
     <section aria-labelledby="faq-heading" className="mt-14">
       <SectionHeading id="faq-heading">{title}</SectionHeading>
-      <div className="rounded-2xl border border-[#E2E8F0] bg-white divide-y divide-[#F1F5F9]">
+      <div className="border-t border-[#E2E8F0] divide-y divide-[#E2E8F0]">
         {list.map((faq, i) => (
-          <div key={i} className="p-5 sm:p-6">
-            <h3 className="text-base font-semibold text-[#0F172A] leading-snug mb-2">{stripCitations(faq.question)}</h3>
+          <div key={i} className="py-5">
+            <h3 className="font-display font-semibold text-[1.125rem] tracking-[-0.01em] text-[#0F172A] leading-snug mb-2">{stripCitations(faq.question)}</h3>
             <p className="text-[#475569] text-[15px] leading-relaxed">{stripCitations(faq.answer)}</p>
           </div>
         ))}

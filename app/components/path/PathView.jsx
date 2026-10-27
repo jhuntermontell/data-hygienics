@@ -63,12 +63,12 @@ function Reveal({ path, total, mirror, headStart, progress }) {
   const kept = new Set(path.steps.map((s) => s.id))
   const dots = path.allIds
   return (
-    <section aria-labelledby="reveal-title" className="rounded-3xl bg-[#0F172A] text-white p-6 sm:p-8 overflow-hidden relative">
+    <section aria-labelledby="reveal-title" className="bg-[#0F172A] text-white p-6 sm:p-8 overflow-hidden relative">
       <div aria-hidden="true" className="absolute -right-10 -top-10 w-72 h-72 rounded-full bg-white/5" />
       <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
         <div>
-          <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#94A3B8]">Your path is ready</p>
-          <h2 id="reveal-title" className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-balance">
+          <p className="readout-label text-[#94A3B8]">Your path is ready</p>
+          <h2 id="reveal-title" className="mt-2 text-2xl sm:text-3xl font-display font-semibold tracking-[-0.02em] text-balance">
             {mirror}
           </h2>
           <p className="mt-3 text-[15px] leading-relaxed text-[#CBD5E1]">
@@ -107,7 +107,7 @@ function Reveal({ path, total, mirror, headStart, progress }) {
 function ThisWeek({ picks, onStart, progress, answers }) {
   if (!picks.length) {
     return (
-      <p className="rounded-2xl border border-[#E2E8F0] bg-white p-5 text-[15px] text-[#475569]">
+      <p className="border border-[#E2E8F0] bg-white p-5 text-[15px] text-[#475569]">
         Nothing due this week. That&apos;s the point. Your monthly tidy keeps it that way.
       </p>
     )
@@ -115,7 +115,7 @@ function ThisWeek({ picks, onStart, progress, answers }) {
   return (
     <section aria-labelledby="this-week-title">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <h2 id="this-week-title" className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#0F172A]">
+        <h2 id="this-week-title" className="flex items-center gap-2 text-xl font-display font-semibold tracking-[-0.02em] text-[#0F172A]">
           <CalendarCheck className="w-5 h-5 text-[#0F766E]" aria-hidden="true" />
           This week
         </h2>
@@ -125,7 +125,7 @@ function ThisWeek({ picks, onStart, progress, answers }) {
       </div>
       <ol className={`mt-4 grid gap-3 list-none p-0 ${picks.length > 1 ? "md:grid-cols-3" : ""}`}>
         {picks.map((step, i) => (
-          <li key={step.id} className="flex flex-col rounded-2xl border border-[#E2E8F0] bg-white p-4">
+          <li key={step.id} className="flex flex-col border border-[#E2E8F0] bg-white p-4">
             <p className="text-xs font-semibold text-[#0F766E]">Step {i + 1}</p>
             <p className="mt-1 text-[15px] font-semibold leading-snug text-[#0F172A] flex-1">{step.title}</p>
             <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#64748B]">
@@ -140,7 +140,7 @@ function ThisWeek({ picks, onStart, progress, answers }) {
             <button
               type="button"
               onClick={() => onStart(step.id)}
-              className="mt-3 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0F766E] px-3 py-2 text-sm font-semibold text-white hover:bg-[#115E59] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
+              className="mt-3 inline-flex items-center justify-center gap-1.5 bg-[#0F766E] px-3 py-2 text-sm font-semibold text-white hover:bg-[#115E59] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
             >
               {HANDLED(progress[step.id]) ? "Open" : "Start"}
               <span className="sr-only">: {step.title}</span>
@@ -166,9 +166,9 @@ function HorizonStrip({ path, progress, filter, onFilter, year }) {
           return (
             <label
               key={key}
-              className={`relative cursor-pointer rounded-xl border-2 p-3 focus-within:ring-2 focus-within:ring-[#1D4ED8] focus-within:ring-offset-2 ${
-                on ? "border-[#0F172A] bg-white" : "border-transparent bg-white/70 hover:bg-white"
-              }`}
+              className={`relative cursor-pointer border-2 p-3 focus-within:ring-2 focus-within:ring-[#1D4ED8] focus-within:ring-offset-2 ${
+ on ? "border-[#0F172A] bg-white" : "border-transparent bg-white/70 hover:bg-white"
+ }`}
             >
               <input
                 type="checkbox"
@@ -206,8 +206,8 @@ function HorizonStrip({ path, progress, filter, onFilter, year }) {
 
 function WhereYouStand({ rows, onOpen }) {
   return (
-    <section aria-labelledby="stand-title" className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
-      <h2 id="stand-title" className="text-base font-bold text-[#0F172A]">
+    <section aria-labelledby="stand-title" className="border border-[#E2E8F0] bg-white p-5">
+      <h2 id="stand-title" className="text-base font-display font-semibold text-[#0F172A]">
         Where you stand
       </h2>
       <ul className="mt-4 space-y-4 list-none p-0 m-0">
@@ -249,12 +249,12 @@ function LongViewPanel({ endStates, selected, onSelect, path, year }) {
   const stepsById = Object.fromEntries(path.steps.map((s) => [s.id, s]))
   const active = endStates.find((e) => e.id === selected)
   return (
-    <section aria-labelledby="long-view-title" className="rounded-2xl bg-[#0F172A] text-white p-5 sm:p-6">
-      <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#94A3B8]">
+    <section aria-labelledby="long-view-title" className="bg-[#0F172A] text-white p-5 sm:p-6">
+      <p className="flex items-center gap-2 readout-label text-[#94A3B8]">
         <Telescope className="w-4 h-4" aria-hidden="true" />
         Start from {year}
       </p>
-      <h2 id="long-view-title" className="mt-2 text-xl font-bold tracking-tight">
+      <h2 id="long-view-title" className="mt-2 text-xl font-display font-semibold tracking-[-0.02em]">
         Where this path leads
       </h2>
       <p className="mt-1 text-sm leading-relaxed text-[#CBD5E1]">
@@ -270,9 +270,9 @@ function LongViewPanel({ endStates, selected, onSelect, path, year }) {
                 aria-pressed={on}
                 aria-controls="path-stages"
                 onClick={() => onSelect(on ? null : e.id)}
-                className={`w-full text-left rounded-xl border px-4 py-3 text-[15px] leading-snug transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
-                  on ? "border-white bg-white text-[#0F172A] font-semibold" : "border-white/20 hover:border-white/50 text-white"
-                }`}
+                className={`w-full text-left border px-4 py-3 text-[15px] leading-snug transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
+ on ? "border-white bg-white text-[#0F172A] font-semibold" : "border-white/20 hover:border-white/50 text-white"
+ }`}
               >
                 {e.text}
               </button>
@@ -281,7 +281,7 @@ function LongViewPanel({ endStates, selected, onSelect, path, year }) {
         })}
       </ul>
       {active ? (
-        <div className="mt-4 rounded-xl bg-white/5 p-4" aria-live="polite">
+        <div className="mt-4 bg-white/5 p-4" aria-live="polite">
           <p className="text-sm font-semibold">The steps that lead there, from today:</p>
           <ol className="mt-2 space-y-1 text-sm text-[#CBD5E1] list-decimal pl-5">
             {active.stepIds.filter((id) => stepsById[id]).map((id) => (
@@ -300,7 +300,7 @@ function LongViewPanel({ endStates, selected, onSelect, path, year }) {
 function IndustryBrief({ industry }) {
   return (
     <div className="mt-3 grid gap-3 md:grid-cols-2">
-      <details className="rounded-xl border border-[#E2E8F0] bg-white p-4" open>
+      <details className="border border-[#E2E8F0] bg-white p-4" open>
         <summary className="cursor-pointer text-sm font-semibold text-[#0F172A]">What targets {industry.label.toLowerCase()} most</summary>
         <ul className="mt-2 space-y-1 text-sm leading-relaxed text-[#475569] list-disc pl-5">
           {industry.topThreats.map((t) => (
@@ -308,7 +308,7 @@ function IndustryBrief({ industry }) {
           ))}
         </ul>
       </details>
-      <details className="rounded-xl border border-[#E2E8F0] bg-white p-4">
+      <details className="border border-[#E2E8F0] bg-white p-4">
         <summary className="cursor-pointer text-sm font-semibold text-[#0F172A]">Rules that may apply to you</summary>
         <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-[#475569] list-disc pl-5">
           {industry.regulatoryHooks.map((r) => (
@@ -325,7 +325,7 @@ function NoiseCards({ cards }) {
   if (!cards?.length) return null
   return (
     <section aria-labelledby="cut-title">
-      <h2 id="cut-title" className="flex items-center gap-2 text-xl font-bold tracking-tight text-[#0F172A]">
+      <h2 id="cut-title" className="flex items-center gap-2 text-xl font-display font-semibold tracking-[-0.02em] text-[#0F172A]">
         <Scissors className="w-5 h-5 text-[#0F172A]" aria-hidden="true" />
         What we cut
       </h2>
@@ -334,8 +334,8 @@ function NoiseCards({ cards }) {
       </p>
       <ul className="mt-4 grid gap-3 md:grid-cols-2 list-none p-0 m-0">
         {cards.map((card) => (
-          <li key={card.id} className="rounded-2xl border border-[#E2E8F0] bg-white p-4">
-            <p className="text-xs font-semibold tracking-[0.08em] uppercase text-[#64748B]">You&apos;ll hear about</p>
+          <li key={card.id} className="border border-[#E2E8F0] bg-white p-4">
+            <p className="readout-label text-[#64748B]">You&apos;ll hear about</p>
             <p className="mt-1 text-[15px] font-semibold text-[#0F172A]">{card.hear}</p>
             <p className="mt-3 text-sm leading-relaxed text-[#334155]">
               <span className="font-semibold text-[#0F172A]">Our take: </span>
@@ -355,8 +355,8 @@ function NoiseCards({ cards }) {
 function Routines({ routines }) {
   if (!routines?.length) return null
   return (
-    <section aria-labelledby="routines-title" className="rounded-2xl border border-[#E2E8F0] bg-white p-5">
-      <h2 id="routines-title" className="flex items-center gap-2 text-base font-bold text-[#0F172A]">
+    <section aria-labelledby="routines-title" className="border border-[#E2E8F0] bg-white p-5">
+      <h2 id="routines-title" className="flex items-center gap-2 text-base font-display font-semibold text-[#0F172A]">
         <RefreshCw className="w-4 h-4 text-[#0F766E]" aria-hidden="true" />
         Keep it tidy
       </h2>
@@ -414,7 +414,7 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
     <button
       type="button"
       onClick={onDismiss}
-      className="rounded-lg px-2 py-1 text-sm font-semibold text-[#475569] hover:bg-white hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+      className="px-2 py-1 text-sm font-semibold text-[#475569] hover:bg-white hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
     >
       {MEMBERSHIP.reveal.notNow}
     </button>
@@ -423,14 +423,14 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
   if (user) {
     if (!askable) {
       return (
-        <p className="flex items-start gap-2 rounded-2xl border border-[#E2E8F0] bg-white p-4 text-sm text-[#475569]">
+        <p className="flex items-start gap-2 border border-[#E2E8F0] bg-white p-4 text-sm text-[#475569]">
           <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
           {SYNC_LABELS[sync] || SYNC_LABELS.device}
         </p>
       )
     }
     return (
-      <div className="rounded-2xl border border-[#E2E8F0] bg-white p-4 text-sm leading-relaxed text-[#475569]">
+      <div className="border border-[#E2E8F0] bg-white p-4 text-sm leading-relaxed text-[#475569]">
         <p className="flex items-start gap-2">
           <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
           <span>
@@ -453,7 +453,7 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
   const signIn = (
     <Link
       href={`/tools/cyber-audit/login?next=${encodeURIComponent(next)}`}
-      className="inline-flex items-center rounded-lg px-2 py-1 text-sm font-semibold text-[#1D4ED8] hover:bg-white"
+      className="inline-flex items-center px-2 py-1 text-sm font-semibold text-[#1D4ED8] hover:bg-white"
     >
       Sign in
     </Link>
@@ -461,7 +461,7 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
 
   if (!askable) {
     return (
-      <div className="rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
+      <div className="border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
         <p className="flex items-center gap-2 text-sm font-bold text-[#0F172A]">
           <CloudUpload className="w-4 h-4 text-[#1D4ED8]" aria-hidden="true" />
           Saved on this device
@@ -472,7 +472,7 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Link
             href={save}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF]"
+            className="inline-flex items-center gap-1.5 bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#1E40AF]"
           >
             Save my path
           </Link>
@@ -483,8 +483,8 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
   }
 
   return (
-    <section aria-labelledby="join-card-title" className="rounded-2xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
-      <h2 id="join-card-title" className="flex items-start gap-2 text-base font-bold leading-snug text-[#0F172A]">
+    <section aria-labelledby="join-card-title" className="border border-[#1D4ED8]/20 bg-[#EFF6FF] p-5">
+      <h2 id="join-card-title" className="flex items-start gap-2 text-base font-display font-semibold leading-snug text-[#0F172A]">
         <CloudUpload className="w-4 h-4 mt-1 shrink-0 text-[#1D4ED8]" aria-hidden="true" />
         {MEMBERSHIP.reveal.headline}
       </h2>
@@ -492,14 +492,14 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Link
           href={save}
-          className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-[15px] font-semibold text-white hover:bg-[#1E40AF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
+          className="inline-flex items-center justify-center gap-1.5 bg-[#1D4ED8] px-4 py-2.5 text-[15px] font-semibold text-white hover:bg-[#1E40AF] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
         >
           {MEMBERSHIP.reveal.save}
         </Link>
         <Link
           href={pricing}
           onClick={started}
-          className="inline-flex items-center justify-center rounded-lg border border-[#1D4ED8]/30 bg-white px-3 py-2 text-sm font-semibold text-[#1D4ED8] hover:border-[#1D4ED8]/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
+          className="inline-flex items-center justify-center border border-[#1D4ED8]/30 bg-white px-3 py-2 text-sm font-semibold text-[#1D4ED8] hover:border-[#1D4ED8]/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A]"
         >
           {MEMBERSHIP.reveal.join} ({memberPrice(audience)})
         </Link>
@@ -514,7 +514,7 @@ function JoinCard({ sync, user, audience, plan, dismissedAt, onDismiss }) {
 
 function Manage({ onEdit, onExport, onDelete }) {
   const button =
-    "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+    "inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
   // The dashboard's "Export my path" and "Delete my data" link here
   // (/path/<audience>#manage-path); PathView scrolls to it once it renders.
   return (
@@ -647,7 +647,7 @@ export default function PathView({
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="space-y-6 min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-            <div role="group" aria-label="Path view" className="inline-flex rounded-xl bg-[#E2E8F0]/70 p-1">
+            <div role="group" aria-label="Path view" className="inline-flex bg-[#E2E8F0]/70 p-1">
               {[
                 { key: "today", label: "Start from today" },
                 { key: "future", label: `Start from ${year}` },
@@ -660,9 +660,9 @@ export default function PathView({
                     setMode(m.key)
                     setEndState(null)
                   }}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1D4ED8] ${
-                    mode === m.key ? "bg-white text-[#0F172A] shadow-sm" : "text-[#475569] hover:text-[#0F172A]"
-                  }`}
+                  className={`px-3 py-1.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1D4ED8] ${
+ mode === m.key ? "bg-white text-[#0F172A] shadow-sm" : "text-[#475569] hover:text-[#0F172A]"
+ }`}
                 >
                   {m.label}
                 </button>
@@ -673,7 +673,7 @@ export default function PathView({
               <select
                 value={view}
                 onChange={(e) => onView(e.target.value)}
-                className="h-9 rounded-lg border border-[#CBD5E1] bg-white px-2 text-sm text-[#0F172A] focus:border-[#1D4ED8]"
+                className="h-9 border border-[#CBD5E1] bg-white px-2 text-sm text-[#0F172A] focus:border-[#1D4ED8]"
               >
                 {VIEWS.map((v) => (
                   <option key={v.key} value={v.key}>
@@ -699,14 +699,14 @@ export default function PathView({
                 <li key={stage.id} className="relative pl-12">
                   <span
                     aria-hidden="true"
-                    className={`absolute left-0 top-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold ${
-                      complete ? "bg-[#0F8F83] text-white" : "bg-[#0F172A] text-white"
-                    }`}
+                    className={`absolute left-0 top-0 w-9 h-9 flex items-center justify-center text-sm font-bold ${
+ complete ? "bg-[#0F8F83] text-white" : "bg-[#0F172A] text-white"
+ }`}
                   >
                     {complete ? <Flag className="w-4 h-4" /> : si + 1}
                   </span>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                    <h2 className="text-xl font-bold tracking-tight text-[#0F172A]">
+                    <h2 className="text-xl font-display font-semibold tracking-[-0.02em] text-[#0F172A]">
                       <span className="sr-only">Stage {si + 1}: </span>
                       {stage.title}
                     </h2>
@@ -749,7 +749,7 @@ export default function PathView({
                     ))}
                   </ul>
                   {complete && stage.milestone ? (
-                    <p className="mt-3 rounded-xl border border-[#0F8F83]/30 bg-[#F0FDFA] p-4 text-sm leading-relaxed text-[#134E4A]">
+                    <p className="mt-3 border border-[#0F8F83]/30 bg-[#F0FDFA] p-4 text-sm leading-relaxed text-[#134E4A]">
                       <span className="font-semibold">What&apos;s different now: </span>
                       {stage.milestone}
                     </p>
@@ -760,7 +760,7 @@ export default function PathView({
           </ol>
 
           {path.setAside.length ? (
-            <details className="rounded-2xl border border-dashed border-[#CBD5E1] bg-white p-4">
+            <details className="border border-dashed border-[#CBD5E1] bg-white p-4">
               <summary className="cursor-pointer text-sm font-semibold text-[#0F172A]">
                 See the {path.setAside.length} steps we set aside
               </summary>

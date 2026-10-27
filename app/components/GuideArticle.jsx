@@ -72,7 +72,7 @@ export default function GuideArticle({ entry }) {
           </SectionHeading>
           <ol className="space-y-4">
             {steps.map((step, i) => (
-              <li key={i} id={`step-${i + 1}`} className="rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
+              <li key={i} id={`step-${i + 1}`} className="border border-[#E2E8F0] bg-white p-5 sm:p-6">
                 <div className="flex gap-3 sm:gap-4">
                   <span
                     className="shrink-0 w-9 h-9 rounded-full bg-[#0F172A] text-white text-sm font-bold flex items-center justify-center"
@@ -82,7 +82,7 @@ export default function GuideArticle({ entry }) {
                   </span>
                   <div className="min-w-0 flex-1 pt-1">
                     {step.title ? (
-                      <h3 className="text-lg font-bold text-[#0F172A] leading-snug mb-2">
+                      <h3 className="text-lg font-display font-semibold text-[#0F172A] leading-snug mb-2">
                         <span className="sr-only">Step {i + 1}: </span>
                         <CitedText text={step.title} number={number} />
                       </h3>
@@ -93,16 +93,16 @@ export default function GuideArticle({ entry }) {
                       className="text-[#334155] text-[15px] sm:text-base leading-relaxed mb-3 last:mb-0"
                     />
                     {asParagraphs(step.verify).length > 0 ? (
-                      <div className="mt-4 flex gap-3 rounded-xl border border-[#059669]/20 bg-[#ECFDF5] p-4">
+                      <div className="mt-4 flex gap-3 border border-[#E2E8F0] bg-[#F8FAFC] p-4">
                         <CircleCheck className="w-5 h-5 shrink-0 text-[#047857] mt-0.5" aria-hidden="true" />
                         <div className="min-w-0">
-                          <p className="text-xs font-bold tracking-[0.08em] uppercase text-[#047857] mb-1">
+                          <p className="readout-label text-[#047857] mb-1">
                             How you know it worked
                           </p>
                           <Paragraphs
                             value={step.verify}
                             number={number}
-                            className="text-[#065F46] text-[15px] leading-relaxed mb-2 last:mb-0"
+                            className="text-[#334155] text-[15px] leading-relaxed mb-2 last:mb-0"
                           />
                         </div>
                       </div>
@@ -120,7 +120,7 @@ export default function GuideArticle({ entry }) {
           <SectionHeading id="limits-heading" icon={Info} description="No single habit covers everything. Here is where this one stops.">
             What this won&apos;t do
           </SectionHeading>
-          <ul className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-5 sm:p-6 space-y-3">
+          <ul className="border border-[#E2E8F0] bg-[#F8FAFC] p-5 sm:p-6 space-y-3">
             {limits.map((limit, i) => (
               <li key={i} className="flex gap-3 text-[15px] leading-relaxed text-[#334155]">
                 <span className="mt-[0.6em] w-1.5 h-1.5 shrink-0 rounded-full bg-[#94A3B8]" aria-hidden="true" />

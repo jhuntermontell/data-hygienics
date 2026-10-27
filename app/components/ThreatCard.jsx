@@ -13,7 +13,7 @@ export default function ThreatCard({ entry, headingLevel = "h3" }) {
   return (
     <Link
       href={hrefFor(entry)}
-      className="group flex flex-col h-full rounded-xl border border-[#E2E8F0] bg-white p-5 hover:border-[#1D4ED8]/40 hover:shadow-sm motion-safe:transition-all"
+      className="group flex flex-col h-full border border-[#E2E8F0] bg-white p-5 hover:border-[#1D4ED8]/40 hover:shadow-sm motion-safe:transition-all"
     >
       <div className="flex flex-wrap items-center gap-1.5 mb-3">
         <SeverityChip severity={entry.severity} />

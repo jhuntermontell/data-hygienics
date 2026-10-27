@@ -74,6 +74,9 @@
   --color-day-readout: var(--day-readout);
 }
 
+/* Brand classes sit in the components layer so Tailwind utilities (mb-6,
+   mt-4, text colors) placed on the same element win. */
+@layer components {
 /* Readout: the monospaced line for metadata that proves rigor (reviewed
    dates, source counts, the custody line). */
 .readout {
@@ -121,6 +124,8 @@
 @media (prefers-reduced-motion: no-preference) {
   .fold-rule[data-draw]::before { animation: fold-draw 320ms cubic-bezier(.2,.7,.2,1) both; }
 }
+}
+
 @keyframes fold-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 html {
@@ -152,8 +157,12 @@ body {
 
 /* Author byline */
 .author-byline {
-  font-size: 0.85rem;
-  color: var(--color-text-tertiary);
+  font-family: var(--font-readout-face), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--day-readout);
   margin: 0.5rem 0 1.5rem;
   display: flex;
   flex-wrap: wrap;
@@ -168,44 +177,46 @@ body {
 
 /* TL;DR block */
 .tldr-block {
-  border-left: 3px solid var(--color-primary);
-  background: var(--color-primary-light);
-  padding: 1rem 1.25rem;
-  border-radius: 0 8px 8px 0;
+  border-left: 3px solid var(--color-brand-teal);
+  background: var(--color-surface);
+  padding: 1.125rem 1.375rem;
   margin: 1rem 0 2rem;
 }
 .tldr-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-family: var(--font-readout-face), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: var(--day-readout);
   display: block;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 .tldr-block p {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   line-height: 1.6;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
 }
 
 /* Threat page long-form content */
 .threat-content h2 {
-  font-size: 1.375rem;
-  font-weight: 800;
+  font-family: var(--font-display-face), var(--font-inter), system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #0F172A;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
 }
 .threat-content h2:first-child {
   margin-top: 0;
 }
 .threat-content h3 {
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display-face), var(--font-inter), system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
   color: #0F172A;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;

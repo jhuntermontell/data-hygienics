@@ -1,4 +1,5 @@
 import Link from "next/link"
+import FoldRule from "@/app/components/brand/FoldRule"
 import { ArrowRight, ChevronRight, Clock, CornerDownRight, MessageSquareQuote, ShieldCheck, Users } from "lucide-react"
 import { HORIZONS, HORIZON_STYLES } from "@/lib/horizons"
 import {
@@ -35,7 +36,7 @@ function paragraphs(value) {
 function Section({ id, title, children }) {
   return (
     <section aria-labelledby={id} className="mt-10">
-      <h2 id={id} className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight mb-3">
+      <h2 id={id} className="text-xl sm:text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em] mb-3">
         {title}
       </h2>
       {children}
@@ -84,11 +85,12 @@ export default function StepArticle({ step, audience }) {
       </nav>
 
       <header>
-        <p className={`text-xs font-semibold tracking-[0.12em] uppercase mb-3 ${accent.text}`}>
+        <FoldRule draw className="mb-6" />
+        <p className={`readout-label mb-4 ${accent.text}`}>
           Clear Path step · {AUDIENCE_LABELS[audience] || audience}
           {stage ? ` · ${stage.title}` : ""}
         </p>
-        <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] font-black text-[#0F172A] leading-[1.1] tracking-tight text-balance mb-5">
+        <h1 className="font-display font-semibold text-[2.25rem] sm:text-[3rem] md:text-[3.25rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
           {step.title}
         </h1>
 
@@ -122,7 +124,7 @@ export default function StepArticle({ step, audience }) {
         </p>
 
         {notes.length || before.length ? (
-          <div className="mt-5 rounded-xl border border-[#E2E8F0] bg-white p-4 space-y-2 text-sm leading-relaxed text-[#475569]">
+          <div className="mt-5 border border-[#E2E8F0] bg-white p-4 space-y-2 text-sm leading-relaxed text-[#475569]">
             {notes.map((note) => (
               <p key={note}>{note}</p>
             ))}
@@ -162,7 +164,7 @@ export default function StepArticle({ step, audience }) {
         </ol>
 
         {step.sayThis ? (
-          <div className="mt-6 flex gap-3 rounded-xl border border-[#0F172A]/15 bg-white p-4">
+          <div className="mt-6 flex gap-3 border border-[#0F172A]/15 bg-white p-4">
             <MessageSquareQuote className="w-5 h-5 mt-0.5 shrink-0 text-[#0F172A]" aria-hidden="true" />
             <p className="text-[16px] leading-relaxed text-[#0F172A]">
               <span className="font-semibold">Say this: </span>
@@ -172,7 +174,7 @@ export default function StepArticle({ step, audience }) {
         ) : null}
 
         {step.check ? (
-          <p className="mt-6 flex gap-2 rounded-xl border border-[#0F8F83]/25 bg-[#F0FDFA] p-4 text-[15px] leading-relaxed text-[#134E4A]">
+          <p className="mt-6 flex gap-2 border border-[#0F8F83]/25 bg-[#F0FDFA] p-4 text-[15px] leading-relaxed text-[#134E4A]">
             <ShieldCheck className="w-5 h-5 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
             <span>
               <span className="font-semibold">Check it worked: </span>
@@ -182,7 +184,7 @@ export default function StepArticle({ step, audience }) {
         ) : null}
 
         {step.handoff ? (
-          <div className="mt-6 rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-4">
+          <div className="mt-6 border border-[#1D4ED8]/20 bg-[#EFF6FF] p-4">
             <p className="text-sm font-semibold text-[#0F172A]">If an outside IT company handles your IT, send them this:</p>
             <blockquote className="mt-2 border-l-2 border-[#1D4ED8]/40 pl-3 text-sm leading-relaxed text-[#1E3A8A]">
               {step.handoff}
@@ -213,7 +215,7 @@ export default function StepArticle({ step, audience }) {
 
       {story.length ? (
         <Section id="as-a-story" title="As a story">
-          <div className="rounded-2xl bg-[#0F172A] text-[#E2E8F0] p-5 sm:p-6 space-y-3 text-[16px] leading-relaxed">
+          <div className="bg-[#0F172A] text-[#E2E8F0] p-5 sm:p-6 space-y-3 text-[16px] leading-relaxed">
             {story.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
@@ -222,7 +224,7 @@ export default function StepArticle({ step, audience }) {
       ) : null}
 
       {step.newcomer ? (
-        <p className="mt-10 rounded-xl bg-white border border-[#E2E8F0] p-4 text-[15px] leading-relaxed text-[#334155]">
+        <p className="mt-10 bg-white border border-[#E2E8F0] p-4 text-[15px] leading-relaxed text-[#334155]">
           <span className="font-semibold text-[#0F172A]">If this is new to you: </span>
           {step.newcomer}
         </p>
@@ -247,7 +249,7 @@ export default function StepArticle({ step, audience }) {
                   href={link.href}
                   className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-sm font-medium text-[#1D4ED8] hover:border-[#1D4ED8]/40"
                 >
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#64748B]">{link.type}</span>
+                  <span className="readout-label text-[#64748B]">{link.type}</span>
                   <span className="min-w-0 break-words">{link.label}</span>
                 </Link>
               </li>
@@ -256,7 +258,7 @@ export default function StepArticle({ step, audience }) {
         </Section>
       ) : null}
 
-      <aside aria-label="Start your path" className="mt-12 rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
+      <aside aria-label="Start your path" className="mt-12 border border-[#E2E8F0] bg-white p-5 sm:p-6">
         <p className="text-[15px] leading-relaxed text-[#334155] mb-4">
           This is one step of the Clear Path for {audience === "business" ? "Business" : "Home"}: your steps in order, sized to
           your week. Free, and no account needed.

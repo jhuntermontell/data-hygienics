@@ -44,7 +44,7 @@ export default function ToolkitList({ categories = [], number = {} }) {
 
   if (!categories.length) {
     return (
-      <p className="rounded-xl border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
+      <p className="border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
         We&apos;re still testing tools for this list. Check back soon.
       </p>
     )
@@ -52,7 +52,7 @@ export default function ToolkitList({ categories = [], number = {} }) {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4 sm:p-5">
+      <div className="flex flex-col gap-4 border border-[#E2E8F0] bg-white p-4 sm:p-5">
         <AudienceChips
           value={audience}
           onChange={setAudience}
@@ -84,7 +84,7 @@ export default function ToolkitList({ categories = [], number = {} }) {
           aria-labelledby={`cat-${category.slug}-heading`}
           className="mt-14"
         >
-          <h2 id={`cat-${category.slug}-heading`} className="text-2xl font-bold text-[#0F172A] tracking-tight">
+          <h2 id={`cat-${category.slug}-heading`} className="text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em]">
             {category.name}
           </h2>
           {category.why ? (
@@ -112,9 +112,9 @@ function ToolCard({ tool, number }) {
   const alternatives = list(tool.alternatives).filter((a) => a?.name)
 
   return (
-    <article id={`tool-${tool.slug}`} className="flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
+    <article id={`tool-${tool.slug}`} className="flex h-full flex-col border border-[#E2E8F0] bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-        <h3 className="text-xl font-bold text-[#0F172A] leading-snug">{tool.name}</h3>
+        <h3 className="text-xl font-display font-semibold text-[#0F172A] leading-snug">{tool.name}</h3>
         {cost ? (
           <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border ${cost.className}`}>
             <Coins className="w-3.5 h-3.5" aria-hidden="true" />
@@ -159,7 +159,7 @@ function ToolCard({ tool, number }) {
         {caveats.length > 0 ? (
           <div>
             <dt className="flex items-center gap-1.5 font-semibold text-[#0F172A]">
-              <TriangleAlert className="w-4 h-4 text-[#B45309]" aria-hidden="true" />
+              <TriangleAlert className="w-4 h-4 text-[#0F766E]" aria-hidden="true" />
               Watch out for
             </dt>
             <dd className="mt-1">
@@ -234,7 +234,7 @@ function ToolCard({ tool, number }) {
             href={tool.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#1D4ED8]/30 px-3.5 py-2 text-sm font-semibold text-[#1D4ED8] hover:bg-[#EFF6FF] motion-safe:transition-colors"
+            className="inline-flex items-center gap-1.5 border border-[#1D4ED8]/30 px-3.5 py-2 text-sm font-semibold text-[#1D4ED8] hover:bg-[#EFF6FF] motion-safe:transition-colors"
           >
             Visit {tool.name}
             <ExternalLink className="w-4 h-4" aria-hidden="true" />
