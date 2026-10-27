@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mockup: pricing head, night into day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="shared.js"></script>
+<style>
+  .p-head { padding: 80px 0 168px; }
+  .p-head .h1 { margin-top: 26px; max-width: 16ch; }
+  .p-head .lede { margin-top: 24px; max-width: 46ch; }
+  .p-head .readout { margin-top: 22px; }
+  .doors { margin-top: -112px; padding-bottom: 72px; }
+  .door-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .plan { background: #fff; border: 1px solid var(--day-line); padding: 32px 30px 30px; box-shadow: 0 30px 60px -40px rgba(15,23,42,.45); display: flex; flex-direction: column; }
+  .plan .label { color: var(--day-readout); }
+  .plan .h2 { margin-top: 12px; }
+  .plan .who { color: var(--day-ink-2); margin: 8px 0 0; font-size: 16px; }
+  .price { display: flex; align-items: baseline; gap: 10px; margin-top: 26px; }
+  .price .amt { font-family: var(--display); font-weight: 600; font-size: 56px; letter-spacing: -.035em; line-height: 1; }
+  .price .per { color: var(--day-ink-2); font-size: 16px; }
+  .alt { margin-top: 8px; }
+  .founding { margin-top: 18px; border-top: 1px solid var(--day-line); border-bottom: 1px solid var(--day-line); padding: 12px 0; display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+  .founding b { font-weight: 600; }
+  .inc { list-style: none; margin: 22px 0 26px; padding: 0; display: grid; gap: 10px; flex: 1; }
+  .inc li { display: grid; grid-template-columns: 20px 1fr; gap: 8px; font-size: 15.5px; line-height: 1.5; }
+  .inc li::before { content: ""; width: 9px; height: 9px; margin-top: 7px; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+  .home .inc li::before { background: var(--teal); }
+  .biz .inc li::before { background: var(--cobalt); }
+  .plan .btn { width: 100%; }
+  .free { padding: 8px 0 96px; }
+  .free-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; margin-top: 22px; }
+  .free-grid .h2 { grid-column: 1 / span 5; }
+  .free-grid ul { grid-column: 7 / span 6; list-style: none; padding: 0; margin: 0; }
+  .free-grid li { padding: 12px 0; border-bottom: 1px solid var(--day-line); display: flex; justify-content: space-between; gap: 12px; }
+  .free-grid li span:last-child { font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; color: var(--teal-text); }
+  @media (max-width: 860px) {
+    .p-head { padding: 48px 0 140px; }
+    .door-grid { grid-template-columns: 1fr; }
+    .free-grid .h2, .free-grid ul { grid-column: 1 / -1; }
+    .plan { padding: 26px 20px 22px; }
+  }
+</style>
+</head>
+<body>
+<header class="hdr night"></header>
+<main>
+  <section class="p-head night" aria-labelledby="h">
+    <div class="wrap">
+      <hr class="fold">
+      <p class="readout" style="margin-top:14px">Membership</p>
+      <h1 class="h1" id="h">Answers from our research, for $8 a month</h1>
+      <p class="lede">Ask answers from our published research and shows you the page. Your Path follows you to every device. We sell nothing else.</p>
+      <p class="readout">No sponsors · No referral fees · Cancel in two clicks</p>
+    </div>
+  </section>
+
+  <section class="doors day" aria-label="Plans" style="background:transparent">
+    <div class="wrap door-grid">
+      <article class="plan home day">
+        <span class="label">For your home</span>
+        <h2 class="h2">Home</h2>
+        <p class="who">Everyone at your address, and the people you look out for</p>
+        <div class="price"><span class="amt">$8</span><span class="per">a month</span></div>
+        <p class="readout alt">Or $69 a year</p>
+        <div class="founding"><span><b>Founding rate</b>, locked for life</span><span class="readout" style="color:var(--teal-text)">$59 a year</span></div>
+        <ul class="inc">
+          <li>Ask Data Hygienics: answers from our research, with the page they came from</li>
+          <li>Your home and business paths on every device</li>
+          <li>One account for your home and your work</li>
+          <li>Cancel in two clicks; export or delete your data any time</li>
+        </ul>
+        <a class="btn teal" href="#">Join Home</a>
+      </article>
+      <article class="plan biz day">
+        <span class="label">For your business</span>
+        <h2 class="h2">Business</h2>
+        <p class="who">One organization, up to 50 people, and whoever got handed IT</p>
+        <div class="price"><span class="amt">$39</span><span class="per">a month</span></div>
+        <p class="readout alt">Or $390 a year</p>
+        <div class="founding"><span><b>Founding rate</b>, locked for life</span><span class="readout" style="color:var(--cobalt)">$349 a year</span></div>
+        <ul class="inc">
+          <li>Everything in Home, for your home path too</li>
+          <li>The full Cyber Audit, with the plain-English score and both reports</li>
+          <li>The Policy Library, all nine policies, including the AI Acceptable Use Policy</li>
+          <li>The Incident Response Planner, with practice runs</li>
+          <li>Cancel in two clicks; export or delete your data any time</li>
+        </ul>
+        <a class="btn cobalt" href="#">Join Business</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="free day" aria-labelledby="f">
+    <div class="wrap">
+      <hr class="fold">
+      <div class="free-grid">
+        <h2 class="h2" id="f">Free, always</h2>
+        <ul>
+          <li><span>The Path, home and business</span><span>Free</span></li>
+          <li><span>Every guide and threat page</span><span>Free</span></li>
+          <li><span>The Threat Check and its verdicts</span><span>Free</span></li>
+          <li><span>Every step page</span><span>Free</span></li>
+          <li><span>The glossary</span><span>Free</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

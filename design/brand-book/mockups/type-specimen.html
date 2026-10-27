@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup: display and readout faces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Inter+Tight:wght@600&family=Geist:wght@600&family=Archivo:wght@600&family=IBM+Plex+Mono:wght@500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+  .row { display: grid; grid-template-columns: 180px 1fr 1fr; gap: 32px; padding: 28px 0; border-bottom: 1px solid var(--night-line-2); align-items: center; }
+  .row .label { color: var(--night-readout); }
+  .s { font-weight: 600; text-transform: uppercase; font-size: 64px; line-height: .95; letter-spacing: -.035em; margin: 0; }
+  .t { font-weight: 600; font-size: 34px; line-height: 1.05; letter-spacing: -.02em; margin: 0; color: var(--navy); background: #fff; padding: 18px 20px; }
+  .m { font-weight: 500; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; margin: 0; color: var(--night-readout); }
+  @media (max-width: 800px) { .row { grid-template-columns: 1fr; gap: 12px; } .s { font-size: 40px; } }
+</style>
+</head>
+<body class="night">
+<main class="wrap" style="padding-top:48px;padding-bottom:64px">
+  <hr class="fold"><p class="readout" style="margin-top:14px">Display faces, Google Fonts only · 600 weight</p>
+  <div class="row"><span class="label">Inter Tight</span><p class="s" style="font-family:'Inter Tight'">Your digital life, in order</p><p class="t" style="font-family:'Inter Tight'">A call sounded like my grandchild and asked for money</p></div>
+  <div class="row"><span class="label">Geist</span><p class="s" style="font-family:'Geist'">Your digital life, in order</p><p class="t" style="font-family:'Geist'">A call sounded like my grandchild and asked for money</p></div>
+  <div class="row"><span class="label">Archivo</span><p class="s" style="font-family:'Archivo'">Your digital life, in order</p><p class="t" style="font-family:'Archivo'">A call sounded like my grandchild and asked for money</p></div>
+  <hr class="fold" style="margin-top:40px"><p class="readout" style="margin-top:14px">Readout faces · 13px · 500 weight</p>
+  <div class="row"><span class="label">IBM Plex Mono</span><p class="m" style="font-family:'IBM Plex Mono'">Verdict · Home · Reviewed Oct 2026 · 5 sources</p><p class="m" style="font-family:'IBM Plex Mono'">Searched on your device. Nothing sent.</p></div>
+  <div class="row"><span class="label">JetBrains Mono</span><p class="m" style="font-family:'JetBrains Mono'">Verdict · Home · Reviewed Oct 2026 · 5 sources</p><p class="m" style="font-family:'JetBrains Mono'">Searched on your device. Nothing sent.</p></div>
+</main>
+</body>
+</html>
