@@ -3,6 +3,8 @@ import { ArrowRight, Check, Gift, MessageCircleQuestion, MonitorSmartphone, Scal
 import { MEMBERSHIP } from "@/lib/content/membership"
 import JoinLink from "./membership/JoinLink"
 import JoinViewed from "./membership/JoinViewed"
+import FoldRule from "./brand/FoldRule"
+import Readout from "./brand/Readout"
 
 // Homepage membership band: the ask that follows the promise. Navy surface,
 // copy on the left (eyebrow, headline, body, four proofs, the guarantee
@@ -23,12 +25,15 @@ export default function MembershipBand() {
   const join = `${MEMBERSHIP.ctaShort} for ${usd(prices.home.monthly)}`
 
   return (
-    <section aria-labelledby="membership-heading" className="px-4 sm:px-6 py-16 sm:py-24 bg-[#0F172A] text-white">
+    <section aria-labelledby="membership-heading" className="bg-night text-white">
       <JoinViewed surface={SURFACE} />
-      <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-x-12 lg:gap-y-10 lg:items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28">
+        <FoldRule tone="night" />
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-7 pb-20 sm:pb-28 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-x-12 lg:gap-y-10 lg:items-start">
         <div className="lg:col-start-1 lg:row-start-1">
-          <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#94A3B8]">{homepage.eyebrow}</p>
-          <h2 id="membership-heading" className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight text-white text-balance">
+          <Readout tone="night" label>{homepage.eyebrow}</Readout>
+          <h2 id="membership-heading" className="mt-3 font-display font-semibold text-[1.875rem] sm:text-[2.5rem] leading-[1.08] tracking-[-0.02em] text-white text-balance">
             {homepage.headline}
           </h2>
           <p className="mt-5 text-[17px] leading-relaxed text-[#CBD5E1]">{homepage.body}</p>
@@ -38,10 +43,10 @@ export default function MembershipBand() {
           <div
             role="group"
             aria-label={`${MEMBERSHIP.name}, ${usd(prices.home.monthly)} a month`}
-            className="rounded-2xl border border-white/15 bg-white/5 p-6 sm:p-8"
+            className="border border-night-line-2 bg-night-raised p-6 sm:p-8"
           >
             <p className="flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-bold tabular-nums text-white">{usd(prices.home.monthly)}</span>
+              <span className="font-display text-4xl sm:text-5xl font-semibold tracking-[-0.03em] tabular-nums text-white">{usd(prices.home.monthly)}</span>
               <span className="text-base text-[#94A3B8]">/ month</span>
             </p>
             <p className="mt-1 text-sm text-[#CBD5E1]">or {usd(prices.home.yearly)} a year</p>
@@ -58,7 +63,7 @@ export default function MembershipBand() {
               href="/pricing?door=home"
               surface={SURFACE}
               door="home"
-              className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-[15px] font-semibold text-[#0F172A] hover:bg-[#F1F5F9] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="mt-7 flex w-full items-center justify-center gap-2 bg-white px-5 h-12 text-[15px] font-semibold text-[#0F172A] hover:bg-[#F1F5F9] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F8F83]"
             >
               {join}
               <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -85,7 +90,7 @@ export default function MembershipBand() {
               )
             })}
           </ul>
-          <p className="mt-6 text-sm text-[#94A3B8]">{MEMBERSHIP.exit}</p>
+          <p className="mt-6 text-sm text-night-readout">{MEMBERSHIP.exit}</p>
         </div>
       </div>
     </section>

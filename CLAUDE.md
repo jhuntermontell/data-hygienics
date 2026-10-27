@@ -55,6 +55,7 @@ All research content is pure-data JS modules under `lib/content/` (import-free s
 
 - `lib/content/threats/<slug>.js`, `guides/<slug>.js`, `explainers/<slug>.js`, `verdicts/<slug>.js`: one entry per file, `export default { kind, ... }`
 - `lib/content/toolkit.js`, `glossary.js`, `sovereignty.js` (PRINCIPLES), `home.js` (WHAT_CHANGED)
+- `lib/content/manifesto.js`: the How we work page (`/how-it-works`), three numbered parts plus the method. Validated like the library (tier 1-2 markers, no uncited statistics, no detection claims).
 - `lib/content/sources/<group>.js`: source records `{ id, label, publisher, url, published, type, tier, accessed, notes }`
 
 Aggregators own registration and expose getters: `lib/threats.js`, `lib/guides.js`, `lib/sovereignty.js`, `lib/verdicts.js`, `lib/toolkit.js`, `lib/glossary.js`, `lib/sources.js`, plus `lib/library.js` (latest, related resolution, hub content). **Adding an entry means creating the file and importing it in its aggregator.** Helpers live in `lib/content.js`.

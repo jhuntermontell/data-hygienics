@@ -19,6 +19,8 @@ import JoinSheet from "@/app/components/membership/JoinSheet"
 import JoinViewed from "@/app/components/membership/JoinViewed"
 import { MEMBERSHIP } from "@/lib/content/membership"
 import { EVENTS, track } from "@/lib/analytics"
+import FoldRule from "@/app/components/brand/FoldRule"
+import Readout from "@/app/components/brand/Readout"
 
 // One membership, two doors (Home and Business), the Documentation Pack
 // beneath, then what stays free and the questions people ask. All copy and
@@ -244,44 +246,51 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar />
+      <Navbar surface="night" />
 
-      <main className="pt-28 sm:pt-32 pb-24 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
-          {/* Header */}
-          <header className="text-center mb-10 sm:mb-12">
-            <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#475569] mb-3">
+      <main className="pb-24">
+        {/* Header: a night surface the two doors overlap */}
+        <section aria-labelledby="pricing-heading" className="bg-night text-night-ink px-4 sm:px-6 pt-28 sm:pt-36 pb-40 sm:pb-44">
+          <div className="max-w-5xl mx-auto">
+            <FoldRule tone="night" draw />
+            <Readout tone="night" label className="mt-7">
               {MEMBERSHIP.name}
-            </p>
-            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] mb-4 text-balance">
+            </Readout>
+            <h1
+              id="pricing-heading"
+              className="mt-4 max-w-[18ch] font-display font-semibold text-[2.5rem] sm:text-[3.5rem] lg:text-[4rem] leading-[1.02] tracking-[-0.03em] text-balance"
+            >
               {pricing.h1}
             </h1>
-            <p className="text-[#475569] text-lg max-w-2xl mx-auto">{pricing.line}</p>
-          </header>
+            <p className="mt-6 max-w-2xl text-lg sm:text-[1.1875rem] leading-relaxed text-night-ink-2">{pricing.line}</p>
+            <Readout tone="night" className="mt-5">
+              No sponsors · No referral fees · Cancel in two clicks
+            </Readout>
 
-          {canceled && (
-            <p
-              role="status"
-              className="mx-auto max-w-2xl mb-8 rounded-xl border border-[#E2E8F0] bg-white px-5 py-3 text-center text-sm text-[#0F172A]"
-            >
-              No charge was made
-            </p>
-          )}
-
-          {/* Grandfathered-plan banner */}
-          {onLegacyPlan && (
-            <div className="mx-auto max-w-2xl mb-10 rounded-xl border border-[#0F766E]/20 bg-[#F0FDFA] px-5 py-4 text-center">
-              <p className="text-sm text-[#0F766E]">
-                <span className="font-semibold">
-                  You are on a legacy plan:{" "}
-                  {LEGACY_PLAN_LABELS[currentPlan] || currentPlan}.
-                </span>{" "}
-                Keep using it for as long as you like — nothing below affects
-                your existing subscription or billing.
+            {canceled && (
+              <p role="status" className="mt-8 max-w-2xl border border-night-line-2 px-5 py-3 text-sm text-white">
+                No charge was made
               </p>
-            </div>
-          )}
+            )}
 
+            {/* Grandfathered-plan banner */}
+            {onLegacyPlan && (
+              <div className="mt-8 max-w-2xl border border-night-line-2 px-5 py-4">
+                <p className="text-sm text-night-ink-2">
+                  <span className="font-semibold text-white">
+                    You are on a legacy plan:{" "}
+                    {LEGACY_PLAN_LABELS[currentPlan] || currentPlan}.
+                  </span>{" "}
+                  Keep using it for as long as you like — nothing below affects
+                  your existing subscription or billing.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <div className="px-4 sm:px-6">
+        <div className="relative max-w-5xl mx-auto -mt-28 sm:-mt-32">
           {/* ---- The two doors ---- */}
           <div>
             <JoinViewed surface={SURFACE} />
@@ -314,16 +323,16 @@ export default function PricingPage() {
           {/* ---- Documentation Pack ---- */}
           <section
             aria-labelledby="pack-heading"
-            className="mt-16 rounded-2xl border border-[#E2E8F0] bg-white p-6 sm:p-8 grid gap-8 md:grid-cols-[1.2fr_1fr]"
+            className="mt-16 border border-[#E2E8F0] bg-white p-6 sm:p-8 grid gap-8 md:grid-cols-[1.2fr_1fr]"
           >
             <div className="min-w-0">
-              <h2 id="pack-heading" className="text-2xl font-bold tracking-tight text-[#0F172A]">
+              <h2 id="pack-heading" className="font-display font-semibold text-[1.75rem] leading-tight tracking-[-0.02em] text-[#0F172A]">
                 {pricing.pack.title}
               </h2>
               <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">{pricing.pack.line}</p>
               <p className="mt-5 flex items-baseline gap-2">
-                <span className="text-4xl font-bold tabular-nums text-[#0F172A]">{usd(MEMBERSHIP.prices.pack)}</span>
-                <span className="text-base text-[#94A3B8]">{pricing.pack.priceLabel}</span>
+                <span className="font-display text-5xl font-semibold tracking-[-0.03em] tabular-nums text-[#0F172A]">{usd(MEMBERSHIP.prices.pack)}</span>
+                <span className="text-base text-[#64748B]">{pricing.pack.priceLabel}</span>
               </p>
               <button
                 type="button"
@@ -331,7 +340,7 @@ export default function PricingPage() {
                   handleCheckout({ priceId: PRICES.docsPack, mode: "payment", key: "docs_pack" })
                 }
                 disabled={!!checkingOut || !packConfigured}
-                className="mt-5 inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#0F172A] px-6 py-3 text-[15px] font-semibold text-white hover:bg-[#1E293B] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] disabled:opacity-60"
+                className="mt-5 inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#0F172A] px-6 h-12 text-[15px] font-semibold text-white hover:bg-[#1E293B] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8] disabled:opacity-60"
               >
                 {checkingOut === "docs_pack" ? (
                   <>
@@ -368,9 +377,9 @@ export default function PricingPage() {
           <section
             id="free"
             aria-labelledby="free-heading"
-            className="mt-16 scroll-mt-24 rounded-2xl border border-[#0F8F83]/25 bg-[#F0FDFA] p-6 sm:p-8"
+            className="mt-16 scroll-mt-24 border-t border-[#E2E8F0] pt-10"
           >
-            <h2 id="free-heading" className="text-2xl font-bold tracking-tight text-[#0F172A]">
+            <h2 id="free-heading" className="font-display font-semibold text-[1.75rem] leading-tight tracking-[-0.02em] text-[#0F172A]">
               {pricing.freeAlways.title}
             </h2>
             <p className="mt-2 text-[15px] text-[#334155]">{pricing.freeAlways.intro}</p>
@@ -393,10 +402,10 @@ export default function PricingPage() {
 
           {/* ---- FAQ ---- */}
           <section aria-labelledby="faq-heading" className="mt-16">
-            <h2 id="faq-heading" className="text-2xl font-bold tracking-tight text-[#0F172A]">
+            <h2 id="faq-heading" className="font-display font-semibold text-[1.75rem] leading-tight tracking-[-0.02em] text-[#0F172A]">
               Questions people ask
             </h2>
-            <div className="mt-5 divide-y divide-[#E2E8F0] rounded-2xl border border-[#E2E8F0] bg-white">
+            <div className="mt-5 divide-y divide-[#E2E8F0] border border-[#E2E8F0] bg-white">
               {pricing.faq.map(({ q, a }) => (
                 <details key={q} className="group px-5 sm:px-6">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[15px] font-semibold text-[#0F172A] [&::-webkit-details-marker]:hidden">
@@ -413,6 +422,7 @@ export default function PricingPage() {
           <div className="mt-12 max-w-md mx-auto">
             <PromoCodeInput isAuthenticated={!!session} />
           </div>
+        </div>
         </div>
       </main>
 
@@ -437,18 +447,19 @@ function DoorCard({ door, copy, prices, priceIds, founding, focused, checkingOut
     <section
       id={door}
       aria-labelledby={headingId}
-      className={`scroll-mt-24 flex min-w-0 flex-col rounded-2xl border bg-white p-6 sm:p-8 shadow-sm ${
+      className={`scroll-mt-24 flex min-w-0 flex-col border bg-white p-6 sm:p-8 shadow-[0_30px_60px_-40px_rgba(15,23,42,0.45)] ${
         focused ? accent.ring : "border-[#E2E8F0]"
       }`}
     >
-      <h2 id={headingId} className="text-2xl font-bold tracking-tight text-[#0F172A]">
+      <Readout label>{door === "home" ? "For your home" : "For your business"}</Readout>
+      <h2 id={headingId} className="mt-2 font-display font-semibold text-[2rem] leading-tight tracking-[-0.02em] text-[#0F172A]">
         {copy.title}
       </h2>
       <p className="mt-1.5 text-[15px] text-[#475569]">{copy.who}</p>
 
       <p className="mt-6 flex items-baseline gap-2">
-        <span className="text-4xl sm:text-5xl font-bold tabular-nums text-[#0F172A]">{usd(prices.monthly)}</span>
-        <span className="text-base text-[#94A3B8]">/ month</span>
+        <span className="font-display text-5xl sm:text-[3.5rem] font-semibold tracking-[-0.035em] tabular-nums text-[#0F172A]">{usd(prices.monthly)}</span>
+        <span className="text-base text-[#64748B]">a month</span>
       </p>
 
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#334155]">
@@ -474,7 +485,7 @@ function DoorCard({ door, copy, prices, priceIds, founding, focused, checkingOut
       </div>
       {founding ? (
         <p className="mt-2 text-xs text-[#475569]">
-          <span className={`mr-1.5 inline-block rounded-full px-2 py-0.5 font-semibold ${accent.badge}`}>
+          <span className={`mr-1.5 inline-block px-2 py-0.5 font-semibold ${accent.badge}`}>
             {MEMBERSHIP.pricing.founding.label}
           </span>
           {MEMBERSHIP.pricing.founding.note}
@@ -494,7 +505,7 @@ function DoorCard({ door, copy, prices, priceIds, founding, focused, checkingOut
         type="button"
         onClick={() => onJoin({ door, cadence: "monthly" })}
         disabled={busy || !monthlyReady}
-        className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-[15px] font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 ${accent.button}`}
+        className={`inline-flex w-full items-center justify-center gap-2 px-5 h-12 text-[15px] font-semibold text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 ${accent.button}`}
       >
         {checkingOut === `${door}-monthly` ? (
           <>
@@ -519,7 +530,7 @@ function ErrorNote({ message }) {
   return (
     <p
       role="alert"
-      className="mt-3 rounded-lg border border-[#DC2626]/20 bg-[#FEF2F2] px-4 py-3 text-sm text-[#DC2626]"
+      className="mt-3 border border-[#DC2626]/20 bg-[#FEF2F2] px-4 py-3 text-sm text-[#DC2626]"
     >
       {message}
     </p>

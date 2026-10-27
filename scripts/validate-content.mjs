@@ -36,6 +36,7 @@ const { GLOSSARY } = await load("lib/content/glossary.js")
 const { WHAT_CHANGED, LOSSES_BY_YEAR } = await load("lib/content/home.js")
 const { CONTROLS } = await load("lib/controls.js")
 const { CITATION_FIELD_ORDER, CITATION_MARKER } = await load("lib/content.js")
+const { MANIFESTO } = await load("lib/content/manifesto.js")
 
 const HAS_MARKER = /\[\^[a-z0-9][a-z0-9-]*\]/
 const TRACKING = /[?&](utm_[a-z]+|ref|aff|aff_?id|affid|affiliate|tag|irclickid|clickid|gclid|fbclid|msclkid|partner|via)=|\/ref=/i
@@ -316,6 +317,22 @@ for (const [i, item] of (WHAT_CHANGED || []).entries()) {
 }
 for (const [i, p] of (PRINCIPLES || []).entries()) if (!p.title || !p.detail) err(`PRINCIPLES[${i}]`, "needs title and detail")
 
+// ── How we work (lib/content/manifesto.js) ───────────────────────────────
+// The manifesto gets the library's rules: markers resolve to tier 1-2
+// sources, no uncited statistics, no banned tone, no detection claims.
+{
+  const where = "MANIFESTO"
+  for (const id of markersIn(MANIFESTO)) {
+    if (!SOURCES[id]) err(where, `marker cites unknown source ${id}`)
+    else if (SOURCES[id].tier > 2) err(where, `cites tier ${SOURCES[id].tier} source ${id}; the manifesto needs tier 1-2`)
+  }
+  walkStrings(MANIFESTO, (s, trail) => {
+    for (const bad of uncitedStats(s)) err(where, `uncited statistic in ${trail}: "${bad.slice(0, 80)}"`)
+    for (const re of BANNED) if (re.test(s)) warn(where, `tone: ${re} in ${trail}`)
+    for (const re of VERDICT_BANNED) if (re.test(s)) err(where, `detection claim: ${re} in ${trail}`)
+  })
+}
+
 // ── Clear Path (lib/content/path) ────────────────────────────────────────
 // Steps carry no citations, so they carry no statistics: numbers about
 // threats live in the sourced library entries the steps link to.
@@ -478,6 +495,8 @@ for (const [audience, config] of Object.entries(AUDIENCE_PATHS)) {
   for (const stage of config.stages || []) titleCheck(`path ${audience} stage ${stage.id}`, "title", stage.title)
   for (const step of config.steps || []) titleCheck(`path ${audience} ${step.id}`, "title", step.title)
 }
+for (const part of MANIFESTO.parts || []) titleCheck(`manifesto ${part.id}`, "title", part.title)
+for (const part of MANIFESTO.parts || []) for (const rule of part.rules || []) titleCheck(`manifesto ${part.id}`, "rule title", rule.title)
 for (const [key, hub] of Object.entries(HUBS)) {
   titleCheck(`hub ${key}`, "title", hub.title)
   titleCheck(`hub ${key}`, "alreadyHappened.title", hub.alreadyHappened?.title)
