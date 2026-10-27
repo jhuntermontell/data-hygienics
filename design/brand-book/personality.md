@@ -157,7 +157,7 @@ Body text never drops below 15px. Reading columns stay at 68 characters or fewer
 
 Following the reference study's Palantir notes, translated.
 
-**Header (every page).** Wordmark left. On desktop, three words: For Home, For Business, Library. Right side: the Threat Check door as the one outlined action, then two 40px square buttons, Search and Menu, flush together, with 1px borders. On phones: wordmark, the door, the two squares. The header sits on navy on night pages and on white on day pages, with the matching lockup.
+**Header (every page).** 64px tall in production, not the mockups' 72px, so no page's top offset changes. Wordmark left. On desktop, three words: For Home, For Business, Library. Right side: the Threat Check door as the one outlined action, then two 40px square buttons, Search and Menu, flush together, with 1px borders. On phones: wordmark, the door, the two squares. The header sits on navy on night pages and on white on day pages, with the matching lockup.
 
 **The menu.** A full-screen navy overlay that keeps the header in place, in three columns under fold rules, each with a mono label:
 
@@ -167,7 +167,7 @@ Following the reference study's Palantir notes, translated.
 
 Beneath, a live strip: the two newest published entries, dated in mono, so the menu itself shows the library is maintained. Members and Sign in sit at the foot. Escape closes it; focus is trapped inside while open and returns to the Menu button on close.
 
-**Search.** A full-screen sheet: a full-width field directly under the header with a Clear control; suggested searches drawn from the Threat Check chips; results grouped by kind (Verdict, Step, Guide, Threat, Explainer, Glossary), each with its title, its one-line summary and its reviewed date in mono. The index is built at build time from published entries only, shipped as a static file, and searched in the browser. Queries never leave the device, and the sheet says so in a readout. An empty result never dead-ends: it offers the Threat Check and the three closest verdicts. Search is new functionality, so it needs the owner's yes (section 11) and ships in Phase 1 with the header.
+**Search.** A full-screen sheet: a full-width field directly under the header with a Clear control; suggested searches drawn from the Threat Check chips; results grouped by kind (Verdict, Step, Guide, Threat, Explainer, Glossary), each with its title, its one-line summary and its reviewed date in mono. The index is built at build time from published entries only, shipped as a static file, and searched in the browser. Queries never leave the device, and the sheet says so in a readout. An empty result never dead-ends: it offers the Threat Check and the three closest verdicts. The owner approved search on 2026-10-27; it shipped in Phase 1 with the header.
 
 ## 11. Decisions for the owner
 

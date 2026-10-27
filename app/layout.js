@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google"
+import { IBM_Plex_Mono, Inter, Inter_Tight } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Providers } from "./providers"
 import SchemaScript from "./components/SchemaScript"
@@ -9,6 +9,22 @@ import "./globals.css"
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+})
+
+// Display face for headlines and the readout face for metadata
+// (design/brand-book/personality.md, section 7). Google Fonts only.
+const interTight = Inter_Tight({
+  variable: "--font-display-face",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
+})
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-readout-face",
+  subsets: ["latin"],
+  weight: ["500"],
   display: "swap",
 })
 
@@ -64,7 +80,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} ${interTight.variable} ${plexMono.variable} antialiased`}>
         <SchemaScript schema={organizationSchema()} />
         <Providers>{children}</Providers>
         {/* Sends nothing until Web Analytics is switched on in the Vercel dashboard. */}
