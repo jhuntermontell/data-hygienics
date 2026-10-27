@@ -36,7 +36,7 @@ The calm, certain voice of someone who has already done the reading and knows th
 
 ## 5. Before and after
 
-Twenty-eight real strings from the site, rewritten. Strings marked *keep* already fit. Nothing here is applied until Phase 4.
+Real strings from the site, rewritten. Strings marked *keep* already fit. Applied in Phases 2 and 4 (2026-10-27); the IR Planner uses the fallback "A plan you've practiced."
 
 | # | Where | Now | Proposed |
 |---|---|---|---|

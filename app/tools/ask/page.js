@@ -16,8 +16,8 @@ export default function AskPage() {
       <Navbar />
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
         <header className="mb-8">
-          <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#1D4ED8] mb-3">For members</p>
-          <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-4">
+          <p className="readout-label text-[#1D4ED8] mb-3">For members</p>
+          <h1 className="font-display font-semibold text-[2.5rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-4">
             Ask Data Hygienics
           </h1>
           <p className="text-[#475569] text-base sm:text-lg leading-relaxed">

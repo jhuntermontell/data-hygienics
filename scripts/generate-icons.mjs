@@ -28,6 +28,8 @@ const PUBLISHED = [
   "mark-navy.svg",
   "mark-white.svg",
   "logo-horizontal-color.svg",
+  // PNG for email clients that do not render SVG (supabase/templates).
+  "logo-horizontal-color.png",
   "logo-horizontal-navy.svg",
   "logo-horizontal-white.svg",
   "logo-stacked-color.svg",

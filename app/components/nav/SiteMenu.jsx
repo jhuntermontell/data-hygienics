@@ -14,8 +14,8 @@ const START = [
   NAV.start,
 ].filter(Boolean)
 const LIBRARY = NAV.library.filter((l) => l.href !== "/digital-sovereignty")
-// The Threat Check heads the tools; "Is this real?" is its secondary line.
-const TOOLS = [{ href: NAV.door.href, label: NAV.door.label, description: "Is this real?" }, ...NAV.businessTools]
+// The Threat Check heads the tools; NAV.door.description is its secondary line.
+const TOOLS = [NAV.door, ...NAV.businessTools]
 const KIND = { verdict: "Verdict", guide: "Guide", threat: "Threat", explainer: "Digital Sovereignty" }
 
 function isCurrent(pathname, href) {

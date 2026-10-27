@@ -89,8 +89,8 @@ export default function CyberAuditLanding() {
             className="inline-flex items-center gap-2 bg-[#EFF6FF] border border-blue-200 rounded-full px-4 py-1.5 mb-8"
           >
             <Shield className="w-4 h-4 text-[#1D4ED8]" />
-            <span className="text-[#1D4ED8] text-xs font-semibold tracking-wide uppercase">
-              Cybersecurity Assessments
+            <span className="readout-label text-[#1D4ED8]">
+              Cyber Audit
             </span>
           </motion.div>
 
@@ -98,9 +98,9 @@ export default function CyberAuditLanding() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="text-4xl md:text-5xl font-bold text-[#0F172A] leading-[1.1] tracking-tight mb-5"
+            className="font-display font-semibold text-[2.5rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] mb-5"
           >
-            Know where you stand.
+            Find the gaps. Close them
           </motion.h1>
 
           <motion.p
@@ -109,7 +109,7 @@ export default function CyberAuditLanding() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-[#475569] text-lg max-w-xl mx-auto leading-relaxed"
           >
-            Pick the assessment that fits where you are today. Both ask how your team uses AI tools. Start free in 5 minutes, or go deep with a comprehensive audit built for your industry.
+            Two assessments, both covering how your team uses AI. Start free in five minutes, or take the full audit built for your industry.
           </motion.p>
         </div>
       </section>

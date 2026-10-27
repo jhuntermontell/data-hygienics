@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation"
 import PromoCodeInput from "@/app/components/PromoCodeInput"
 import JoinSheet from "@/app/components/membership/JoinSheet"
 import JoinViewed from "@/app/components/membership/JoinViewed"
-import { MEMBERSHIP } from "@/lib/content/membership"
+import { MEMBERSHIP, withPrices } from "@/lib/content/membership"
 import { EVENTS, track } from "@/lib/analytics"
 import FoldRule from "@/app/components/brand/FoldRule"
 import Readout from "@/app/components/brand/Readout"
@@ -260,7 +260,7 @@ export default function PricingPage() {
               id="pricing-heading"
               className="mt-4 max-w-[18ch] font-display font-semibold text-[2.5rem] sm:text-[3.5rem] lg:text-[4rem] leading-[1.02] tracking-[-0.03em] text-balance"
             >
-              {pricing.h1}
+              {withPrices(pricing.h1)}
             </h1>
             <p className="mt-6 max-w-2xl text-lg sm:text-[1.1875rem] leading-relaxed text-night-ink-2">{pricing.line}</p>
             <Readout tone="night" className="mt-5">

@@ -31,7 +31,7 @@ const plexMono = IBM_Plex_Mono({
 const siteTitle = `${SITE.name} | ${SITE.tagline.replace(/\.$/, "")}`
 // The site card from app/opengraph-image.js (lib/og.js). The file-based
 // image already wins for og:image; this keeps twitter:image on the same card.
-const ogImage = { url: "/opengraph-image", width: 1200, height: 630, alt: "Data Hygienics: live securely alongside AI" }
+const ogImage = { url: "/opengraph-image", width: 1200, height: 630, alt: "Data Hygienics: security, in order" }
 const socialDescription =
   "The independent field guide to living and working securely alongside AI, for households and small businesses."
 
