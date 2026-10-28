@@ -28,21 +28,22 @@ const websiteSchema = {
 }
 
 // One front door: the homepage is the Clear Path entrance (/start and /path
-// redirect here). Six calm sections: pick what matters, what changed (the
-// FBI's reported losses by year, sourced), our promise, the membership band
-// (the one ask, after the promise that earns it), how the path works, and the
-// three doors into the rest of the site. The chips stay the first action.
+// redirect here). Night and day alternate: the navy front door (the headline,
+// the card by the phone and the first Path question), how the Path works and
+// the tools as one system, the FBI's reported losses (navy, sourced), our
+// promise, the membership band (navy; the one ask, after the promise that
+// earns it), and the three doors. The chips stay the first action.
 export default function HomePage() {
   return (
     <>
       <SchemaScript schema={websiteSchema} />
-      <Navbar />
+      <Navbar surface="night" />
       <main className="bg-white text-[#0F172A]">
         <FrontDoor />
+        <HowThePathWorks />
         <WhyItMatters />
         <OurPromise />
         <MembershipBand />
-        <HowThePathWorks />
         <AudienceSplit />
       </main>
       <Footer />

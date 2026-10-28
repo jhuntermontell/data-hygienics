@@ -93,26 +93,23 @@ export default function DigitalSovereigntyPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar surface="night" />
       <HubPage hub={hub} schemaItems={explainers}>
         {principles.length > 0 ? (
           <HubSection id="principles" title={sections.principles.title} intro={sections.principles.intro}>
-            <ol className="grid gap-4 sm:grid-cols-2 list-none p-0">
+            <ol className="grid sm:grid-cols-2 list-none p-0 m-0 border-t border-[#E2E8F0]">
               {principles.map((principle, i) => (
                 <li
                   key={principle.title}
-                  className="flex gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm"
+                  className="grid grid-cols-[3rem_1fr] gap-x-3 py-6 border-b border-[#E2E8F0] sm:odd:pr-8 sm:even:pl-8 sm:even:border-l"
                 >
-                  <span
-                    aria-hidden="true"
-                    className="shrink-0 text-sm font-bold tabular-nums bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83] bg-clip-text text-transparent"
-                  >
+                  <span aria-hidden="true" className="readout pt-1 text-[#0F766E]">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div className="min-w-0">
-                    <h3 className="font-bold text-[#0F172A] leading-snug">{principle.title}</h3>
+                    <h3 className="font-display font-semibold text-[1.1875rem] leading-snug tracking-[-0.01em] text-[#0F172A]">{principle.title}</h3>
                     {principle.detail ? (
-                      <p className="mt-1.5 text-sm leading-relaxed text-[#475569]">
+                      <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-[#475569]">
                         {stripCitations(principle.detail)}
                       </p>
                     ) : null}
@@ -174,17 +171,13 @@ export default function DigitalSovereigntyPage() {
             intro={sections.stance.intro}
             className="bg-white border-t border-[#F1F5F9]"
           >
-            <article className="relative overflow-hidden rounded-3xl bg-[#0F172A] text-white p-6 sm:p-10">
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-gradient-to-br from-[#1D4ED8]/40 to-[#0F8F83]/40 blur-3xl"
-              />
-              <div className="relative max-w-3xl">
-                <p className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.1em] uppercase text-[#99F6E4]">
-                  <Scale className="w-4 h-4" aria-hidden="true" />
+            <article className="bg-night text-white p-6 sm:p-10">
+              <div className="max-w-3xl">
+                <p className="readout-label inline-flex items-center gap-2 text-night-readout">
+                  <Scale className="w-4 h-4 text-night-accent" aria-hidden="true" />
                   Our stance
                 </p>
-                <h3 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight">{stance.title}</h3>
+                <h3 className="mt-4 font-display font-semibold text-[1.625rem] sm:text-[2rem] leading-[1.1] tracking-[-0.02em]">{stance.title}</h3>
                 <p className="mt-4 text-base sm:text-lg leading-relaxed text-[#CBD5E1]">
                   {stripCitations(stance.stance?.position || stance.shortAnswer || stance.tldr || "")}
                 </p>
@@ -192,19 +185,19 @@ export default function DigitalSovereigntyPage() {
                   <dl className="mt-6 grid gap-4 sm:grid-cols-3 text-sm">
                     {CONFIDENCE_LABELS[stance.stance.confidence] ? (
                       <div>
-                        <dt className="text-[#94A3B8]">Confidence</dt>
+                        <dt className="readout-label text-night-readout">Confidence</dt>
                         <dd className="mt-0.5 font-semibold">{CONFIDENCE_LABELS[stance.stance.confidence]}</dd>
                       </div>
                     ) : null}
                     {stance.stance.lastRevisited ? (
                       <div>
-                        <dt className="text-[#94A3B8]">Last revisited</dt>
+                        <dt className="readout-label text-night-readout">Last revisited</dt>
                         <dd className="mt-0.5 font-semibold">{formatMonth(stance.stance.lastRevisited)}</dd>
                       </div>
                     ) : null}
                     {stance.stance.revisitWhen ? (
                       <div className="sm:col-span-3">
-                        <dt className="text-[#94A3B8]">We&apos;ll revisit it when</dt>
+                        <dt className="readout-label text-night-readout">We&apos;ll revisit it when</dt>
                         <dd className="mt-0.5 text-[#E2E8F0]">{stripCitations(stance.stance.revisitWhen)}</dd>
                       </div>
                     ) : null}
@@ -212,7 +205,7 @@ export default function DigitalSovereigntyPage() {
                 ) : null}
                 <Link
                   href={hrefFor(stance)}
-                  className="mt-8 inline-flex items-center gap-1.5 bg-white text-[#0F172A] text-sm font-semibold px-5 py-3 rounded-lg hover:bg-[#F1F5F9] transition-colors"
+                  className="mt-8 inline-flex items-center gap-1.5 bg-white text-[#0F172A] text-sm font-semibold px-5 h-12 hover:bg-[#F1F5F9] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F8F83]"
                 >
                   Read the full stance
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />

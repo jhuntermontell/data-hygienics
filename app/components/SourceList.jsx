@@ -19,7 +19,7 @@ export default function SourceList({ ids = [], title = "Sources" }) {
 
   return (
     <section aria-labelledby="sources-heading" className="mt-14 pt-8 border-t border-[#E2E8F0]">
-      <h2 id="sources-heading" className="text-lg font-bold text-[#0F172A] mb-1">
+      <h2 id="sources-heading" className="text-lg font-display font-semibold text-[#0F172A] mb-1">
         {title}
       </h2>
       <p className="text-[#64748B] text-sm mb-5">

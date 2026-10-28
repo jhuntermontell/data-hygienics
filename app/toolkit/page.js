@@ -82,11 +82,11 @@ export default function ToolkitPage() {
         <Navbar />
         <main className="library-page max-w-6xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
           <header className="max-w-3xl mb-8">
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#1D4ED8] mb-3">
+            <p className="flex items-center gap-2 readout-label text-[#1D4ED8] mb-3">
               <Wrench className="w-4 h-4" aria-hidden="true" />
               Toolkit
             </p>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+            <h1 className="font-display font-semibold text-[2.5rem] sm:text-[3.25rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
               Tools we&apos;d actually use
             </h1>
             <p className="text-[#475569] text-lg leading-relaxed">
@@ -95,13 +95,13 @@ export default function ToolkitPage() {
             </p>
           </header>
 
-          <div role="note" className="mb-10 flex gap-3 sm:gap-4 rounded-2xl border border-[#059669]/25 bg-[#ECFDF5] p-5 sm:p-6">
+          <div role="note" className="mb-10 flex gap-3 sm:gap-4 border border-[#E2E8F0] bg-[#F8FAFC] p-5 sm:p-6">
             <BadgeCheck className="w-6 h-6 shrink-0 text-[#047857]" aria-hidden="true" />
             <div>
               <p className="font-bold text-[#064E3B] leading-snug">
                 No affiliate links. No referral fees. No sponsorships. We earn nothing when you pick a tool.
               </p>
-              <p className="text-sm text-[#065F46] mt-1.5 leading-relaxed">
+              <p className="text-sm text-[#334155] mt-1.5 leading-relaxed">
                 Links go straight to the vendor with nothing added. Prices change, so each card shows the date we
                 last checked; confirm on the vendor&apos;s site before you buy.
               </p>

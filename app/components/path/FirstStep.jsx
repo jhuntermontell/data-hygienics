@@ -71,18 +71,18 @@ export default function FirstStep({ audience, start, progress = {}, onMark, onFi
   const showBody = !collapsed || expanded
 
   const button =
-    "inline-flex items-center justify-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+    "inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
 
   return (
-    <section aria-labelledby="first-step-title" className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white">
+    <section aria-labelledby="first-step-title" className="relative overflow-hidden border border-[#E2E8F0] bg-white">
       <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 ${styles.bar}`} />
       <div className="p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#475569]">
+            <p className="readout-label text-[#475569]">
               {handled ? "Your first step: done" : "Your first step, before any questions"}
             </p>
-            <h2 id="first-step-title" className="mt-1.5 text-xl sm:text-2xl font-bold tracking-tight text-[#0F172A] text-balance">
+            <h2 id="first-step-title" className="mt-1.5 text-xl sm:text-2xl font-display font-semibold tracking-[-0.02em] text-[#0F172A] text-balance">
               {step.title}
             </h2>
             <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-[#64748B]">
@@ -123,12 +123,12 @@ export default function FirstStep({ audience, start, progress = {}, onMark, onFi
             {step.why}
           </p>
           <div>
-            <p className="text-xs font-bold tracking-[0.08em] uppercase text-[#0F766E] mb-2">Do it</p>
+            <p className="readout-label text-[#0F766E] mb-2">Do it</p>
             <DoList step={step} answers={path.answers} />
           </div>
           <SayThis step={step} />
           {step.check ? (
-            <p className="flex gap-2 rounded-xl border border-[#0F8F83]/25 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
+            <p className="flex gap-2 border border-[#0F8F83]/25 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
               <span>
                 <span className="font-semibold">Check it worked: </span>

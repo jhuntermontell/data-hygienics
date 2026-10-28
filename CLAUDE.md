@@ -32,7 +32,9 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 
 **Brand** (Continuous Fold, `design/brand-book/`): navy `#0F172A` = Judgment, cobalt `#1D4ED8` = Clarity, Action Teal `#0F8F83` = Action, Field White `#F8FAFC`. Brand teal is about 4:1 on white, so use it for fills, icons and large type only; body-size teal text and white-on-teal buttons stay `#0F766E`. Never retype the wordmark: use `/logo.svg` (the outlined lockup), `app/components/BrandMark.jsx` for the inline mark, and `app/components/pdf/BrandLockupPdf.jsx` in PDFs. Mark geometry lives in `lib/brand/mark.js`; `node scripts/generate-icons.mjs` regenerates favicons, app icons, the OG image, `public/brand/*` and `lib/brand/wordmark.js` from the masters.
 
-**Navbar**: `app/components/Navbar.jsx` is fixed-position and must be imported and rendered at the top of each page. There is no global layout that includes it. Navigation and footer links come from `lib/site.js` (`NAV`, `FOOTER_COLUMNS`). The primary bar is For Home and For Business; Digital Sovereignty heads the Library menu.
+**Navbar**: `app/components/Navbar.jsx` is fixed-position (64px tall; pages offset for it) and must be imported and rendered at the top of each page. There is no global layout that includes it. Pass `surface="night"` on pages whose first screen is navy. Navigation and footer links come from `lib/site.js` (`NAV`, `FOOTER_COLUMNS`). The bar shows For Home, For Business and Library, the Threat Check door, the account links, and square Search and Menu buttons. Library and Menu open one full-screen sheet (`app/components/nav/SiteMenu.jsx`: Start, Library, Tools); Search opens `app/components/nav/SiteSearch.jsx`, which matches queries in the browser against `/search-index.json` (built at build time from published entries by `lib/search/build.js`, matched by `lib/search/match.js`). Queries never leave the device; keep it that way.
+
+**Personality** (`design/brand-book/personality.md`): night surfaces (brand navy) for statements, day surfaces for reading. Primitives live in `app/components/brand/` (`FoldRule`, `Readout`, `Statement`, `NightSection`/`DaySection`, `NamedCard`); tokens `--night-*` and the `font-display` (Inter Tight) and `font-readout` (IBM Plex Mono) utilities are in `app/globals.css` and `app/layout.js`. Action Teal is 4.49:1 on navy, so never small text there.
 
 **Contact form** submits to Formspree via `fetch`.
 
@@ -53,6 +55,7 @@ All research content is pure-data JS modules under `lib/content/` (import-free s
 
 - `lib/content/threats/<slug>.js`, `guides/<slug>.js`, `explainers/<slug>.js`, `verdicts/<slug>.js`: one entry per file, `export default { kind, ... }`
 - `lib/content/toolkit.js`, `glossary.js`, `sovereignty.js` (PRINCIPLES), `home.js` (WHAT_CHANGED)
+- `lib/content/manifesto.js`: the How we work page (`/how-it-works`), three numbered parts plus the method. Validated like the library (tier 1-2 markers, no uncited statistics, no detection claims).
 - `lib/content/sources/<group>.js`: source records `{ id, label, publisher, url, published, type, tier, accessed, notes }`
 
 Aggregators own registration and expose getters: `lib/threats.js`, `lib/guides.js`, `lib/sovereignty.js`, `lib/verdicts.js`, `lib/toolkit.js`, `lib/glossary.js`, `lib/sources.js`, plus `lib/library.js` (latest, related resolution, hub content). **Adding an entry means creating the file and importing it in its aggregator.** Helpers live in `lib/content.js`.
@@ -87,7 +90,7 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 ## Business tools and entitlement
 
 - `lib/stripe/access.js` `getPlanAccess(plan, status, purchases, isAdmin)` is the single source of truth for feature flags. `profiles.is_admin` short-circuits to full access.
-- Current catalog: Data Hygienics Membership (plans `member_home` and `member_business`, monthly or annual, plus founding annual prices that sunset for new checkouts at `FOUNDING_UNTIL` in `lib/stripe/prices.js` while existing subscriptions keep their rate) and the Documentation Pack (one-time). Pitch copy and prices live in `lib/content/membership.js`; products and prices are created idempotently by `node scripts/stripe-setup.mjs` (test mode by default, refuses live keys; `--live` reads `STRIPE_LIVE_SECRET_KEY`, requires typing LIVE, and also creates the `PACK_TO_MEMBER` coupon, billing portal configuration and production webhook endpoint). Ongoing Protection (`protection`) is retired from sale but still mapped and honored. Grandfathered plans `starter`, `professional`, `msp`, and `agency` keep their entitlements and render with "(Legacy)" labels; they are never offered for sale. `lib/stripe/prices.js` placeholders fail closed (checkout rejects them).
+- Current catalog: Data Hygienics Membership (plans `member_home` and `member_business`, monthly or annual, plus founding annual prices that sunset for new checkouts at `FOUNDING_UNTIL` in `lib/stripe/prices.js` while existing subscriptions keep their rate) and the Documentation Pack (one-time). Pitch copy and prices live in `lib/content/membership.js` (never type a price into copy: write `{home.monthly}` and render through `withPrices()`); products and prices are created idempotently by `node scripts/stripe-setup.mjs` (test mode by default, refuses live keys; `--live` reads `STRIPE_LIVE_SECRET_KEY`, requires typing LIVE, and also creates the `PACK_TO_MEMBER` coupon, billing portal configuration and production webhook endpoint). Ongoing Protection (`protection`) is retired from sale but still mapped and honored. Grandfathered plans `starter`, `professional`, `msp`, and `agency` keep their entitlements and render with "(Legacy)" labels; they are never offered for sale. `lib/stripe/prices.js` placeholders fail closed (checkout rejects them).
 - The Cyber Audit appends a shared "AI Use and Data Handling" section (`lib/questions/shared/ai-use.js`) to every industry bank; unanswered sections marked `introduced` don't count against older assessments. The legal track is retired: it can't be chosen for new assessments, but `lib/questions/retired/legal.js` is a frozen copy that stored Legal assessments keep loading so their gaps, remediation, and grade stay accurate. Don't edit or extend it.
 - The AI Acceptable Use Policy is free and featured first in the Policy Library. The IR Planner includes AI scenarios (`deepfake_wire`, `ai_data_leak`) and incident types (`deepfake_fraud`, `ai_data_exposure`).
 - Don't rename stored keys (e.g. IR builder `is_msp`, remediation `mspQuestion`); saved plans and assessments depend on them.
@@ -103,6 +106,8 @@ Joining appears once per page and never inside a Threat Check verdict, a step's 
 ## Removed in the 2026-10 pivot (do not reintroduce)
 
 The Agency/MSP plan and its multi-client and branded-report features; the legal industry track; insurance carrier mapping (carrier readiness, proof pack, "insurance-ready" messaging); vendor security scorecards. Generic insurer context ("insurers often ask about this", the `cyber-insurance` control, IR plan insurance contacts) is fine.
+
+**Auth emails**: the sign-in, sign-up and password emails are set in the Supabase dashboard. Branded versions live in `supabase/templates/` (see its README); editing them changes nothing until they are pasted into the dashboard.
 
 ## Environment
 

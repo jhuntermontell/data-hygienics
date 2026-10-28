@@ -42,11 +42,11 @@ export default function ThreatsIndexPage() {
         <Navbar />
         <main className="library-page max-w-6xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
           <header className="max-w-3xl mb-12">
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#B91C1C] mb-3">
+            <p className="flex items-center gap-2 readout-label text-[#64748B] mb-3">
               <ShieldAlert className="w-4 h-4" aria-hidden="true" />
               Threat Library
             </p>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+            <h1 className="font-display font-semibold text-[2.5rem] sm:text-[3.25rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
               What&apos;s actually hitting homes and small businesses
             </h1>
             <p className="text-[#475569] text-lg leading-relaxed">
@@ -58,7 +58,7 @@ export default function ThreatsIndexPage() {
           <section aria-labelledby="ai-threats-heading">
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-6">
               <div className="max-w-2xl">
-                <h2 id="ai-threats-heading" className="text-2xl font-bold text-[#0F172A] tracking-tight">
+                <h2 id="ai-threats-heading" className="text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em]">
                   AI-era threats
                 </h2>
                 <p className="text-[#475569] mt-1.5">
@@ -67,7 +67,7 @@ export default function ThreatsIndexPage() {
               </div>
             </div>
 
-            <details className="group mb-6 rounded-xl border border-[#E2E8F0] bg-white">
+            <details className="group mb-6 border border-[#E2E8F0] bg-white">
               <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-[#334155] [&::-webkit-details-marker]:hidden">
                 <Info className="w-4 h-4 text-[#64748B]" aria-hidden="true" />
                 How to read the labels
@@ -110,7 +110,7 @@ export default function ThreatsIndexPage() {
                 }))}
               />
             ) : (
-              <p className="rounded-xl border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
+              <p className="border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
                 We&apos;re finishing the research on the first entries. In the meantime, the{" "}
                 <Link href="/guides" className="font-semibold text-[#1D4ED8] underline underline-offset-2">
                   guides
@@ -123,7 +123,7 @@ export default function ThreatsIndexPage() {
           {briefs.length > 0 ? (
             <section aria-labelledby="industry-briefs-heading" className="mt-16">
               <div className="max-w-2xl mb-6">
-                <h2 id="industry-briefs-heading" className="text-2xl font-bold text-[#0F172A] tracking-tight">
+                <h2 id="industry-briefs-heading" className="text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em]">
                   Industry briefs
                 </h2>
                 <p className="text-[#475569] mt-1.5">
@@ -135,7 +135,7 @@ export default function ThreatsIndexPage() {
                   <li key={brief.slug} className="min-w-0">
                     <Link
                       href={hrefFor(brief)}
-                      className="group flex h-full flex-col rounded-xl border border-[#E2E8F0] bg-white p-5 sm:p-6 hover:border-[#1D4ED8]/40 hover:shadow-sm motion-safe:transition-all"
+                      className="group flex h-full flex-col border border-[#E2E8F0] bg-white p-5 sm:p-6 hover:border-[#1D4ED8]/40 hover:shadow-sm motion-safe:transition-all"
                     >
                       <div className="flex flex-wrap items-center gap-1.5 mb-3">
                         <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-[#334155]">
@@ -146,7 +146,7 @@ export default function ThreatsIndexPage() {
                           <AudienceBadge key={a} audience={a} />
                         ))}
                       </div>
-                      <h3 className="text-lg font-bold text-[#0F172A] leading-snug mb-2 group-hover:text-[#1D4ED8] motion-safe:transition-colors">
+                      <h3 className="text-lg font-display font-semibold text-[#0F172A] leading-snug mb-2 group-hover:text-[#1D4ED8] motion-safe:transition-colors">
                         {brief.industry || brief.title}
                       </h3>
                       <p className="text-sm text-[#475569] leading-relaxed mb-4">
@@ -163,10 +163,10 @@ export default function ThreatsIndexPage() {
             </section>
           ) : null}
 
-          <aside className="mt-16 flex flex-col sm:flex-row gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
+          <aside className="mt-16 flex flex-col sm:flex-row gap-4 border border-[#E2E8F0] bg-white p-5 sm:p-6">
             <BookOpenCheck className="w-6 h-6 shrink-0 text-[#1D4ED8]" aria-hidden="true" />
             <div>
-              <h2 className="text-base font-bold text-[#0F172A]">How we build these</h2>
+              <h2 className="text-base font-display font-semibold text-[#0F172A]">How we build these</h2>
               <p className="text-sm text-[#475569] mt-1 leading-relaxed">
                 We read the government reports, standards, and incident write-ups first, then write in plain English.
                 Each entry shows when we last reviewed it. We take no money from anyone we cite or recommend.{" "}

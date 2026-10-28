@@ -13,7 +13,7 @@ export default function HouseholdHubPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar surface="night" />
       <HubPage hub={hub} content={content}>
         <AlreadyHappened box={hub.alreadyHappened} />
       </HubPage>

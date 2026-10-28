@@ -41,11 +41,11 @@ export default function StepsIndexPage() {
         <Navbar />
         <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
           <header className="max-w-3xl mb-10">
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#0F766E] mb-3">
+            <p className="flex items-center gap-2 readout-label text-[#0F766E] mb-3">
               <ListChecks className="w-4 h-4" aria-hidden="true" />
               Clear Path steps
             </p>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+            <h1 className="font-display font-semibold text-[2.5rem] sm:text-[3.25rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
               Every step, in the order we&apos;d take them
             </h1>
             <p className="text-[#475569] text-lg leading-relaxed">
@@ -76,12 +76,12 @@ export default function StepsIndexPage() {
             const headingId = `steps-${group.audience}`
             return (
               <section key={group.audience} aria-labelledby={headingId} className="mt-12">
-                <h2 id={headingId} className={`text-2xl sm:text-3xl font-black tracking-tight pb-3 border-b-2 ${accent.rule} text-[#0F172A]`}>
+                <h2 id={headingId} className={`text-2xl sm:text-3xl font-display font-semibold tracking-[-0.02em] pb-3 border-b-2 ${accent.rule} text-[#0F172A]`}>
                   For {group.label === "Home" ? "home" : "business"}
                 </h2>
                 {group.stages.map((stage) => (
                   <div key={stage.id} className="mt-8">
-                    <h3 className={`text-lg font-bold ${accent.text}`}>{stage.title}</h3>
+                    <h3 className={`text-lg font-display font-semibold ${accent.text}`}>{stage.title}</h3>
                     {stage.summary ? <p className="mt-1 text-sm leading-relaxed text-[#475569] max-w-3xl">{stage.summary}</p> : null}
                     <ul className="mt-3 grid gap-x-6 gap-y-1 sm:grid-cols-2 list-none p-0 m-0">
                       {stage.steps.map((step) => {
@@ -90,7 +90,7 @@ export default function StepsIndexPage() {
                           <li key={step.id} className="min-w-0">
                             <Link
                               href={stepHref(step)}
-                              className="group flex flex-col rounded-lg px-2 py-2 -mx-2 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+                              className="group flex flex-col px-2 py-2 -mx-2 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
                             >
                               <span className="text-[15px] font-semibold leading-snug text-[#0F172A] group-hover:text-[#1D4ED8]">
                                 {step.title}

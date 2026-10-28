@@ -15,14 +15,14 @@ export default function ContinuePath({ className = "" }) {
 
   if (!saved.length) return null
   return (
-    <div className={`flex flex-wrap items-center gap-3 rounded-2xl border border-[#0F8F83]/30 bg-[#F0FDFA] px-4 py-3 ${className}`}>
+    <div className={`flex flex-wrap items-center gap-3 border border-[#0F8F83]/30 bg-[#F0FDFA] px-4 py-3 ${className}`}>
       <p className="text-sm font-semibold text-[#134E4A]">Welcome back. Your path is saved on this device.</p>
       <div className="flex flex-wrap gap-2">
         {saved.map((audience) => (
           <Link
             key={audience}
             href={`/path/${audience}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F766E] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#115E59]"
+            className="inline-flex items-center gap-1.5 bg-[#0F766E] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#115E59]"
           >
             {audience === "home" ? "Continue my home path" : "Continue my business path"}
             <ArrowRight className="w-4 h-4" aria-hidden="true" />

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mockup: verdict page, day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="shared.js"></script>
+<style>
+  .v { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; padding-top: 56px; padding-bottom: 72px; }
+  .v-main { grid-column: 1 / span 7; }
+  .v-side { grid-column: 9 / span 4; }
+  .crumb { margin: 0 0 18px; }
+  .v .h1 { font-size: clamp(34px, 4.4vw, 52px); max-width: 20ch; }
+  .verdict { margin: 26px 0 0; padding: 22px 0 0; border-top: 2px solid var(--day-ink); font-size: 21px; line-height: 1.5; font-weight: 500; }
+  .sec { margin-top: 44px; }
+  .sec .label { color: var(--day-readout); display: block; margin: 14px 0 14px; }
+  ol.next { list-style: none; counter-reset: n; margin: 0; padding: 0; }
+  ol.next li { counter-increment: n; display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 14px 0; border-bottom: 1px solid var(--day-line); font-size: 17px; }
+  ol.next li::before { content: counter(n, decimal-leading-zero); font-family: var(--mono); font-weight: 500; font-size: 14px; color: var(--teal-text); padding-top: 3px; }
+  .tell { list-style: none; margin: 0; padding: 0; }
+  .tell li { padding: 12px 0; border-bottom: 1px solid var(--day-line); }
+  .tell b { display: block; font-weight: 600; }
+  .tell a { color: var(--cobalt); text-underline-offset: 3px; }
+  .tell span { color: var(--day-ink-2); font-size: 15px; }
+  .say { background: var(--field); border-left: 3px solid var(--teal); padding: 20px 22px; font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.3; letter-spacing: -.01em; margin: 0; }
+  .side-card { border: 1px solid var(--day-line); padding: 22px; position: sticky; top: 96px; }
+  .side-card .h3 { margin-top: 10px; }
+  .side-card p { color: var(--day-ink-2); font-size: 15px; margin: 10px 0 18px; }
+  .side-card .btn { width: 100%; }
+  .share { margin-top: 18px; border: 1px solid var(--day-line); padding: 18px; }
+  .share p { margin: 6px 0 12px; font-size: 15px; color: var(--day-ink-2); }
+  .share .btn { height: 44px; font-size: 15px; width: 100%; }
+  .why { border-top: 1px solid var(--day-line); padding: 64px 0 96px; }
+  .why-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+  .why-body { grid-column: 1 / span 7; }
+  .why-body p { margin: 0 0 18px; max-width: 66ch; }
+  sup a { font-family: var(--mono); font-size: 11px; color: var(--cobalt); text-decoration: none; padding: 0 1px; }
+  .stat { grid-column: 9 / span 4; border-top: 2px solid var(--day-ink); padding-top: 16px; align-self: start; }
+  .stat .fig { font-family: var(--display); font-weight: 600; font-size: 44px; letter-spacing: -.03em; line-height: 1; margin: 10px 0; }
+  .stat p { color: var(--day-ink-2); font-size: 15px; margin: 0 0 12px; }
+  .sources { list-style: none; counter-reset: s; padding: 0; margin: 32px 0 0; max-width: 72ch; }
+  .sources li { counter-increment: s; display: grid; grid-template-columns: 32px 1fr; padding: 8px 0; border-bottom: 1px solid var(--day-line-soft); font-size: 14px; color: var(--day-ink-2); }
+  .sources li::before { content: counter(s); font-family: var(--mono); color: var(--day-readout); }
+  @media (max-width: 960px) {
+    .v-main, .v-side, .why-body, .stat { grid-column: 1 / -1; }
+    .side-card { position: static; }
+    .v { padding-top: 32px; padding-bottom: 48px; }
+  }
+</style>
+</head>
+<body>
+<header class="hdr"></header>
+<main class="day">
+  <div class="wrap v">
+    <article class="v-main" aria-labelledby="t">
+      <p class="readout crumb">Threat Check · Verdict · Home · Reviewed Oct 2026 · 5 sources</p>
+      <h1 class="h1" id="t">A call sounded like my child or grandchild and asked for money</h1>
+      <p class="verdict">Treat it as a scam until you reach them yourself, because AI can copy a voice from a short clip. Hang up and call them on the number you already have before you send anything.</p>
+
+      <section class="sec" aria-labelledby="n">
+        <hr class="fold"><h2 class="label" id="n">The next two minutes</h2>
+        <ol class="next">
+          <li>Hang up, even if they beg you not to. Hurry and secrecy are part of the script.</li>
+          <li>Call your family member on the number saved in your phone. No answer? Call someone who would be with them.</li>
+          <li>If your family has a safe word, ask for it. No word, no money.</li>
+          <li>Never pay by gift card, wire, crypto or cash handed to a courier on a call you didn't start.</li>
+        </ol>
+      </section>
+
+      <section class="sec" aria-labelledby="w">
+        <hr class="fold"><h2 class="label" id="w">Who to tell</h2>
+        <ul class="tell">
+          <li><b>The rest of your family</b><span>Tell them it happened, so the next call reaches someone who already knows the rule.</span></li>
+          <li><b><a href="https://reportfraud.ftc.gov/">ReportFraud.ftc.gov</a></b><span>Tell the Federal Trade Commission, even if you didn't send anything.</span></li>
+          <li><b><a href="https://www.ic3.gov/">ic3.gov</a></b><span>If money was sent, report it to the FBI's internet crime center with every detail you have, and call your bank.</span></li>
+        </ul>
+      </section>
+
+      <section class="sec" aria-labelledby="s">
+        <hr class="fold"><h2 class="label" id="s">Say this</h2>
+        <p class="say">If a call sounds like family asking for money, I hang up and call them back on the number I already have.</p>
+      </section>
+    </article>
+
+    <aside class="v-side" aria-label="Next step">
+      <div class="side-card">
+        <span class="label" style="color:var(--day-readout)">Make sure it can't happen again</span>
+        <h2 class="h3">Agree on a family safe word and the callback rule</h2>
+        <p>One conversation. Then the rule holds however real the voice sounds.</p>
+        <a class="btn teal" href="home.html#start">Start my path from here</a>
+      </div>
+      <div class="share">
+        <span class="label" style="color:var(--day-readout)">Send this to someone you look out for</span>
+        <p>The rule, the card and this page, in one link.</p>
+        <a class="btn line" href="#">Send the card</a>
+      </div>
+    </aside>
+  </div>
+
+  <section class="why field" aria-labelledby="why-h">
+    <div class="wrap why-grid">
+      <div class="why-body">
+        <hr class="fold"><h2 class="h2" id="why-h" style="margin:22px 0 22px">Why the rule holds</h2>
+        <p>A scammer can copy a voice from a short audio clip, often taken from video posted online.<sup><a href="#s1">1</a></sup> The FBI's report on 2025 complaints says losses to these "distress" calls that used voice cloning passed $5 million, and that the calls now imitate other relatives and friends, not only grandchildren.<sup><a href="#s2">2</a></sup></p>
+        <p>The FBI recommends a secret word or phrase that only your family knows, and hanging up to call back on a number you look up yourself.<sup><a href="#s3">3</a></sup> The Federal Communications Commission (FCC) gives the same advice: reach the person directly before you send money.<sup><a href="#s4">4</a></sup></p>
+        <p>Pressure to keep the call secret, and requests for a wire, crypto, a payment app or gift cards, are signs of a scam. Call another relative or friend even if the caller says not to.<sup><a href="#s5">5</a></sup></p>
+        <p>You never have to judge the voice. Calling back on a number you already have works whether the copy is perfect or not.</p>
+        <ol class="sources" aria-label="Sources">
+          <li id="s1">Federal Trade Commission, Consumer Advice. Scammers use AI to enhance their family emergency schemes. March 2023.</li>
+          <li id="s2">FBI Internet Crime Complaint Center. 2025 Internet Crime Report, p. 39. April 2026.</li>
+          <li id="s3">FBI Internet Crime Complaint Center. Criminals Use Generative Artificial Intelligence to Facilitate Financial Fraud (I-120324-PSA). December 2024.</li>
+          <li id="s4">Federal Communications Commission. Deep-Fake Audio and Video Links Make Robocalls and Scam Texts Harder to Spot. June 2024.</li>
+          <li id="s5">Federal Trade Commission, Consumer Advice. Scammers Use Fake Emergencies To Steal Your Money. September 2023.</li>
+        </ol>
+      </div>
+      <aside class="stat" aria-label="The figure">
+        <span class="label" style="color:var(--day-readout)">Reported in 2025</span>
+        <p class="fig">Over $5 million</p>
+        <p>Lost to distress calls that used voice cloning, as counted in complaints that mentioned AI.</p>
+        <p class="readout">Source 2 · FBI IC3 2025 report, p. 39</p>
+      </aside>
+    </div>
+  </section>
+</main>
+</body>
+</html>

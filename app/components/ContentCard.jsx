@@ -11,10 +11,10 @@ export default function ContentCard({ entry, headingLevel = "h3" }) {
   return (
     <Link
       href={hrefFor(entry)}
-      className="group flex flex-col h-full bg-white border border-[#E2E8F0] rounded-xl p-5 hover:border-[#1D4ED8]/40 hover:shadow-sm transition-all"
+      className="group flex flex-col h-full bg-white border border-[#E2E8F0] p-5 hover:border-[#1D4ED8]/40 hover:shadow-sm transition-all"
     >
       <div className="flex items-center gap-2 flex-wrap mb-3">
-        <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[#64748B]">
+        <span className="readout-label text-[#64748B]">
           {KIND_LABELS[entry.kind] || "Article"}
         </span>
         {(entry.audience || []).map((a) => (

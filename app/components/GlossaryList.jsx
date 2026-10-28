@@ -118,7 +118,7 @@ export default function GlossaryList({ entries = [], number = {} }) {
 
   if (!entries.length) {
     return (
-      <p className="rounded-xl border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
+      <p className="border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
         The first definitions are in review. Check back soon.
       </p>
     )
@@ -142,7 +142,7 @@ export default function GlossaryList({ entries = [], number = {} }) {
             autoComplete="off"
             spellCheck="false"
             aria-describedby="glossary-search-status"
-            className="w-full h-12 rounded-xl border border-[#CBD5E1] bg-white pl-10 pr-11 text-base text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#1D4ED8] [&::-webkit-search-cancel-button]:appearance-none"
+            className="w-full h-12 border border-[#CBD5E1] bg-white pl-10 pr-11 text-base text-[#0F172A] placeholder:text-[#94A3B8] focus:border-[#1D4ED8] [&::-webkit-search-cancel-button]:appearance-none"
           />
           {query ? (
             <button
@@ -151,7 +151,7 @@ export default function GlossaryList({ entries = [], number = {} }) {
                 setQuery("")
                 inputRef.current?.focus()
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-[#475569] hover:bg-[#F1F5F9]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-[#475569] hover:bg-[#F1F5F9]"
             >
               <X className="w-4 h-4" aria-hidden="true" />
               <span className="sr-only">Clear search</span>
@@ -171,8 +171,8 @@ export default function GlossaryList({ entries = [], number = {} }) {
                 <label
                   key={option.key}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold cursor-pointer focus-within:ring-2 focus-within:ring-[#1D4ED8] focus-within:ring-offset-1 ${
-                    on ? "border-[#0F172A] bg-[#0F172A] text-white" : "border-[#E2E8F0] bg-white text-[#475569] hover:border-[#CBD5E1]"
-                  }`}
+ on ? "border-[#0F172A] bg-[#0F172A] text-white" : "border-[#E2E8F0] bg-white text-[#475569] hover:border-[#CBD5E1]"
+ }`}
                 >
                   <input
                     type="radio"
@@ -200,14 +200,14 @@ export default function GlossaryList({ entries = [], number = {} }) {
                   <a
                     href={`#${letterId(letter)}`}
                     aria-label={letter === "#" ? "Numbers and symbols" : undefined}
-                    className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-semibold text-[#1D4ED8] bg-white border border-[#E2E8F0] hover:border-[#1D4ED8]/50"
+                    className="w-8 h-8 flex items-center justify-center text-sm font-semibold text-[#1D4ED8] bg-white border border-[#E2E8F0] hover:border-[#1D4ED8]/50"
                   >
                     {letter}
                   </a>
                 </li>
               ) : (
                 <li key={letter} aria-hidden="true">
-                  <span className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-semibold text-[#CBD5E1]">
+                  <span className="w-8 h-8 flex items-center justify-center text-sm font-semibold text-[#CBD5E1]">
                     {letter}
                   </span>
                 </li>
@@ -224,7 +224,7 @@ export default function GlossaryList({ entries = [], number = {} }) {
       ) : null}
 
       {matches.length === 0 ? (
-        <div className="mt-8 rounded-xl border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
+        <div className="mt-8 border border-dashed border-[#CBD5E1] bg-white p-6 text-[#475569]">
           <p>
             {q ? <>No terms match &ldquo;{query.trim()}&rdquo;{horizon !== "all" ? ` in ${HORIZONS[horizon].label}` : ""}. Try a shorter word, or </> : "No terms here yet. "}
             <button
@@ -246,7 +246,7 @@ export default function GlossaryList({ entries = [], number = {} }) {
         <section key={group.letter} aria-labelledby={letterId(group.letter)} className="mt-10">
           <h2
             id={letterId(group.letter)}
-            className="text-3xl font-black text-[#64748B] tracking-tight mb-4"
+            className="text-3xl font-display font-semibold text-[#64748B] tracking-[-0.02em] mb-4"
           >
             {group.letter === "#" ? (
               <>
@@ -276,10 +276,10 @@ function TermCard({ entry, number, onFollowTerm }) {
     <article
       id={`term-${entry.slug}`}
       tabIndex={-1}
-      className="rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6 target:border-[#1D4ED8]/50 target:ring-2 target:ring-[#1D4ED8]/15"
+      className="border border-[#E2E8F0] bg-white p-5 sm:p-6 target:border-[#1D4ED8]/50 target:ring-2 target:ring-[#1D4ED8]/15"
     >
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
-        <h3 className="text-xl font-bold text-[#0F172A] leading-snug">{entry.term}</h3>
+        <h3 className="text-xl font-display font-semibold text-[#0F172A] leading-snug">{entry.term}</h3>
         {HORIZONS[entry.horizon] ? (
           <span
             className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${HORIZON_STYLES[entry.horizon].chip}`}
@@ -309,10 +309,10 @@ function TermCard({ entry, number, onFollowTerm }) {
       </div>
 
       {asParagraphs(entry.whyItMatters).length > 0 ? (
-        <div className="mt-4 flex gap-3 rounded-xl bg-[#EFF6FF] p-4">
+        <div className="mt-4 flex gap-3 bg-[#EFF6FF] p-4">
           <Lightbulb className="w-5 h-5 shrink-0 text-[#1D4ED8] mt-0.5" aria-hidden="true" />
           <div className="min-w-0">
-            <p className="text-xs font-bold tracking-[0.08em] uppercase text-[#1D4ED8] mb-1">Why it matters to you</p>
+            <p className="readout-label text-[#1D4ED8] mb-1">Why it matters to you</p>
             <Paragraphs
               value={entry.whyItMatters}
               number={number}
@@ -324,7 +324,7 @@ function TermCard({ entry, number, onFollowTerm }) {
 
       {links.length > 0 ? (
         <div className="mt-4">
-          <p className="text-xs font-semibold tracking-[0.08em] uppercase text-[#64748B] mb-2">See also</p>
+          <p className="readout-label text-[#64748B] mb-2">See also</p>
           <ul className="flex flex-wrap gap-2">
             {links.map((link) => (
               <li key={link.href} className="min-w-0">
@@ -334,7 +334,7 @@ function TermCard({ entry, number, onFollowTerm }) {
                   className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1 text-sm font-medium text-[#1D4ED8] hover:border-[#1D4ED8]/40"
                 >
                   {link.type !== "term" ? (
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#64748B]">
+                    <span className="readout-label text-[#64748B]">
                       {LINK_TYPES[link.type]}
                     </span>
                   ) : null}

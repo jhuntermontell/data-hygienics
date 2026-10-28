@@ -3,6 +3,8 @@ import { ArrowRight, LifeBuoy } from "lucide-react"
 import { LOSSES_BY_YEAR } from "@/lib/content/home"
 import { getSource } from "@/lib/sources"
 import { SITE } from "@/lib/site"
+import FoldRule from "./brand/FoldRule"
+import Readout from "./brand/Readout"
 
 // Homepage "What changed" band: calm copy on the left, the FBI's reported
 // losses by year on the right. The chart shows only what was reported (no
@@ -61,10 +63,13 @@ export default function WhyItMatters() {
   const summary = `Losses reported to the FBI's IC3 rose from ${billions(first.value)} in ${first.year} to ${billions(last.value)} in ${last.year}.`
 
   return (
-    <section aria-labelledby="why-heading" className="px-4 sm:px-6 py-16 sm:py-24 bg-[#0F172A] text-white">
-      <div className="max-w-6xl mx-auto grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16 lg:items-center">
+    <section aria-labelledby="why-heading" className="bg-night text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+      <FoldRule tone="night" />
+      <div className="mt-7 grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16 lg:items-center">
         <div>
-          <h2 id="why-heading" className="text-3xl sm:text-4xl font-bold tracking-tight text-white text-balance">
+          <Readout tone="night" label>What changed</Readout>
+          <h2 id="why-heading" className="mt-3 font-display font-semibold text-[1.875rem] sm:text-[2.5rem] leading-[1.08] tracking-[-0.02em] text-white text-balance">
             The scams changed. The defense didn&apos;t have to
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-[#CBD5E1]">
@@ -88,7 +93,7 @@ export default function WhyItMatters() {
           <div className="mt-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-6">
             <Link
               href="/#start"
-              className="group inline-flex items-center gap-1.5 bg-white text-[#0F172A] text-sm font-semibold px-5 py-3 rounded-lg hover:bg-[#F1F5F9] transition-colors"
+              className="group inline-flex items-center gap-1.5 bg-white text-[#0F172A] text-sm font-semibold px-5 h-12 hover:bg-[#F1F5F9] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F8F83]"
             >
               Start with what you&apos;d hate to lose
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
@@ -104,7 +109,7 @@ export default function WhyItMatters() {
         </div>
 
         <figure className="min-w-0 m-0">
-          <p className="text-5xl font-extrabold leading-none tracking-tight text-[#5EEAD4]">{chart.hero.figure}</p>
+          <p className="font-display text-5xl font-semibold leading-none tracking-[-0.03em] text-night-accent">{chart.hero.figure}</p>
           <p className="mt-2 text-[15px] leading-relaxed text-[#CBD5E1]">{chart.hero.text}</p>
 
           <div className="relative mt-6">
@@ -237,6 +242,7 @@ export default function WhyItMatters() {
             Internet Crime Reports (published {listOf(reports.map((r) => monthYear(r.source.published))).join("")}).
           </figcaption>
         </figure>
+      </div>
       </div>
     </section>
   )

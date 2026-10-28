@@ -54,7 +54,7 @@ export default function ExplainerArticle({ entry }) {
         title={entry.title}
         chips={
           <>
-            <span className="inline-flex items-center text-[11px] font-semibold tracking-[0.08em] uppercase text-[#64748B] mr-1">
+            <span className="inline-flex items-center readout-label text-[#64748B] mr-1">
               Explainer
             </span>
             {(entry.audience || []).map((a) => (
@@ -72,7 +72,7 @@ export default function ExplainerArticle({ entry }) {
         <nav aria-label="Jump to what you can do" className="-mt-2 mb-10">
           <a
             href="#what-you-can-do"
-            className="flex sm:inline-flex sm:min-w-[20rem] items-center gap-3 rounded-xl border border-[#059669]/30 bg-[#ECFDF5] px-4 py-3 text-sm font-semibold text-[#065F46] hover:border-[#059669]/60 motion-safe:transition-colors"
+            className="flex sm:inline-flex sm:min-w-[20rem] items-center gap-3 border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#334155] hover:border-[#0F172A] motion-safe:transition-colors"
           >
             <CircleCheck className="w-5 h-5 shrink-0 text-[#047857]" aria-hidden="true" />
             <span>
@@ -87,8 +87,8 @@ export default function ExplainerArticle({ entry }) {
       ) : null}
 
       {asParagraphs(entry.shortAnswer).length > 0 ? (
-        <section aria-labelledby="short-answer" className="mt-8 rounded-2xl border border-[#0F766E]/20 bg-[#F0FDFA] p-5 sm:p-7">
-          <h2 id="short-answer" className="text-xs font-bold tracking-[0.12em] uppercase text-[#0F766E] mb-2">
+        <section aria-labelledby="short-answer" className="mt-8 border border-[#0F766E]/20 bg-[#F0FDFA] p-5 sm:p-7">
+          <h2 id="short-answer" className="text-xs font-display font-semibold tracking-[0.12em] uppercase text-[#0F766E] mb-2">
             The short answer
           </h2>
           <Paragraphs
@@ -117,8 +117,8 @@ export default function ExplainerArticle({ entry }) {
             {actionGroups.map(([key, list]) => {
               const { title, icon: Icon } = ACTION_GROUPS[key]
               return (
-                <div key={key} className="rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
-                  <h3 className="flex items-center gap-2 text-base font-bold text-[#0F172A] mb-4">
+                <div key={key} className="border border-[#E2E8F0] bg-white p-5 sm:p-6">
+                  <h3 className="flex items-center gap-2 text-base font-display font-semibold text-[#0F172A] mb-4">
                     <Icon className="w-4 h-4 text-[#64748B]" aria-hidden="true" />
                     {title}
                   </h3>
@@ -128,7 +128,7 @@ export default function ExplainerArticle({ entry }) {
                       if (!action.label && !action.detail && !guide) return null
                       return (
                         <li key={j} className="flex gap-3">
-                          <CircleCheck className="w-5 h-5 shrink-0 text-[#059669] mt-0.5" aria-hidden="true" />
+                          <CircleCheck className="w-5 h-5 shrink-0 text-[#0F766E] mt-0.5" aria-hidden="true" />
                           <div className="min-w-0">
                             {action.label ? (
                               <p className="font-semibold text-[#0F172A] leading-snug">
@@ -179,13 +179,13 @@ function StanceCard({ stance, number }) {
   return (
     <section
       aria-labelledby="where-we-stand"
-      className="mt-12 rounded-2xl border-2 border-[#1D4ED8]/15 bg-white p-5 sm:p-8"
+      className="mt-12 border-2 border-[#1D4ED8]/15 bg-white p-5 sm:p-8"
     >
-      <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#1D4ED8] mb-2">
+      <p className="flex items-center gap-2 readout-label text-[#1D4ED8] mb-2">
         <Compass className="w-4 h-4" aria-hidden="true" />
         Our stance
       </p>
-      <h2 id="where-we-stand" className="text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight leading-snug mb-3">
+      <h2 id="where-we-stand" className="text-xl sm:text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em] leading-snug mb-3">
         Where we stand
       </h2>
       <Paragraphs
@@ -197,13 +197,13 @@ function StanceCard({ stance, number }) {
       <dl className="mt-6 grid gap-4 sm:grid-cols-2 border-t border-[#F1F5F9] pt-5">
         {confidence ? (
           <div>
-            <dt className="text-xs font-semibold tracking-[0.08em] uppercase text-[#64748B] mb-1">Confidence</dt>
+            <dt className="readout-label text-[#64748B] mb-1">Confidence</dt>
             <dd className="flex items-center gap-2 font-semibold text-[#0F172A]">
               <span className="flex items-end gap-0.5" aria-hidden="true">
                 {[1, 2, 3].map((bar) => (
                   <span
                     key={bar}
-                    className={`w-1.5 rounded-sm ${bar <= confidence.bars ? "bg-[#1D4ED8]" : "bg-[#E2E8F0]"}`}
+                    className={`w-1.5 ${bar <= confidence.bars ? "bg-[#1D4ED8]" : "bg-[#E2E8F0]"}`}
                     style={{ height: `${6 + bar * 4}px` }}
                   />
                 ))}
@@ -214,7 +214,7 @@ function StanceCard({ stance, number }) {
         ) : null}
         {stance.lastRevisited ? (
           <div>
-            <dt className="text-xs font-semibold tracking-[0.08em] uppercase text-[#64748B] mb-1">Last revisited</dt>
+            <dt className="readout-label text-[#64748B] mb-1">Last revisited</dt>
             <dd className="font-semibold text-[#0F172A]">
               <time dateTime={stance.lastRevisited}>{formatMonth(stance.lastRevisited)}</time>
             </dd>
@@ -222,7 +222,7 @@ function StanceCard({ stance, number }) {
         ) : null}
         {asParagraphs(stance.revisitWhen).length > 0 ? (
           <div className="sm:col-span-2">
-            <dt className="text-xs font-semibold tracking-[0.08em] uppercase text-[#64748B] mb-1">
+            <dt className="readout-label text-[#64748B] mb-1">
               We&apos;ll revisit this when
             </dt>
             <dd>

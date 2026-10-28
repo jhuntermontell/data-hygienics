@@ -5,7 +5,7 @@ import { SITE_OG_CARD } from "@/app/components/libraryHelpers"
 
 export const size = OG_SIZE
 export const contentType = OG_CONTENT_TYPE
-export const alt = "Data Hygienics: live securely alongside AI"
+export const alt = "Data Hygienics: security, in order"
 
 export default function Image() {
   return ogImage(SITE_OG_CARD)

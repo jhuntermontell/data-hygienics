@@ -10,6 +10,7 @@ import ShareCard, { PathChipLink } from "./ShareCard"
 import { citationOrder, formatDate, formatMonth } from "@/lib/content"
 import { resolveRelated } from "@/lib/library"
 import { getSource } from "@/lib/sources"
+import FoldRule from "@/app/components/brand/FoldRule"
 
 // One verdict page (/check/<slug>), in the order the marketing plan sets:
 // the verdict, the next two minutes, who to tell, say this, the share card,
@@ -61,21 +62,22 @@ export default function VerdictArticle({ entry, url }) {
       <header className="mb-6">
         <Link
           href="/check"
-          className="inline-flex items-center gap-1.5 text-sm text-[#475569] hover:text-[#0F172A] motion-safe:transition-colors mb-6"
+          className="readout inline-flex items-center gap-1.5 text-[#475569] hover:text-[#0F172A] motion-safe:transition-colors mb-7"
         >
-          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+          <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
           Threat Check: all checks
         </Link>
-        <p className={`text-xs font-semibold tracking-[0.12em] uppercase mb-3 ${t.accent}`}>
-          {tone === "business" ? "At work" : "At home"}
+        <FoldRule draw className="mb-6" />
+        <p className="readout text-day-readout mb-4">
+          Verdict · {tone === "business" ? "At work" : "At home"} · Reviewed {formatMonth(entry.lastReviewed)} · {ids.length} {ids.length === 1 ? "source" : "sources"}
         </p>
-        <h1 className="text-3xl sm:text-4xl md:text-[2.75rem] font-black text-[#0F172A] leading-[1.1] tracking-tight text-balance">
+        <h1 className="font-display font-semibold text-[2.25rem] sm:text-[3rem] md:text-[3.25rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance">
           {entry.title}
         </h1>
       </header>
 
-      <section aria-label="The verdict" className={`rounded-2xl border-l-4 ${t.border} ${t.soft} px-5 py-5 sm:px-7 sm:py-6`}>
-        <p className="text-xl sm:text-2xl font-semibold text-[#0F172A] leading-snug text-pretty">{entry.verdict}</p>
+      <section aria-label="The verdict" className="border-t-2 border-[#0F172A] pt-6">
+        <p className="text-[1.25rem] sm:text-[1.375rem] font-medium text-[#0F172A] leading-normal text-pretty">{entry.verdict}</p>
       </section>
 
       {steps.length ? (
@@ -83,16 +85,13 @@ export default function VerdictArticle({ entry, url }) {
           <SectionHeading id="next-two-minutes" icon={ListOrdered} iconClassName={t.accent}>
             The next two minutes
           </SectionHeading>
-          <ol className="space-y-4 list-none p-0">
+          <ol className="list-none p-0 m-0 border-t border-[#E2E8F0]">
             {steps.map((step, i) => (
-              <li key={i} className="flex gap-3 sm:gap-4">
-                <span
-                  className={`shrink-0 w-8 h-8 rounded-full ${t.number} text-white text-sm font-bold flex items-center justify-center`}
-                  aria-hidden="true"
-                >
-                  {i + 1}
+              <li key={i} className="grid grid-cols-[2.75rem_1fr] gap-x-2 py-4 border-b border-[#E2E8F0]">
+                <span className={`readout pt-1 ${t.accent}`} aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-                <p className="pt-1 text-[#0F172A] text-base sm:text-[17px] leading-relaxed">{step}</p>
+                <p className="text-[#0F172A] text-base sm:text-[17px] leading-relaxed">{step}</p>
               </li>
             ))}
           </ol>
@@ -104,9 +103,9 @@ export default function VerdictArticle({ entry, url }) {
           <SectionHeading id="who-to-tell" icon={Megaphone} iconClassName={t.accent}>
             Who to tell
           </SectionHeading>
-          <ul className="rounded-2xl border border-[#E2E8F0] bg-white divide-y divide-[#F1F5F9] list-none p-0">
+          <ul className="border-t border-[#E2E8F0] divide-y divide-[#E2E8F0] border-b list-none p-0 m-0">
             {tell.map((item, i) => (
-              <li key={i} className="px-5 py-4">
+              <li key={i} className="py-4">
                 {item.href ? (
                   <a
                     href={item.href}
@@ -132,9 +131,9 @@ export default function VerdictArticle({ entry, url }) {
           <SectionHeading id="say-this" icon={MessageSquareQuote} iconClassName={t.accent}>
             Say this
           </SectionHeading>
-          <blockquote className={`rounded-2xl border ${t.border} bg-white px-5 py-5 sm:px-7`}>
-            <p className="text-lg sm:text-xl font-semibold text-[#0F172A] leading-snug">&ldquo;{entry.sayThis}&rdquo;</p>
-            <p className="mt-2 text-sm text-[#64748B]">One line to repeat, so the whole household (or team) answers the same way.</p>
+          <blockquote className="border-l-[3px] border-[#0F8F83] bg-[#F8FAFC] px-5 py-5 sm:px-7 m-0">
+            <p className="font-display font-semibold text-[1.25rem] sm:text-[1.5rem] tracking-[-0.01em] text-[#0F172A] leading-snug">&ldquo;{entry.sayThis}&rdquo;</p>
+            <p className="mt-2 text-sm text-[#475569]">One line to repeat, so the whole household (or team) answers the same way.</p>
           </blockquote>
         </section>
       ) : null}
@@ -142,8 +141,9 @@ export default function VerdictArticle({ entry, url }) {
       <ShareCard title={entry.title} chip={entry.chip} sayThis={entry.sayThis} url={url} tone={tone} />
 
       {chip && chipHref ? (
-        <section aria-labelledby="path-chip" className="mt-12 rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-7">
-          <h2 id="path-chip" className="flex items-center gap-2.5 text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight">
+        <section aria-labelledby="path-chip" className="mt-12 border border-[#E2E8F0] bg-white p-5 sm:p-7">
+          <p className="readout-label text-day-readout mb-2">The step that stops the next one</p>
+          <h2 id="path-chip" className="flex items-center gap-2.5 font-display font-semibold text-[1.5rem] sm:text-[1.75rem] text-[#0F172A] tracking-[-0.02em]">
             <Route className={`w-5 h-5 shrink-0 ${t.accent}`} aria-hidden="true" />
             Make sure it can&apos;t happen again
           </h2>
@@ -153,7 +153,7 @@ export default function VerdictArticle({ entry, url }) {
             audience={chip.audience}
             value={chip.start}
             from={`verdict:${entry.slug}`}
-            className={`inline-flex items-center gap-2 text-white text-sm font-semibold px-5 py-3 rounded-xl motion-safe:transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${t.chip}`}
+            className={`inline-flex items-center gap-2 text-white text-[15px] font-semibold px-6 h-12 motion-safe:transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${t.chip}`}
           >
             {chip.label}
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -177,8 +177,8 @@ export default function VerdictArticle({ entry, url }) {
             {stats.map((stat, i) => {
               const source = getSource(stat.sourceId)
               return (
-                <li key={i} className="flex flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5">
-                  <p className="text-3xl font-black text-[#0F172A] tracking-tight leading-tight break-words">
+                <li key={i} className="flex flex-col border-t-2 border-[#0F172A] pt-4">
+                  <p className="font-display text-[2.25rem] font-semibold text-[#0F172A] tracking-[-0.03em] leading-tight break-words">
                     {stat.figure}
                     {stat.sourceId ? (
                       <span className="text-base font-normal">
@@ -188,7 +188,7 @@ export default function VerdictArticle({ entry, url }) {
                   </p>
                   {stat.text ? <p className="text-[#475569] text-[15px] leading-relaxed mt-2">{stat.text}</p> : null}
                   {source ? (
-                    <p className="mt-auto pt-3 text-xs text-[#64748B] break-words">
+                    <p className="readout mt-auto pt-3 text-day-readout break-words">
                       {source.publisher}
                       {stat.locator ? <>, {stat.locator}</> : null}
                     </p>
@@ -204,8 +204,8 @@ export default function VerdictArticle({ entry, url }) {
       <RelatedContent related={related} />
       <SourceList ids={ids} />
 
-      <footer className="mt-10 pt-6 border-t border-[#E2E8F0] text-sm text-[#64748B]">
-        <p className="mb-1">
+      <footer className="mt-10 pt-6 border-t border-[#E2E8F0]">
+        <p className="readout text-day-readout mb-1">
           Reviewed {formatMonth(entry.lastReviewed)}
           {entry.datePublished ? (
             <>

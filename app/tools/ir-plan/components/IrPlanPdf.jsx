@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   stepBody: { flex: 1 },
   stepAction: { fontSize: 10, marginBottom: 2 },
   stepWhy: { fontSize: 8, color: "#64748B", fontStyle: "italic" },
-  stepCritical: { fontSize: 7, color: "#B91C1C", fontFamily: "Helvetica-Bold", marginBottom: 2 },
+  stepCritical: { fontSize: 7, color: "#0F172A", fontFamily: "Helvetica-Bold", marginBottom: 2 },
 
   // Card mode
   cardHeader: {
@@ -123,15 +123,15 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#FFFFFF", marginTop: 4 },
   cardSubtitle: { fontSize: 10, color: "#A7F3D0", marginTop: 2 },
   cardPhone: {
-    backgroundColor: "#FEF2F2",
-    border: "1.5px solid #DC2626",
+    backgroundColor: "#F8FAFC",
+    border: "1.5px solid #0F172A",
     padding: 12,
     borderRadius: 4,
     marginBottom: 12,
   },
   cardPhoneLabel: {
     fontSize: 8,
-    color: "#B91C1C",
+    color: "#0F172A",
     fontFamily: "Helvetica-Bold",
     letterSpacing: 0.5,
   },
@@ -181,9 +181,9 @@ const styles = StyleSheet.create({
   },
   draftWatermarkText: {
     fontSize: 9,
-    color: "#DC2626",
+    color: "#0F172A",
     fontFamily: "Helvetica-Bold",
-    backgroundColor: "#FEF2F2",
+    backgroundColor: "#F8FAFC",
     paddingTop: 4,
     paddingBottom: 4,
     paddingLeft: 12,
