@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mockup: homepage, night</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="shared.js"></script>
+<style>
+  .hero { padding: 88px 0 72px; }
+  .hero-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: end; }
+  .hero-copy { grid-column: 1 / span 8; }
+  .hero-card { grid-column: 9 / span 4; }
+  .hero .statement { margin-top: 26px; }
+  .hero .lede { margin-top: 28px; max-width: 34ch; }
+  .hero .readout { margin-top: 22px; }
+  .card { background: #F8FAFC; color: var(--navy); padding: 26px 24px 22px; box-shadow: 0 24px 48px -24px rgba(0,0,0,.55);
+    clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 58px, 100% 100%, 0 100%); }
+  .card .label { color: #64748B; }
+  .card .rule { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.15; letter-spacing: -.015em; margin: 14px 0 0; }
+  .card .when { font-size: 15px; color: #475569; margin: 12px 0 0; line-height: 1.5; }
+  .card .nums { margin-top: 18px; border-top: 1px solid #E2E8F0; }
+  .card .nums div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #E2E8F0; font-size: 14px; }
+  .card .nums span:last-child { font-family: var(--mono); color: #64748B; font-size: 12.5px; letter-spacing: .04em; }
+  .card .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 16px; }
+  .card .foot img { height: 22px; }
+  .caption { margin-top: 14px; }
+
+  .start { padding: 0 0 88px; }
+  .start-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 16px; margin: 22px 0 22px; }
+  .tabs { display: inline-flex; border: 1px solid var(--night-line-2); }
+  .tabs button { background: none; border: 0; color: var(--night-ink-2); font: 600 14px var(--body); padding: 10px 16px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: #fff; color: var(--navy); }
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--night-line-2); border-left: 1px solid var(--night-line-2); }
+  .chips a { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 20px; border-right: 1px solid var(--night-line-2); border-bottom: 1px solid var(--night-line-2); text-decoration: none; font-size: 17px; font-weight: 500; }
+  .chips a:hover { background: #16213A; }
+  .chips a:hover .go { color: var(--night-accent-text); transform: translateX(3px); }
+  .go { color: var(--night-readout); transition: transform 160ms var(--ease), color 160ms; }
+  .custody { margin-top: 18px; }
+
+  .system { padding: 72px 0 96px; border-top: 1px solid var(--night-line); }
+  .system .h2 { max-width: 18ch; margin-top: 22px; }
+  .sys-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 44px; }
+  .sys-grid a { text-decoration: none; display: block; }
+  .sys-grid .h3 { margin-top: 18px; }
+  .sys-grid .imp { color: var(--night-accent-text); font-family: var(--display); font-weight: 500; font-size: 19px; margin-top: 4px; }
+  .sys-grid p { color: var(--night-ink-2); font-size: 15px; margin: 12px 0 0; line-height: 1.55; }
+  .sys-grid .readout { margin-top: 16px; }
+  @media (max-width: 960px) {
+    .hero { padding: 48px 0 48px; }
+    .hero-copy, .hero-card { grid-column: 1 / -1; }
+    .hero-card { max-width: 380px; margin-top: 16px; }
+    .chips { grid-template-columns: 1fr; }
+    .sys-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) { .sys-grid { grid-template-columns: 1fr; } .card .rule { font-size: 22px; } }
+</style>
+</head>
+<body class="night">
+<header class="hdr night"></header>
+
+<main>
+  <section class="hero night" aria-labelledby="h">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <hr class="fold">
+        <h1 class="statement" id="h">Your digital life, <span class="accent">in order</span></h1>
+        <p class="lede">Security for homes and businesses of 1&nbsp;to&nbsp;50, in the order that protects the most.</p>
+        <p class="readout">No sponsors · No referral fees · Every number sourced</p>
+      </div>
+      <figure class="hero-card" style="margin:0">
+        <div class="card" role="img" aria-label="The card by the phone: if anyone calls about money, a code or an emergency, hang up and call back on a number you already have.">
+          <span class="label">The card by the phone</span>
+          <p class="rule">Hang up. Call back on a number you already have.</p>
+          <p class="when">If anyone calls about money, a code or an emergency.</p>
+          <div class="nums" aria-hidden="true">
+            <div><span>Our bank</span><span>Back of the card</span></div>
+            <div><span>Mom</span><span>Saved in your phone</span></div>
+            <div><span>Our safe word</span><span>Never on this card</span></div>
+          </div>
+          <div class="foot"><img src="../assets/logo-horizontal-color.svg" alt=""><span class="label">Put it where the phone is</span></div>
+        </div>
+        <figcaption class="readout caption">Step · Agree on a family safe word and the callback rule</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="start night" id="start" aria-labelledby="start-h">
+    <div class="wrap">
+      <hr class="fold">
+      <div class="start-head">
+        <h2 class="h2" id="start-h">What would you hate to lose?</h2>
+        <div class="tabs" role="tablist" aria-label="Who this is for"><button role="tab" aria-selected="true">For my home</button><button role="tab" aria-selected="false">For my business</button></div>
+      </div>
+      <div class="chips">
+        <a href="#">Photos and memories <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">Our money <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">Our accounts <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">The people I look out for <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">Our identity and credit <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">Our privacy <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">What AI can see and do <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">Our home and devices <span class="go" aria-hidden="true">→</span></a>
+        <a href="#">My work <span class="go" aria-hidden="true">→</span></a>
+      </div>
+      <p class="readout custody">Pick one. About two minutes. Your answers stay in this browser.</p>
+    </div>
+  </section>
+
+  <section class="system night" aria-labelledby="sys-h">
+    <div class="wrap">
+      <hr class="fold">
+      <h2 class="h2" id="sys-h">One Path. Every tool feeds it</h2>
+      <div class="sys-grid">
+        <a href="verdict.html"><hr class="fold"><h3 class="h3">Threat Check</h3><p class="imp">Check it before you act</p><p>Six verdicts for the messages people ask about most. Each ends in the Path step that stops the next one.</p><p class="readout">6 verdicts · Free</p></a>
+        <a href="#start"><hr class="fold"><h3 class="h3">Clear Path</h3><p class="imp">Know the next step</p><p>Everything we publish, cut to your home or business and put in the order that protects the most first.</p><p class="readout">Home and Business · Free</p></a>
+        <a href="pricing.html"><hr class="fold"><h3 class="h3">Ask</h3><p class="imp">Get the answer, with the source</p><p>Answers only from our published research, with the page they came from. When we don't know yet, it says so.</p><p class="readout">Members</p></a>
+        <a href="#"><hr class="fold"><h3 class="h3">Cyber Audit</h3><p class="imp">Find the gaps. Close them</p><p>For businesses: a plain-English audit, including how your team uses AI, with the fixes in order.</p><p class="readout">Business members</p></a>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

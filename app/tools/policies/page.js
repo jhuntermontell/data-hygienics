@@ -117,13 +117,13 @@ export default function PolicyHubPage() {
               Policy Library
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-[#0F172A] tracking-tight mb-3">
-            Cybersecurity Policy Library
+          <h1 className="font-display font-semibold text-[2.25rem] md:text-[3rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] mb-3">
+            Policy Library
           </h1>
           <p className="text-[#475569] text-base max-w-2xl">
-            The 9 policies a small business actually needs, including an AI Acceptable Use
-            Policy. Generated in minutes, customized for your organization. Start with the AI
-            policy: it is free.
+            Your rules, in writing: the nine policies a small business needs, including an AI
+            Acceptable Use Policy, written for your organization in minutes. Start with the AI
+            policy. It is free.
           </p>
         </motion.div>
 

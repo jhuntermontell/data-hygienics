@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google"
+import { IBM_Plex_Mono, Inter, Inter_Tight } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Providers } from "./providers"
 import SchemaScript from "./components/SchemaScript"
@@ -12,10 +12,26 @@ const inter = Inter({
   display: "swap",
 })
 
+// Display face for headlines and the readout face for metadata
+// (design/brand-book/personality.md, section 7). Google Fonts only.
+const interTight = Inter_Tight({
+  variable: "--font-display-face",
+  subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
+})
+
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-readout-face",
+  subsets: ["latin"],
+  weight: ["500"],
+  display: "swap",
+})
+
 const siteTitle = `${SITE.name} | ${SITE.tagline.replace(/\.$/, "")}`
 // The site card from app/opengraph-image.js (lib/og.js). The file-based
 // image already wins for og:image; this keeps twitter:image on the same card.
-const ogImage = { url: "/opengraph-image", width: 1200, height: 630, alt: "Data Hygienics: live securely alongside AI" }
+const ogImage = { url: "/opengraph-image", width: 1200, height: 630, alt: "Data Hygienics: security, in order" }
 const socialDescription =
   "The independent field guide to living and working securely alongside AI, for households and small businesses."
 
@@ -64,7 +80,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
+      <body className={`${inter.variable} ${interTight.variable} ${plexMono.variable} antialiased`}>
         <SchemaScript schema={organizationSchema()} />
         <Providers>{children}</Providers>
         {/* Sends nothing until Web Analytics is switched on in the Vercel dashboard. */}

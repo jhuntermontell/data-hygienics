@@ -18,7 +18,7 @@ export default function BusinessHubPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar surface="night" />
       <HubPage hub={hub} content={content}>
         <BusinessToolsStrip withGauge className="bg-white border-t border-[#E2E8F0]" />
       </HubPage>

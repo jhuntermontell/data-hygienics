@@ -36,11 +36,11 @@ export default function CheckPage() {
         <Navbar />
         <main className="library-page max-w-4xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
           <header className="max-w-3xl mb-10">
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#0F766E] mb-3">
+            <p className="flex items-center gap-2 readout-label text-[#0F766E] mb-3">
               <LifeBuoy className="w-4 h-4" aria-hidden="true" />
               Is this real?
             </p>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+            <h1 className="font-display font-semibold text-[2.5rem] sm:text-[3.25rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
               Threat Check
             </h1>
             <p className="text-[#334155] text-lg sm:text-xl font-semibold leading-snug">What just happened?</p>
@@ -52,8 +52,8 @@ export default function CheckPage() {
 
           <CheckGrid verdicts={verdicts} />
 
-          <section aria-labelledby="not-listed" className="mt-12 rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-7">
-            <h2 id="not-listed" className="text-lg font-bold text-[#0F172A] mb-2">
+          <section aria-labelledby="not-listed" className="mt-12 border border-[#E2E8F0] bg-white p-5 sm:p-7">
+            <h2 id="not-listed" className="text-lg font-display font-semibold text-[#0F172A] mb-2">
               Not on the list?
             </h2>
             <p className="text-[#475569] text-[15px] leading-relaxed">

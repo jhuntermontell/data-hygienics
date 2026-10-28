@@ -518,11 +518,11 @@ function IntroductionView({ user, isPaid, onUpgrade, showUpgrade, setShowUpgrade
               Incident Response Plan Builder
             </span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0F172A] tracking-tight mb-4">
+          <h1 className="font-display font-semibold text-[2.5rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] mb-4">
             Build your incident response plan
           </h1>
           <p className="text-[#475569] text-lg max-w-2xl leading-relaxed">
-            A personalized, step-by-step guide for the moments when everything goes wrong. Built around your team and your systems, with playbooks for AI-era incidents like cloned-voice payment fraud and client data pasted into a chatbot.
+            A step-by-step plan for the day something goes wrong, built around your team and your systems and practiced before you need it. Playbooks cover AI-era incidents like cloned-voice payment fraud and client data pasted into a chatbot.
           </p>
         </motion.div>
 

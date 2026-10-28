@@ -2,6 +2,8 @@ import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import Link from "next/link"
 import { Shield, FileText, BookOpen, ArrowRight, LifeBuoy, MessageCircle } from "lucide-react"
+import FoldRule from "@/app/components/brand/FoldRule"
+import Readout from "@/app/components/brand/Readout"
 
 export const metadata = {
   title: "Business Tools for AI-Era Security | Data Hygienics",
@@ -34,7 +36,7 @@ const activeTools = [
     icon: LifeBuoy,
     name: "Incident Response Planner",
     badge: "Live",
-    badgeColor: "bg-[#FEE2E2] text-[#DC2626]",
+    badgeColor: "bg-[#EFF6FF] text-[#1D4ED8]",
     description: "Build a personalized incident response plan, rehearse it with tabletop exercises (guided practice run-throughs), and keep the timestamped notes your team, your lawyer and your insurer (if you have one) will ask for. Scenarios include deepfake payment fraud and an employee pasting client data into a chatbot.",
     consequence: "Ransomware (malware that locks your files for a ransom), business email compromise and deepfake payment requests move fast. A plan that is written, tested, and reachable outside your normal network gives your team a decision path before stress takes over.",
     cta: "Build your plan",
@@ -45,7 +47,7 @@ const activeTools = [
     name: "Ask Data Hygienics",
     badge: "Members",
     badgeColor: "bg-[#EFF6FF] text-[#1D4ED8]",
-    description: "Ask a question about securing your home or small business and get a short answer drawn only from our published research, with a link to every page it uses. When our research doesn't cover something, it says we don't know yet. Included with Ongoing Protection and the Documentation Pack.",
+    description: "Ask a question about securing your home or small business and get a short answer drawn only from our published research, with a link to every page it uses. When our research doesn't cover something, it says we don't know yet. Included with membership and the Documentation Pack.",
     consequence: null,
     cta: "Ask a question",
     href: "/tools/ask",
@@ -54,7 +56,7 @@ const activeTools = [
     icon: BookOpen,
     name: "Controls Library",
     badge: "Free",
-    badgeColor: "bg-[#ECFDF5] text-[#059669]",
+    badgeColor: "bg-[#ECFDF5] text-[#047857]",
     description: "Every core security control explained in plain English, with no account required: what it means, why it matters, and how it applies to your industry. Includes controls for AI acceptable use and for checking payment requests through a second channel. Mapped to the NIST Cybersecurity Framework 2.0 and CIS Controls v8, with notes for healthcare, financial services, retail and government contractors.",
     consequence: null,
     cta: "Browse controls",
@@ -65,44 +67,48 @@ const activeTools = [
 export default function ToolsPage() {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar surface="night" />
 
       {/* Header */}
-      <section className="pt-32 pb-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0F172A] tracking-tight leading-[1.1] mb-4">
+      <section aria-labelledby="tools-title" className="bg-night text-night-ink px-4 sm:px-6 pt-28 sm:pt-36 pb-16 sm:pb-24">
+        <div className="max-w-7xl mx-auto">
+          <FoldRule tone="night" draw />
+          <Readout tone="night" label className="mt-7">
+            For businesses of 1 to 50
+          </Readout>
+          <h1 id="tools-title" className="mt-4 font-display font-semibold text-[2.5rem] sm:text-[3.5rem] lg:text-[4rem] leading-[1.02] tracking-[-0.03em]">
             Business tools
           </h1>
-          <p className="text-[#475569] text-lg max-w-2xl mx-auto">
-            Security tools for the owner, office manager, or whoever got handed IT at a small organization. Built for AI-era threats, written in plain English, and the only thing we sell.
+          <p className="mt-6 max-w-2xl text-lg sm:text-[1.1875rem] leading-relaxed text-night-ink-2">
+            Security tools for the owner, office manager, or whoever got handed IT at a small organization. Built for AI-era threats, written in plain English. With membership, they are the only things we sell.
           </p>
         </div>
       </section>
 
       {/* Active Tools */}
-      <section className="py-16 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold text-[#0F172A] mb-10">Available now</h2>
-          <div className="grid md:grid-cols-2 gap-6">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <FoldRule />
+          <h2 className="mt-7 font-display font-semibold text-[1.875rem] sm:text-[2.5rem] leading-[1.08] tracking-[-0.02em] text-[#0F172A] mb-10">Available now</h2>
+          <div className="grid md:grid-cols-2 gap-x-6 gap-y-12">
             {activeTools.map((tool) => {
               const Icon = tool.icon
               return (
-                <div key={tool.name} className="bg-white rounded-xl border border-[#E2E8F0] p-7 shadow-sm flex flex-col">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
-                      <Icon className="w-5 h-5 text-[#1D4ED8]" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-semibold text-[#0F172A]">{tool.name}</h3>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${tool.badgeColor}`}>{tool.badge}</span>
+                <div key={tool.name} className="flex flex-col">
+                  <FoldRule />
+                  <div className="mt-5 flex items-center gap-3 mb-4">
+                    <Icon className="w-5 h-5 text-[#1D4ED8]" aria-hidden="true" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-display font-semibold text-[1.375rem] tracking-[-0.015em] text-[#0F172A]">{tool.name}</h3>
+                      <span className={`readout-label px-2 py-0.5 ${tool.badgeColor}`}>{tool.badge}</span>
                       {tool.secondBadge && (
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#059669]">{tool.secondBadge}</span>
+                        <span className="readout-label px-2 py-0.5 bg-[#ECFDF5] text-[#047857]">{tool.secondBadge}</span>
                       )}
                     </div>
                   </div>
-                  <p className="text-[#475569] text-sm leading-relaxed mb-4 flex-1">{tool.description}</p>
+                  <p className="text-[#475569] text-[0.9375rem] leading-relaxed mb-4 flex-1">{tool.description}</p>
                   {tool.consequence && (
-                    <p className="text-xs text-[#94A3B8] leading-relaxed mb-4 border-l-2 border-[#E2E8F0] pl-3 italic">
+                    <p className="text-sm text-[#475569] leading-relaxed mb-4 border-l-2 border-[#0F8F83] pl-3">
                       {tool.consequence}
                     </p>
                   )}
@@ -120,22 +126,23 @@ export default function ToolsPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-6 bg-[#1D4ED8]">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-3">Start with what you have</h2>
-          <p className="text-blue-100 text-base mb-8">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-[#F8FAFC] border-t border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto">
+          <FoldRule />
+          <h2 className="mt-7 font-display font-semibold text-[1.875rem] sm:text-[2.5rem] leading-[1.08] tracking-[-0.02em] text-[#0F172A] mb-3">Start with what you have</h2>
+          <p className="max-w-2xl text-[#475569] text-[1.0625rem] leading-relaxed mb-8">
             Start with the free Quick Check, browse the Controls Library or get the AI Acceptable Use Policy (free with a free account). None of it needs a credit card or a sales call. Upgrade when you&apos;re ready.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap gap-3">
             <Link
               href="/tools/cyber-audit"
-              className="inline-flex items-center bg-white text-[#1D4ED8] font-semibold text-sm px-8 py-3.5 rounded-lg hover:bg-blue-50 transition-all shadow-sm"
+              className="inline-flex items-center bg-[#1D4ED8] text-white font-semibold text-[15px] px-6 h-12 hover:bg-[#1E40AF] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F8F83]"
             >
               Start the free Quick Check
             </Link>
             <Link
               href="/controls"
-              className="inline-flex items-center border border-white/40 text-white font-semibold text-sm px-8 py-3.5 rounded-lg hover:bg-white/10 transition-all"
+              className="inline-flex items-center border border-[#0F172A] text-[#0F172A] font-semibold text-[15px] px-6 h-12 hover:bg-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F8F83]"
             >
               Browse controls
             </Link>

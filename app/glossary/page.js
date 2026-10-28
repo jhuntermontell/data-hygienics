@@ -50,12 +50,12 @@ function ComingWords({ entries }) {
     .filter((g) => g.items.length)
   if (!groups.length) return null
   return (
-    <section aria-labelledby="coming-words-heading" className="mb-8 rounded-2xl border border-[#E2E8F0] bg-white p-5 sm:p-6">
-      <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">
+    <section aria-labelledby="coming-words-heading" className="mb-8 border border-[#E2E8F0] bg-white p-5 sm:p-6">
+      <p className="flex items-center gap-2 readout-label text-[#0F172A]">
         <Telescope className="w-4 h-4" aria-hidden="true" />
         The Long View
       </p>
-      <h2 id="coming-words-heading" className="mt-2 text-2xl font-bold tracking-tight text-[#0F172A]">
+      <h2 id="coming-words-heading" className="mt-2 text-2xl font-display font-semibold tracking-[-0.02em] text-[#0F172A]">
         Words for what&apos;s coming
       </h2>
       <p className="mt-2 text-[15px] leading-relaxed text-[#475569]">
@@ -123,11 +123,11 @@ export default function GlossaryPage() {
         <Navbar />
         <main className="library-page max-w-3xl mx-auto px-4 sm:px-6 pt-28 sm:pt-32 pb-20">
           <header className="mb-6">
-            <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase text-[#1D4ED8] mb-3">
+            <p className="flex items-center gap-2 readout-label text-[#1D4ED8] mb-3">
               <BookMarked className="w-4 h-4" aria-hidden="true" />
               Glossary
             </p>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0F172A] leading-[1.08] tracking-tight text-balance mb-5">
+            <h1 className="font-display font-semibold text-[2.5rem] sm:text-[3.25rem] md:text-[3.5rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
               AI and security terms, decoded
             </h1>
             <p className="text-[#475569] text-lg leading-relaxed">

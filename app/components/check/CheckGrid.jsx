@@ -32,7 +32,7 @@ export default function CheckGrid({ verdicts = [] }) {
         const headingId = `check-${group.key}`
         return (
           <section key={group.key} aria-labelledby={headingId}>
-            <h2 id={headingId} className={`flex items-center gap-2 text-xs font-semibold tracking-[0.12em] uppercase mb-4 ${group.heading}`}>
+            <h2 id={headingId} className={`flex items-center gap-2 readout-label mb-4 ${group.heading}`}>
               <Icon className="w-4 h-4" aria-hidden="true" />
               {group.label}
             </h2>
@@ -41,7 +41,7 @@ export default function CheckGrid({ verdicts = [] }) {
                 <li key={v.slug}>
                   <Link
                     href={`/check/${v.slug}`}
-                    className={`group flex h-full items-center justify-between gap-4 rounded-xl border border-[#E2E8F0] bg-white px-5 py-4 text-base font-semibold text-[#0F172A] leading-snug motion-safe:transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${group.chip}`}
+                    className={`group flex h-full items-center justify-between gap-4 border border-[#E2E8F0] bg-white px-5 py-4 text-base font-semibold text-[#0F172A] leading-snug motion-safe:transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${group.chip}`}
                   >
                     <span>{v.chip}</span>
                     <ArrowRight className={`w-4 h-4 shrink-0 ${group.arrow} motion-safe:transition-transform group-hover:translate-x-0.5`} aria-hidden="true" />

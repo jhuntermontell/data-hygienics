@@ -12,12 +12,13 @@ import { PATH_CONTENT } from "@/lib/content/path/long-view"
 import { EVENTS, track } from "@/lib/analytics"
 import { MEMBERSHIP } from "@/lib/content/membership"
 import { clearSubscriptionCache, getSubscription } from "@/lib/stripe/subscription"
+import FoldRule from "@/app/components/brand/FoldRule"
 
 // Back from a membership checkout (/path/home?joined=1): a calm line, gone on
 // the next click anywhere. Nothing is stored.
 function JoinedBanner() {
   return (
-    <div role="status" className="mb-6 rounded-2xl border border-[#0F8F83]/30 bg-[#F0FDFA] p-5">
+    <div role="status" className="mb-6 border border-[#0F8F83]/30 bg-[#F0FDFA] p-5">
       <p className="flex items-center gap-2 text-base font-bold text-[#0F172A]">
         <CheckCircle2 className="w-5 h-5 shrink-0 text-[#0F766E]" aria-hidden="true" />
         {MEMBERSHIP.joined.headline}
@@ -163,7 +164,7 @@ export default function PathExperience({ audience, links }) {
           </div>
         ) : null}
         <div className="max-w-2xl mx-auto mb-8">
-          <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">{copy.eyebrow}</p>
+          <p className="readout-label text-[#0F172A]">{copy.eyebrow}</p>
           <p className="mt-2 text-[15px] text-[#475569]">
             {showFirst ? "Here's where you start. " : `${copy.intro} `}
             No account needed: your answers stay on this device unless you save your path.
@@ -246,10 +247,11 @@ export default function PathExperience({ audience, links }) {
   return (
     <div>
       {showJoined ? <JoinedBanner /> : null}
-      <div className="mb-6">
-        <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">{copy.eyebrow}</p>
-        <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A] text-balance">
-          {fresh ? "Here's your path." : "Your path"}
+      <div className="mb-8">
+        <FoldRule draw className="mb-6" />
+        <p className="readout-label text-day-readout">{copy.eyebrow}</p>
+        <h1 className="mt-3 font-display font-semibold text-[2.25rem] sm:text-[3rem] leading-[1.04] tracking-[-0.03em] text-[#0F172A] text-balance">
+          {fresh ? "Here's your path" : "Your path"}
         </h1>
         {!fresh ? <p className="mt-2 text-[15px] text-[#475569]">{content.mirror(path)}</p> : null}
       </div>

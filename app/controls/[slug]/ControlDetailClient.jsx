@@ -77,25 +77,25 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="mb-4"
         >
           <div className="flex items-center gap-2 mb-4">
             <Shield className="w-5 h-5 text-[#1D4ED8]" />
-            <span className="text-[#1D4ED8] text-xs font-semibold tracking-widest uppercase">
+            <span className="text-[#1D4ED8] readout-label">
               Security Control
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-[#0F172A] leading-tight tracking-tight mb-4">
+          <h1 className="font-display font-semibold text-[2.25rem] sm:text-[3rem] text-[#0F172A] leading-[1.04] tracking-[-0.03em] text-balance mb-5">
             {control.name}
           </h1>
           <div className="flex items-center gap-2 flex-wrap mb-2">
             <span
               className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                functionColors[control.nistFunction]
-              }`}
+ functionColors[control.nistFunction]
+ }`}
             >
               NIST CSF 2.0 {control.nistFunction}
             </span>
@@ -116,12 +116,12 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
 
         {/* Explanation */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+          transition={{ duration: 0.3, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
         >
-          <h2 className="text-lg font-bold text-[#0F172A] mb-4">
+          <h2 className="text-lg font-display font-semibold text-[#0F172A] mb-4">
             What This Control Means
           </h2>
           <div className="text-[#475569] text-sm leading-relaxed space-y-4">
@@ -133,14 +133,14 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
 
         {/* Why it matters (stored in the insuranceRelevance field) */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-xl border border-blue-200 bg-[#EFF6FF] p-8 mb-6 shadow-sm"
+          transition={{ duration: 0.3, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          className="border border-blue-200 bg-[#EFF6FF] p-8 mb-6 shadow-sm"
         >
           <div className="flex items-center gap-2 mb-4">
             <FileText className="w-5 h-5 text-[#1D4ED8]" />
-            <h2 className="text-lg font-bold text-[#0F172A]">
+            <h2 className="text-lg font-display font-semibold text-[#0F172A]">
               Why It Matters
             </h2>
           </div>
@@ -154,14 +154,14 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
         {/* Industry notes */}
         {control.industryNotes && Object.keys(control.industryNotes).length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+            transition={{ duration: 0.3, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
           >
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="w-5 h-5 text-[#475569]" />
-              <h2 className="text-lg font-bold text-[#0F172A]">
+              <h2 className="text-lg font-display font-semibold text-[#0F172A]">
                 Industry-Specific Notes
               </h2>
             </div>
@@ -183,12 +183,12 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
         {/* Implementation steps */}
         {control.implementationSteps?.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+            transition={{ duration: 0.3, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
           >
-            <h2 className="text-lg font-bold text-[#0F172A] mb-4">
+            <h2 className="text-lg font-display font-semibold text-[#0F172A] mb-4">
               Implementation Steps
             </h2>
             <div className="space-y-3">
@@ -208,12 +208,12 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
 
         {/* Framework References */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+          transition={{ duration: 0.3, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
         >
-          <h2 className="text-lg font-bold text-[#0F172A] mb-4">
+          <h2 className="text-lg font-display font-semibold text-[#0F172A] mb-4">
             Framework References
           </h2>
           <div className="space-y-3">
@@ -255,14 +255,14 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
         {/* FAQ Section */}
         {faqs?.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+            transition={{ duration: 0.3, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
           >
             <div className="flex items-center gap-2 mb-4">
               <HelpCircle className="w-5 h-5 text-[#475569]" />
-              <h2 className="text-lg font-bold text-[#0F172A]">
+              <h2 className="text-lg font-display font-semibold text-[#0F172A]">
                 Frequently Asked Questions
               </h2>
             </div>
@@ -284,14 +284,14 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
         {/* Related threats */}
         {control.relatedThreats?.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-xl border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
+            transition={{ duration: 0.3, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="border border-[#E2E8F0] bg-white p-8 mb-6 shadow-sm"
           >
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="w-5 h-5 text-[#DC2626]" />
-              <h2 className="text-lg font-bold text-[#0F172A]">
+              <AlertTriangle className="w-5 h-5 text-[#64748B]" />
+              <h2 className="text-lg font-display font-semibold text-[#0F172A]">
                 Related Threats
               </h2>
             </div>
@@ -303,7 +303,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
                 <Link
                   key={slug}
                   href={`/threats/${slug}`}
-                  className="flex items-center justify-between gap-2 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#0F172A] hover:border-[#1D4ED8] hover:text-[#1D4ED8] transition-colors"
+                  className="flex items-center justify-between gap-2 border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-semibold text-[#0F172A] hover:border-[#1D4ED8] hover:text-[#1D4ED8] transition-colors"
                 >
                   {threatLabel(slug)}
                   <ArrowRight className="w-4 h-4 shrink-0" />
@@ -315,9 +315,9 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
 
         {/* CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.3, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="text-center pt-6"
         >
           <p className="text-[#475569] text-sm mb-4">
@@ -325,7 +325,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
           </p>
           <Link
             href="/tools/cyber-audit"
-            className="inline-flex items-center gap-2 bg-[#1D4ED8] text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#1E40AF] transition-colors"
+            className="inline-flex items-center gap-2 bg-[#1D4ED8] text-white px-6 py-3 font-bold text-sm hover:bg-[#1E40AF] transition-colors"
           >
             Start the free Quick Check
           </Link>

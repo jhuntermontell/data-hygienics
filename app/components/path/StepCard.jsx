@@ -96,7 +96,7 @@ export function AfterLine({ step }) {
 export function SayThis({ step }) {
   if (!step.sayThis) return null
   return (
-    <p className="flex gap-2 rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-3 text-sm leading-relaxed text-[#1E3A8A]">
+    <p className="flex gap-2 border border-[#1D4ED8]/20 bg-[#EFF6FF] p-3 text-sm leading-relaxed text-[#1E3A8A]">
       <MessageSquareQuote className="w-4 h-4 mt-0.5 shrink-0 text-[#1D4ED8]" aria-hidden="true" />
       <span>
         <span className="font-semibold text-[#0F172A]">Say this: </span>
@@ -137,7 +137,7 @@ export function DoneRitual({ ritual, nudge }) {
   return (
     <div role="status">
       {ritual ? (
-        <p className="mt-3 flex gap-2 rounded-xl border border-[#0F8F83]/30 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
+        <p className="mt-3 flex gap-2 border border-[#0F8F83]/30 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
           <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
           <span>
             <span className="font-semibold">{ritual.label}: </span>
@@ -181,7 +181,7 @@ function Actions({ step, mark, onMark: setMark, audience }) {
     setMark(id, status)
   }
   const button =
-    "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+    "inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
   if (mark?.status && mark.status !== "skipped") {
     return (
       <div className="flex flex-wrap items-center gap-2">
@@ -242,21 +242,21 @@ function Handoff({ text }) {
   }
   const mailto = `mailto:?subject=${encodeURIComponent("Security request")}&body=${encodeURIComponent(text)}`
   return (
-    <div className="rounded-xl border border-[#1D4ED8]/20 bg-[#EFF6FF] p-4">
+    <div className="border border-[#1D4ED8]/20 bg-[#EFF6FF] p-4">
       <p className="text-sm font-semibold text-[#0F172A]">Not your job to know how. Send this to your IT provider.</p>
       <blockquote className="mt-2 border-l-2 border-[#1D4ED8]/40 pl-3 text-sm leading-relaxed text-[#1E3A8A]">{text}</blockquote>
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={copy}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-[#1D4ED8]/30 px-3 py-1.5 text-sm font-semibold text-[#1D4ED8] hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+          className="inline-flex items-center gap-1.5 bg-white border border-[#1D4ED8]/30 px-3 py-1.5 text-sm font-semibold text-[#1D4ED8] hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
         >
           <Copy className="w-4 h-4" aria-hidden="true" />
           {copied ? "Copied" : "Copy the request"}
         </button>
         <a
           href={mailto}
-          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-[#1D4ED8] hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-[#1D4ED8] hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
         >
           <Mail className="w-4 h-4" aria-hidden="true" />
           Open in my email
@@ -320,14 +320,14 @@ export default function StepCard({
   return (
     <article
       aria-labelledby={`${id}-title`}
-      className={`step-card relative rounded-2xl border bg-white transition-[opacity,box-shadow,border-color] ${
-        highlighted ? "border-[#0F172A] shadow-[0_0_0_3px_rgb(15_23_42/0.08)]" : "border-[#E2E8F0]"
-      } ${dimmed ? "opacity-45" : ""}`}
+      className={`step-card relative border bg-white transition-[opacity,box-shadow,border-color] ${
+ highlighted ? "border-[#0F172A] shadow-[0_0_0_3px_rgb(15_23_42/0.08)]" : "border-[#E2E8F0]"
+ } ${dimmed ? "opacity-45" : ""}`}
     >
       {/* The signature clean cut: the upper-right corner fills teal when done. */}
       <span
         aria-hidden="true"
-        className={`step-cut absolute top-0 right-0 w-7 h-7 rounded-tr-2xl ${handled ? "bg-[#0F8F83]" : "bg-[#F1F5F9]"}`}
+        className={`step-cut absolute top-0 right-0 w-7 h-7 ${handled ? "bg-[#0F8F83]" : "bg-[#F1F5F9]"}`}
       />
       <h3 id={`${id}-title`} className="m-0">
         <button
@@ -335,13 +335,13 @@ export default function StepCard({
           aria-expanded={open}
           aria-controls={`${id}-body`}
           onClick={onToggle}
-          className="w-full text-left flex items-start gap-3 p-4 sm:p-5 pr-10 rounded-2xl cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
+          className="w-full text-left flex items-start gap-3 p-4 sm:p-5 pr-10 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D4ED8]"
         >
           <span
             aria-hidden="true"
             className={`mt-1 shrink-0 w-3 h-3 rounded-full border-2 ${
-              handled ? "bg-[#0F8F83] border-[#0F8F83]" : mark?.status === "skipped" ? "border-dashed border-[#94A3B8]" : "border-[#94A3B8]"
-            }`}
+ handled ? "bg-[#0F8F83] border-[#0F8F83]" : mark?.status === "skipped" ? "border-dashed border-[#94A3B8]" : "border-[#94A3B8]"
+ }`}
           />
           <span className="flex-1 min-w-0">
             <span className={`block text-[17px] font-semibold leading-snug ${handled ? "text-[#475569]" : "text-[#0F172A]"}`}>
@@ -391,14 +391,14 @@ export default function StepCard({
           ) : null}
 
           {knowledge === "new" && step.newcomer ? (
-            <p className="rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-3 text-sm leading-relaxed text-[#334155]">
+            <p className="bg-[#F8FAFC] border border-[#E2E8F0] p-3 text-sm leading-relaxed text-[#334155]">
               <span className="font-semibold text-[#0F172A]">If this is new to you: </span>
               {step.newcomer}
             </p>
           ) : null}
 
           <div>
-            <div role="group" aria-label="How to show this step" className="inline-flex flex-wrap gap-1 rounded-xl bg-[#F1F5F9] p-1">
+            <div role="group" aria-label="How to show this step" className="inline-flex flex-wrap gap-1 bg-[#F1F5F9] p-1">
               {VIEWS.map((v) => {
                 const shown = resolveView(step, v.key) === v.key
                 if (!shown) return null
@@ -409,9 +409,9 @@ export default function StepCard({
                     type="button"
                     aria-pressed={on}
                     onClick={() => setLocalView(v.key)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1D4ED8] ${
-                      on ? "bg-white text-[#0F172A] shadow-sm" : "text-[#475569] hover:text-[#0F172A]"
-                    }`}
+                    className={`px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1D4ED8] ${
+ on ? "bg-white text-[#0F172A] shadow-sm" : "text-[#475569] hover:text-[#0F172A]"
+ }`}
                   >
                     {v.label}
                   </button>
@@ -422,7 +422,7 @@ export default function StepCard({
             <div className="mt-4 space-y-4">
               {chosen === "simple" ? <p className="text-[15px] leading-relaxed text-[#334155]">{step.simple}</p> : null}
               {chosen === "story" ? (
-                <div className="rounded-xl bg-[#0F172A] text-[#E2E8F0] p-4 space-y-3 text-[15px] leading-relaxed">
+                <div className="bg-[#0F172A] text-[#E2E8F0] p-4 space-y-3 text-[15px] leading-relaxed">
                   {step.story.split(/\n\n+/).map((p, i) => (
                     <p key={i}>{p}</p>
                   ))}
@@ -440,7 +440,7 @@ export default function StepCard({
                 <Handoff text={forPlatform(step.handoff, answers)} />
               ) : (
                 <div>
-                  <p className="text-xs font-bold tracking-[0.08em] uppercase text-[#0F766E] mb-2">Do it</p>
+                  <p className="readout-label text-[#0F766E] mb-2">Do it</p>
                   <DoList step={step} answers={answers || {}} />
                 </div>
               )}
@@ -450,7 +450,7 @@ export default function StepCard({
           <SayThis step={step} />
 
           {step.check ? (
-            <p className="flex gap-2 rounded-xl border border-[#0F8F83]/25 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
+            <p className="flex gap-2 border border-[#0F8F83]/25 bg-[#F0FDFA] p-3 text-sm leading-relaxed text-[#134E4A]">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" aria-hidden="true" />
               <span>
                 <span className="font-semibold">Check it worked: </span>
@@ -487,7 +487,7 @@ export default function StepCard({
 
           {stepLinks.length ? (
             <div>
-              <p className="text-xs font-semibold tracking-[0.08em] uppercase text-[#64748B] mb-2">Read more</p>
+              <p className="readout-label text-[#64748B] mb-2">Read more</p>
               <ul className="flex flex-wrap gap-2 list-none p-0 m-0">
                 {stepLinks.map((link) => (
                   <li key={link.href} className="min-w-0">
@@ -495,7 +495,7 @@ export default function StepCard({
                       href={link.href}
                       className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-1 text-sm font-medium text-[#1D4ED8] hover:border-[#1D4ED8]/40"
                     >
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#64748B]">{link.type}</span>
+                      <span className="readout-label text-[#64748B]">{link.type}</span>
                       <span className="min-w-0 break-words">{link.label}</span>
                     </Link>
                   </li>

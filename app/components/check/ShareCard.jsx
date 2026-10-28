@@ -14,12 +14,12 @@ import { track, EVENTS } from "@/lib/analytics"
 
 const TONES = {
   home: {
-    face: "from-[#F0FDFA] via-white to-[#EFF6FF] border-[#0F8F83]/30",
+    face: "border-[#E2E8F0]",
     eyebrow: "text-[#0F766E]",
     button: "bg-[#0F766E] hover:bg-[#115E59] focus-visible:outline-[#0F766E]",
   },
   business: {
-    face: "from-[#EFF6FF] via-white to-[#F0FDFA] border-[#1D4ED8]/25",
+    face: "border-[#E2E8F0]",
     eyebrow: "text-[#1D4ED8]",
     button: "bg-[#1D4ED8] hover:bg-[#1E40AF] focus-visible:outline-[#1D4ED8]",
   },
@@ -80,21 +80,21 @@ export default function ShareCard({ title, chip, sayThis, url, tone = "home" }) 
 
   return (
     <section aria-labelledby="share-heading" className="share-card mt-12">
-      <h2 id="share-heading" className="share-controls text-xl sm:text-2xl font-bold text-[#0F172A] tracking-tight mb-1.5">
+      <h2 id="share-heading" className="share-controls text-xl sm:text-2xl font-display font-semibold text-[#0F172A] tracking-[-0.02em] mb-1.5">
         Pass it on
       </h2>
       <p className="share-controls text-[#475569] text-[15px] mb-5">
         The person most likely to get this message may not be you. Send the card, or print it for the fridge.
       </p>
 
-      <div className={`share-card-face rounded-2xl border bg-gradient-to-br ${styles.face} p-6 sm:p-8`}>
-        <p className={`text-xs font-semibold tracking-[0.12em] uppercase mb-3 ${styles.eyebrow}`}>Threat Check</p>
-        <p className="text-2xl sm:text-3xl font-black text-[#0F172A] leading-tight tracking-tight text-balance">{chip}?</p>
+      <div className={`share-card-face border bg-[#F8FAFC] shadow-[0_24px_48px_-32px_rgba(15,23,42,0.35)] ${styles.face} p-6 sm:p-8`}>
+        <p className={`readout-label mb-3 ${styles.eyebrow}`}>Threat Check</p>
+        <p className="font-display text-[1.625rem] sm:text-[2rem] font-semibold text-[#0F172A] leading-tight tracking-[-0.02em] text-balance">{chip}?</p>
         <p className="mt-4 text-lg sm:text-xl leading-snug text-[#334155]">{sayThis}</p>
         <div className="mt-6 flex items-center gap-3">
           <BrandMark className="w-8 h-8 shrink-0" />
           <span className="text-sm font-semibold text-[#0F172A]">Data Hygienics</span>
-          <span className="text-sm text-[#475569] break-all">{shortUrl}</span>
+          <span className="readout text-day-readout break-all">{shortUrl}</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export default function ShareCard({ title, chip, sayThis, url, tone = "home" }) 
         <button
           type="button"
           onClick={send}
-          className={`inline-flex items-center justify-center gap-2 text-white text-sm font-semibold px-5 py-3 rounded-xl motion-safe:transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 ${styles.button}`}
+          className={`inline-flex items-center justify-center gap-2 text-white text-sm font-semibold px-5 py-3 motion-safe:transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 ${styles.button}`}
         >
           <Send className="w-4 h-4" aria-hidden="true" />
           Send this to someone you look out for
@@ -110,7 +110,7 @@ export default function ShareCard({ title, chip, sayThis, url, tone = "home" }) 
         <button
           type="button"
           onClick={copyLink}
-          className="inline-flex items-center justify-center gap-2 border border-[#E2E8F0] bg-white text-[#334155] text-sm font-semibold px-4 py-3 rounded-xl hover:bg-[#F8FAFC] motion-safe:transition-colors cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 border border-[#E2E8F0] bg-white text-[#334155] text-sm font-semibold px-4 py-3 hover:bg-[#F8FAFC] motion-safe:transition-colors cursor-pointer"
         >
           <Link2 className="w-4 h-4" aria-hidden="true" />
           Copy link
@@ -118,7 +118,7 @@ export default function ShareCard({ title, chip, sayThis, url, tone = "home" }) 
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center justify-center gap-2 border border-[#E2E8F0] bg-white text-[#334155] text-sm font-semibold px-4 py-3 rounded-xl hover:bg-[#F8FAFC] motion-safe:transition-colors cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 border border-[#E2E8F0] bg-white text-[#334155] text-sm font-semibold px-4 py-3 hover:bg-[#F8FAFC] motion-safe:transition-colors cursor-pointer"
         >
           <Printer className="w-4 h-4" aria-hidden="true" />
           Print the card
@@ -134,7 +134,7 @@ export default function ShareCard({ title, chip, sayThis, url, tone = "home" }) 
         ) : null}
       </p>
 
-      <div className="share-controls mt-2 rounded-xl border border-dashed border-[#CBD5E1] bg-white px-4 py-3">
+      <div className="share-controls mt-2 border border-dashed border-[#CBD5E1] bg-white px-4 py-3">
         <p className="text-xs font-semibold text-[#64748B] mb-1">The message we&apos;ll send with the link</p>
         <p className="text-sm text-[#334155] select-all">{message}</p>
       </div>

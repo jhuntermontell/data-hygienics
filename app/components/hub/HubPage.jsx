@@ -9,6 +9,8 @@ import { getGuideBySlug } from "@/lib/guides"
 import { getExplainerBySlug } from "@/lib/sovereignty"
 import { TOOLKIT_CATEGORIES } from "@/lib/toolkit"
 import { breadcrumbSchema, collectionPageSchema } from "@/lib/schema"
+import FoldRule from "@/app/components/brand/FoldRule"
+import Readout from "@/app/components/brand/Readout"
 
 // Shared layout for the three hubs (/household, /business,
 // /digital-sovereignty). Copy comes from lib/hubs.js; entries come from
@@ -19,39 +21,16 @@ import { breadcrumbSchema, collectionPageSchema } from "@/lib/schema"
 // Section order: header with "Start here", threats, industry briefs,
 // guides, hub-specific children, toolkit, explainers, glossary band.
 
-// Full class strings so Tailwind can see them.
+// Full class strings so Tailwind can see them. The hub head is a night
+// surface; each audience keeps its mark color for the small hexagon and the
+// day-surface links below the head.
 const ACCENTS = {
-  home: {
-    icon: House,
-    band: "from-[#F0FDFA] via-[#F8FAFC] to-white",
-    pill: "bg-white text-[#0F766E] border-[#0F766E]/25",
-    number: "bg-[#0F766E] text-white",
-    title: "group-hover:text-[#0F766E]",
-    cardHover: "hover:border-[#0F766E]/40",
-    glow: "bg-[#0F766E]/10",
-    cta: "bg-[#0F766E] hover:bg-[#115E59]",
-  },
-  business: {
-    icon: Briefcase,
-    band: "from-[#EFF6FF] via-[#F8FAFC] to-white",
-    pill: "bg-white text-[#1D4ED8] border-[#1D4ED8]/25",
-    number: "bg-[#1D4ED8] text-white",
-    title: "group-hover:text-[#1D4ED8]",
-    cardHover: "hover:border-[#1D4ED8]/40",
-    glow: "bg-[#1D4ED8]/10",
-    cta: "bg-[#1D4ED8] hover:bg-[#1E40AF]",
-  },
-  sovereignty: {
-    icon: KeyRound,
-    band: "from-[#EFF6FF] via-[#F0FDFA] to-white",
-    pill: "bg-white text-[#0F172A] border-[#0F172A]/15",
-    number: "bg-gradient-to-br from-[#1D4ED8] to-[#0F8F83] text-white",
-    title: "group-hover:text-[#1D4ED8]",
-    cardHover: "hover:border-[#1D4ED8]/40",
-    glow: "bg-[#0F766E]/10",
-    cta: "bg-[#0F172A] hover:bg-[#1E293B]",
-  },
+  home: { icon: House, mark: "bg-[#0F8F83]", link: "text-[#0F766E] hover:text-[#115E59]" },
+  business: { icon: Briefcase, mark: "bg-[#1D4ED8]", link: "text-[#1D4ED8] hover:text-[#1E40AF]" },
+  sovereignty: { icon: KeyRound, mark: "bg-white", link: "text-[#1D4ED8] hover:text-[#1E40AF]" },
 }
+
+const HEX = "[clip-path:polygon(50%_0,100%_25%,100%_75%,50%_100%,0_75%,0_25%)]"
 
 const ENTRY_GETTERS = {
   threat: getThreatBySlug,
@@ -75,14 +54,15 @@ export function resolveStartHere(items = []) {
 
 export function HubSection({ id, title, intro, link, children, className = "bg-white" }) {
   return (
-    <section aria-labelledby={`${id}-heading`} className={`px-4 sm:px-6 py-14 sm:py-20 ${className}`}>
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+    <section aria-labelledby={`${id}-heading`} className={`px-4 sm:px-6 py-16 sm:py-24 ${className}`}>
+      <div className="max-w-7xl mx-auto">
+        <FoldRule />
+        <div className="mt-7 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div className="max-w-2xl">
-            <h2 id={`${id}-heading`} className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]">
+            <h2 id={`${id}-heading`} className="font-display font-semibold text-[1.75rem] sm:text-[2.25rem] leading-[1.1] tracking-[-0.02em] text-[#0F172A] text-balance">
               {title}
             </h2>
-            {intro ? <p className="mt-2 text-[#475569] leading-relaxed">{intro}</p> : null}
+            {intro ? <p className="mt-3 text-[1.0625rem] text-[#475569] leading-relaxed">{intro}</p> : null}
           </div>
           {link ? (
             <Link
@@ -134,42 +114,39 @@ export function AlreadyHappened({ box }) {
     <section
       id="already-happened"
       aria-labelledby="hub-already-happened-heading"
-      className="px-4 sm:px-6 py-14 sm:py-20 bg-white border-t border-[#F1F5F9]"
+      className="px-4 sm:px-6 py-16 sm:py-24 bg-[#F8FAFC] border-y border-[#E2E8F0]"
     >
-      <div className="max-w-6xl mx-auto rounded-2xl border border-[#D97706]/35 bg-[#FFFBEB] p-6 sm:p-10">
-        <div className="flex items-start gap-4 max-w-3xl">
-          <span className="shrink-0 w-11 h-11 rounded-xl bg-white border border-[#D97706]/30 flex items-center justify-center">
-            <LifeBuoy className="w-5 h-5 text-[#B45309]" aria-hidden="true" />
-          </span>
-          <div>
-            <h2
-              id="hub-already-happened-heading"
-              className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A]"
-            >
-              {box.title}
-            </h2>
-            {box.intro ? <p className="mt-2 leading-relaxed text-[#78350F]">{box.intro}</p> : null}
-          </div>
+      <div className="max-w-7xl mx-auto">
+        <FoldRule />
+        <div className="mt-7 max-w-3xl">
+          <Readout label className="flex items-center gap-2">
+            <LifeBuoy className="w-4 h-4 text-[#0F766E]" aria-hidden="true" />
+            Official channels, in order
+          </Readout>
+          <h2
+            id="hub-already-happened-heading"
+            className="mt-3 font-display font-semibold text-[1.75rem] sm:text-[2.25rem] leading-[1.1] tracking-[-0.02em] text-[#0F172A] text-balance"
+          >
+            {box.title}
+          </h2>
+          {box.intro ? <p className="mt-3 text-[1.0625rem] leading-relaxed text-[#475569]">{box.intro}</p> : null}
         </div>
-        <ol className="mt-8 grid gap-4 sm:grid-cols-2 list-none p-0">
+        <ol className="mt-10 grid sm:grid-cols-2 list-none p-0 m-0 border-t border-[#E2E8F0]">
           {steps.map((step, i) => {
             const external = step.href?.startsWith("http")
             return (
-              <li key={step.title} className="flex gap-4 rounded-xl border border-[#FDE68A] bg-white p-5">
-                <span
-                  aria-hidden="true"
-                  className="shrink-0 w-8 h-8 rounded-full bg-[#B45309] text-white text-sm font-bold flex items-center justify-center"
-                >
-                  {i + 1}
+              <li key={step.title} className="grid grid-cols-[3rem_1fr] gap-x-3 py-6 border-b border-[#E2E8F0] sm:odd:pr-8 sm:even:pl-8 sm:even:border-l">
+                <span aria-hidden="true" className="readout pt-1 text-[#0F766E]">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="font-semibold leading-snug text-[#0F172A]">{step.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-[#475569]">{step.detail}</p>
+                  <h3 className="font-display font-semibold text-[1.1875rem] leading-snug tracking-[-0.01em] text-[#0F172A]">{step.title}</h3>
+                  <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-[#475569]">{step.detail}</p>
                   {step.href ? (
                     <a
                       href={step.href}
                       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[#92400E] underline decoration-[#D97706]/40 underline-offset-4 hover:decoration-current"
+                      className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1D4ED8] underline decoration-[#1D4ED8]/30 underline-offset-4 hover:decoration-current"
                     >
                       {step.linkLabel || step.href}
                       {external ? (
@@ -219,76 +196,63 @@ export function ToolCard({ tool }) {
 
 function HubHeader({ hub }) {
   const accent = ACCENTS[hub.accent] || ACCENTS.business
-  const Icon = accent.icon
   const startHere = resolveStartHere(hub.startHere)
 
   return (
-    <section
-      aria-labelledby="hub-title"
-      className={`relative overflow-hidden bg-gradient-to-b ${accent.band} px-4 sm:px-6 pt-28 sm:pt-36 pb-14 sm:pb-20`}
-    >
-      <div
-        aria-hidden="true"
-        className={`pointer-events-none absolute -top-24 right-[-6rem] w-[22rem] h-[22rem] rounded-full blur-3xl ${accent.glow}`}
-      />
-      <div className="relative max-w-6xl mx-auto">
-        <span
-          className={`inline-flex items-center gap-2 text-xs font-semibold tracking-[0.08em] uppercase px-3 py-1.5 rounded-full border ${accent.pill}`}
-        >
-          <Icon className="w-3.5 h-3.5" aria-hidden="true" />
+    <section aria-labelledby="hub-title" className="bg-night text-night-ink px-4 sm:px-6 pt-28 sm:pt-36 pb-16 sm:pb-24">
+      <div className="max-w-7xl mx-auto">
+        <FoldRule tone="night" draw />
+        <Readout tone="night" label className="mt-7 flex items-center gap-2">
+          <span aria-hidden="true" className={`w-2 h-2 ${HEX} ${accent.mark}`} />
           {hub.eyebrow}
-        </span>
+        </Readout>
         <h1
           id="hub-title"
-          className="mt-5 max-w-3xl text-[2.25rem] leading-[1.08] sm:text-5xl lg:text-[3.5rem] font-bold tracking-tight text-[#0F172A] text-balance"
+          className="mt-4 max-w-4xl font-display font-semibold text-[2.5rem] sm:text-[3.5rem] lg:text-[4rem] leading-[1.02] tracking-[-0.03em] text-balance"
         >
           {hub.title}
         </h1>
-        <div className="mt-5 max-w-2xl space-y-3 text-lg leading-relaxed text-[#475569]">
+        <div className="mt-6 max-w-2xl space-y-3 text-lg sm:text-[1.1875rem] leading-relaxed text-night-ink-2">
           {hub.promise.map((line) => (
             <p key={line}>{line}</p>
           ))}
         </div>
-        {hub.note ? <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[#64748B]">{hub.note}</p> : null}
+        {hub.note ? <p className="mt-4 max-w-2xl text-sm leading-relaxed text-night-readout">{hub.note}</p> : null}
 
         {hub.clearPath ? (
-          <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="mt-9 flex flex-col sm:flex-row sm:items-center gap-4">
             <Link
               href={hub.clearPath.href}
-              className={`group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-colors ${accent.cta}`}
+              className="group inline-flex items-center justify-center gap-2 h-12 px-6 bg-white text-[#0F172A] text-[15px] font-semibold hover:bg-[#F1F5F9] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F8F83]"
             >
               <Route className="w-5 h-5" aria-hidden="true" />
               {hub.clearPath.label}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
             </Link>
-            <p className="text-sm text-[#475569]">{hub.clearPath.line}</p>
+            <p className="text-sm text-night-ink-2">{hub.clearPath.line}</p>
           </div>
         ) : null}
 
         {startHere.length > 0 ? (
-          <div className="mt-10 sm:mt-12">
-            <h2 className="text-xs font-semibold tracking-[0.1em] uppercase text-[#64748B] mb-4">Start here</h2>
-            <ol className={`grid gap-4 list-none p-0 ${startHere.length > 2 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+          <div className="mt-14 sm:mt-16">
+            <Readout as="h2" tone="night" label className="mb-5">
+              Start here
+            </Readout>
+            <ol className={`grid gap-10 lg:gap-6 list-none p-0 m-0 ${startHere.length > 2 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
               {startHere.map((item, i) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`group flex h-full gap-4 bg-white/90 backdrop-blur-sm border border-[#E2E8F0] rounded-xl p-5 shadow-sm hover:shadow-md transition-all ${accent.cardHover}`}
+                    className="group block rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0F8F83]"
                   >
-                    <span
-                      className={`shrink-0 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center ${accent.number}`}
-                      aria-hidden="true"
-                    >
-                      {i + 1}
+                    <FoldRule tone="night" />
+                    <span aria-hidden="true" className="readout mt-4 block text-night-readout">
+                      {String(i + 1).padStart(2, "0")}
                     </span>
-                    <span className="min-w-0">
-                      <span
-                        className={`block font-semibold text-[#0F172A] leading-snug transition-colors ${accent.title}`}
-                      >
-                        {item.label}
-                      </span>
-                      <span className="block mt-1 text-sm leading-relaxed text-[#475569]">{item.description}</span>
+                    <span className="mt-2 block font-display font-semibold text-[1.3125rem] leading-tight tracking-[-0.01em] group-hover:text-night-accent transition-colors">
+                      {item.label}
                     </span>
+                    <span className="mt-2 block text-[0.9375rem] leading-relaxed text-night-ink-2">{item.description}</span>
                   </Link>
                 </li>
               ))}
@@ -303,13 +267,13 @@ function HubHeader({ hub }) {
 function GlossaryBand() {
   return (
     <section aria-labelledby="hub-glossary-heading" className="px-4 sm:px-6 pb-16 sm:pb-24 bg-white">
-      <div className="max-w-6xl mx-auto rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+      <div className="max-w-7xl mx-auto border border-[#E2E8F0] bg-[#F8FAFC] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
         <div className="flex items-start gap-4">
-          <span className="shrink-0 w-10 h-10 rounded-lg bg-white border border-[#E2E8F0] flex items-center justify-center">
+          <span className="shrink-0 w-10 h-10 bg-white border border-[#E2E8F0] flex items-center justify-center">
             <BookA className="w-5 h-5 text-[#1D4ED8]" aria-hidden="true" />
           </span>
           <div>
-            <h2 id="hub-glossary-heading" className="text-lg font-bold text-[#0F172A]">
+            <h2 id="hub-glossary-heading" className="font-display font-semibold text-[1.25rem] tracking-[-0.01em] text-[#0F172A]">
               New to the jargon?
             </h2>
             <p className="text-sm text-[#475569] mt-1">
@@ -319,7 +283,7 @@ function GlossaryBand() {
         </div>
         <Link
           href="/glossary"
-          className="inline-flex items-center justify-center gap-1.5 bg-white border border-[#E2E8F0] text-[#0F172A] text-sm font-semibold px-5 py-2.5 rounded-lg hover:border-[#1D4ED8]/40 hover:text-[#1D4ED8] transition-colors"
+          className="inline-flex items-center justify-center gap-1.5 bg-white border border-[#0F172A] text-[#0F172A] text-sm font-semibold px-5 h-11 hover:bg-[#F1F5F9] transition-colors"
         >
           Open the glossary
           <ArrowRight className="w-4 h-4" aria-hidden="true" />

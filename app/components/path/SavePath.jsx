@@ -125,7 +125,7 @@ export default function SavePath() {
   )
 
   const errorNote = error ? (
-    <p role="alert" className="mt-4 rounded-xl border border-[#B91C1C]/20 bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
+    <p role="alert" className="mt-4 border border-[#B91C1C]/20 bg-[#FEF2F2] px-4 py-3 text-sm text-[#B91C1C]">
       {error}
     </p>
   ) : null
@@ -134,9 +134,9 @@ export default function SavePath() {
     return (
       <div>
         {backLink}
-        <section className="mt-6 rounded-3xl border border-[#E2E8F0] bg-white p-6 sm:p-8">
+        <section className="mt-6 border border-[#E2E8F0] bg-white p-6 sm:p-8">
           <MailCheck className={`w-8 h-8 ${styles.icon}`} aria-hidden="true" />
-          <h1 ref={heading} tabIndex={-1} className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A] outline-none">
+          <h1 ref={heading} tabIndex={-1} className="mt-4 text-2xl sm:text-3xl font-display font-semibold tracking-[-0.02em] text-[#0F172A] outline-none">
             Check your email
           </h1>
           <p className="mt-3 text-[15px] leading-relaxed text-[#334155]">
@@ -152,7 +152,7 @@ export default function SavePath() {
               type="button"
               onClick={() => send(sentTo)}
               disabled={sending || !canResend}
-              className={`inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold ${styles.link} hover:bg-[#F1F5F9] disabled:opacity-60 disabled:hover:bg-transparent`}
+              className={`inline-flex items-center px-3.5 py-2 text-sm font-semibold ${styles.link} hover:bg-[#F1F5F9] disabled:opacity-60 disabled:hover:bg-transparent`}
             >
               {sending ? "Sending..." : canResend ? "Send it again" : "Send it again in a minute"}
             </button>
@@ -162,7 +162,7 @@ export default function SavePath() {
                 setSentTo("")
                 setError("")
               }}
-              className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
+              className="inline-flex items-center px-3.5 py-2 text-sm font-semibold text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
             >
               Use a different email
             </button>
@@ -175,9 +175,9 @@ export default function SavePath() {
   return (
     <div>
       {backLink}
-      <section className="mt-6 rounded-3xl border border-[#E2E8F0] bg-white p-6 sm:p-8">
-        <p className="text-xs font-semibold tracking-[0.12em] uppercase text-[#0F172A]">Clear Path</p>
-        <h1 ref={heading} tabIndex={-1} className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[#0F172A] outline-none">
+      <section className="mt-6 border border-[#E2E8F0] bg-white p-6 sm:p-8">
+        <p className="readout-label text-[#0F172A]">Clear Path</p>
+        <h1 ref={heading} tabIndex={-1} className="mt-2 text-2xl sm:text-3xl font-display font-semibold tracking-[-0.02em] text-[#0F172A] outline-none">
           {hasPath ? "Save your path" : "Open your saved path"}
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-[#334155]">
@@ -208,13 +208,13 @@ export default function SavePath() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className={`w-full rounded-xl border border-[#CBD5E1] bg-white py-3 pl-10 pr-4 text-[15px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-4 ${styles.field}`}
+              className={`w-full border border-[#CBD5E1] bg-white py-3 pl-10 pr-4 text-[15px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:ring-4 ${styles.field}`}
             />
           </div>
           <button
             type="submit"
             disabled={sending}
-            className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-[15px] font-semibold text-white disabled:opacity-60 ${styles.button}`}
+            className={`mt-4 inline-flex w-full items-center justify-center gap-2 px-5 py-3 text-[15px] font-semibold text-white disabled:opacity-60 ${styles.button}`}
           >
             {sending ? "Sending..." : "Email me a link"}
             {sending ? null : <ArrowRight className="w-4 h-4" aria-hidden="true" />}
