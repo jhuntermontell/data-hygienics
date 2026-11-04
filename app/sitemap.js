@@ -26,6 +26,8 @@ export default function sitemap() {
     { url: baseUrl, lastModified: staticReview, changeFrequency: "weekly", priority: 1.0 },
     { url: `${baseUrl}/check`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/steps`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
+    // The Home map landing. /map/home is the tool itself (noindex), so it stays out.
+    { url: `${baseUrl}/map`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/household`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/business`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/digital-sovereignty`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
