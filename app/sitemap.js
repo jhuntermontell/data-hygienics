@@ -38,6 +38,7 @@ export default function sitemap() {
     { url: `${baseUrl}/how-it-works`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/tools`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/tools/cyber-audit`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/email-check`, lastModified: reviewDate("2026-11"), changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/pricing`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/contact`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, lastModified: staticReview, changeFrequency: "yearly", priority: 0.3 },
