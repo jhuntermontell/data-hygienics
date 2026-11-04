@@ -2,7 +2,10 @@
 //
 // POST { messages: [{ role: "user" | "assistant", content: string }] }
 // The last message is the member's question; up to HISTORY_TURNS earlier
-// messages travel with it as plain text.
+// messages travel with it as plain text. Optional `context`: the member's
+// home map summary (lib/map/summary.js, built in the browser), a string of
+// at most MAX_CONTEXT_CHARS; angle brackets are stripped here so it can't
+// close its <home_map> tag.
 //
 // Errors before the answer starts are plain JSON { error } with a status:
 //   400 bad request or question too long, 401 signed out, 403 not a member
@@ -28,7 +31,7 @@ import { NextResponse } from "next/server"
 import { resolveMember } from "@/lib/assistant/auth"
 import { readUsage, recordUsage, BREAK_MESSAGE } from "@/lib/assistant/usage"
 import { prepare, requestParams, sumUsage, billedInput, citedSources } from "@/lib/assistant/pipeline"
-import { DAILY_MESSAGE_CAP, MAX_QUESTION_CHARS, MONTHLY_TOKEN_CAP } from "@/lib/assistant/limits"
+import { DAILY_MESSAGE_CAP, MAX_CONTEXT_CHARS, MAX_QUESTION_CHARS, MONTHLY_TOKEN_CAP } from "@/lib/assistant/limits"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -83,6 +86,17 @@ export async function POST(request) {
       )
     }
 
+    let context = ""
+    if (body.context !== undefined && body.context !== null) {
+      if (typeof body.context !== "string") {
+        return NextResponse.json({ error: "Home map summary must be text." }, { status: 400 })
+      }
+      context = body.context.replace(/[<>]/g, "").trim()
+      if (context.length > MAX_CONTEXT_CHARS) {
+        return NextResponse.json({ error: "Home map summary too long." }, { status: 400 })
+      }
+    }
+
     const before = await readUsage(service, userId)
     if (before.error) {
       console.error("Assistant usage lookup failed:", JSON.stringify(before.error))
@@ -106,7 +120,7 @@ export async function POST(request) {
       return NextResponse.json({ error: BREAK_MESSAGE }, { status: 503 })
     }
 
-    const { messages: modelMessages, sources } = prepare({ history: messages.slice(0, -1), question })
+    const { messages: modelMessages, sources } = prepare({ history: messages.slice(0, -1), question, context })
     const params = requestParams(modelMessages)
 
     const encoder = new TextEncoder()

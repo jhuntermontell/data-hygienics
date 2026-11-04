@@ -42,3 +42,7 @@ next-env.d.ts
 
 # Stripe live webhook signing secret (written by scripts/stripe-setup.mjs --live)
 .stripe-live-webhook-secret
+
+# Claude Code session-local files
+.claude/settings.local.json
+.claude/worktrees/

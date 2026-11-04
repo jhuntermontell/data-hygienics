@@ -7,10 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Data Hygienics** is the independent field guide to living and working securely alongside AI, for households and small businesses. We research what people need to know about securing their digital life, then educate and direct them: creative, to the point, every number sourced.
 
 - **Home** (`/household`): households, families, parents, adult children helping older relatives, remote workers on personal devices.
-- **Business** (`/business`): owner-operators and whoever "got handed IT" at 1-50 person organizations. The paid business tools live here.
+- **Business** (`/business`): owner-operators and whoever "got handed IT" at 1-50 person organizations. The paid business tools live here. The business plan (`design/strategy/business-plan-2026.md`, owner's decision of 2026-11-04: it governs over every older strategy note) positions Business as the neutral proof and trust layer, "the record that proves your business is as careful as you say", and makes Data Hygienics Verified (a checked, dated evidence record) the 2027 paid product. Read the plan's appendix before proposing business features or copy.
 - **Digital Sovereignty** (`/digital-sovereignty`): a cross-cutting pillar about owning your data, identity, and choices in an AI-mediated world. Strictly non-partisan.
 
-Independence is the brand: we sell no security products other than our own business tools, take no referral fees, use no affiliate links, and accept no sponsorships.
+Independence is the brand: we sell no security products other than our own business tools, take no referral fees, use no affiliate links, and accept no sponsorships. Say "Verified" and "checked evidence", never "certified"; every public statement about a customer says only what was checked and when.
 
 ## Commands
 
@@ -44,6 +44,7 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 - Threat Check (secondary line "Is this real?"): `/check` (the grid of verdict chips) and `/check/[slug]` (one verdict per message type, with a share card and a Path chip). The navbar door `NAV.door` points here on every page.
 - Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer and shows a provisional first step before any question, `app/components/path/FirstStep.jsx`)
 - Step pages: `/steps` and `/steps/[id]`, one indexable public page per Path step across both audiences (`lib/steps.js`, `app/components/steps/StepArticle.jsx`). Step ids are public URLs now: never rename one.
+- Home map: `/map` (landing) and `/map/home` (the tool, noindex, free, local-first: `app/components/map/*`, `lib/map.js`, `lib/map/*`). Devices and the accounts that control them, findings pointing at Path steps, a readout of counts per outcome. The map lives in the browser, a saved file and paper; only counts per outcome, an item count and a check date sync to `home_map_results`. AI reads of a label photo or device-list screenshot (`app/api/map/read`, members only, shares Ask's caps) send the downscaled image with nothing else and store nothing. No network scanning, no terminal commands, no installable app: see `design/strategy/home-scanner-decision.md`.
 - Research library: `/threats`, `/threats/[slug]`, `/guides`, `/guides/[slug]`, `/digital-sovereignty/[slug]` (explainers), `/toolkit`, `/glossary`, `/controls`, `/controls/[slug]`
 - Business tools: `/tools`, `/tools/cyber-audit/*`, `/tools/policies/*`, `/tools/ir-plan/*`, `/pricing`
 - Company: `/about`, `/how-it-works` ("How we work"), `/contact`, `/privacy`, `/terms`
@@ -57,6 +58,7 @@ All research content is pure-data JS modules under `lib/content/` (import-free s
 - `lib/content/toolkit.js`, `glossary.js`, `sovereignty.js` (PRINCIPLES), `home.js` (WHAT_CHANGED)
 - `lib/content/manifesto.js`: the How we work page (`/how-it-works`), three numbered parts plus the method. Validated like the library (tier 1-2 markers, no uncited statistics, no detection claims).
 - `lib/content/sources/<group>.js`: source records `{ id, label, publisher, url, published, type, tier, accessed, notes }`
+- `lib/content/map/`: `categories.js` (device and account categories with up to three questions each; option values are stored keys), `catalog.js` (router and gateway models with support status, cited to maker end-of-life pages and CISA KEV; a person checks every date), `rules.js` (finding rules as data: condition, outcome, severity, Path `stepId`), `future.js` (dated, sourced lines on maker support laws). Sources in `lib/content/sources/devices.js`. Validated by the Home map section of the validator; `node scripts/map-check.mjs` is the logic harness.
 
 Aggregators own registration and expose getters: `lib/threats.js`, `lib/guides.js`, `lib/sovereignty.js`, `lib/verdicts.js`, `lib/toolkit.js`, `lib/glossary.js`, `lib/sources.js`, plus `lib/library.js` (latest, related resolution, hub content). **Adding an entry means creating the file and importing it in its aggregator.** Helpers live in `lib/content.js`.
 
@@ -77,7 +79,8 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 - Steps may carry optional `after` (one present-tense sentence of what is true afterwards), `sayThis` (an if-then line to say aloud) and `cadence: "once" | "ongoing"`; the "Set once" or "Ongoing" label otherwise derives from `type`. Add fields, never rename keys.
 - Horizons (`lib/horizons.js`): `now`, `next`, `future` ("Long View", always five years out, never hard-coded). The glossary tags every term with one. Horizons are directions, never deadlines: no dates or countdowns on steps.
 - Progress is counts per outcome (Hard to break into, Hard to fool, Quick to recover, In your control). No composite score or grade; the Cyber Audit does grading.
-- Analytics (`lib/analytics.js`, Vercel Web Analytics): exactly six events, `chip_clicked`, `path_completed`, `step_done`, `path_saved`, and the membership funnel pair `join_viewed`, `join_started`. Do not add events without a reason written down.
+- The home map shows counts per outcome, never a score; findings link to step pages, never to vendors.
+- Analytics (`lib/analytics.js`, Vercel Web Analytics): exactly seven events, `chip_clicked`, `path_completed`, `step_done`, `path_saved`, the membership funnel pair `join_viewed`, `join_started`, and `map_checked` (reason recorded in `lib/analytics.js`). Do not add events without a reason written down.
 
 ## Voice and terminology
 
@@ -90,7 +93,7 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 ## Business tools and entitlement
 
 - `lib/stripe/access.js` `getPlanAccess(plan, status, purchases, isAdmin)` is the single source of truth for feature flags. `profiles.is_admin` short-circuits to full access.
-- Current catalog: Data Hygienics Membership (plans `member_home` and `member_business`, monthly or annual, plus founding annual prices that sunset for new checkouts at `FOUNDING_UNTIL` in `lib/stripe/prices.js` while existing subscriptions keep their rate) and the Documentation Pack (one-time). Pitch copy and prices live in `lib/content/membership.js` (never type a price into copy: write `{home.monthly}` and render through `withPrices()`); products and prices are created idempotently by `node scripts/stripe-setup.mjs` (test mode by default, refuses live keys; `--live` reads `STRIPE_LIVE_SECRET_KEY`, requires typing LIVE, and also creates the `PACK_TO_MEMBER` coupon, billing portal configuration and production webhook endpoint). Ongoing Protection (`protection`) is retired from sale but still mapped and honored. Grandfathered plans `starter`, `professional`, `msp`, and `agency` keep their entitlements and render with "(Legacy)" labels; they are never offered for sale. `lib/stripe/prices.js` placeholders fail closed (checkout rejects them).
+- Current catalog: Data Hygienics Membership (plans `member_home` and `member_business`, monthly or annual, plus founding annual prices that sunset for new checkouts at `FOUNDING_UNTIL` in `lib/stripe/prices.js` while existing subscriptions keep their rate) and the Documentation Pack (one-time). Pitch copy and prices live in `lib/content/membership.js` (never type a price into copy: write `{home.monthly}` and render through `withPrices()`); products and prices are created idempotently by `node scripts/stripe-setup.mjs` (test mode by default, refuses live keys; `--live` reads `STRIPE_LIVE_SECRET_KEY`, requires typing LIVE, and also creates the `PACK_TO_MEMBER` coupon, billing portal configuration and production webhook endpoint). Ongoing Protection (`protection`) is retired from sale but still mapped and honored; the business plan prices it again at $49 a month and it returns to sale only when the Verified catalog is created in Stripe. Grandfathered plans `starter`, `professional`, `msp`, and `agency` keep their entitlements and render with "(Legacy)" labels; they are never offered for sale. `lib/stripe/prices.js` placeholders fail closed (checkout rejects them).
 - The Cyber Audit appends a shared "AI Use and Data Handling" section (`lib/questions/shared/ai-use.js`) to every industry bank; unanswered sections marked `introduced` don't count against older assessments. The legal track is retired: it can't be chosen for new assessments, but `lib/questions/retired/legal.js` is a frozen copy that stored Legal assessments keep loading so their gaps, remediation, and grade stay accurate. Don't edit or extend it.
 - The AI Acceptable Use Policy is free and featured first in the Policy Library. The IR Planner includes AI scenarios (`deepfake_wire`, `ai_data_leak`) and incident types (`deepfake_fraud`, `ai_data_exposure`).
 - Don't rename stored keys (e.g. IR builder `is_msp`, remediation `mspQuestion`); saved plans and assessments depend on them.
@@ -103,9 +106,16 @@ Joining appears once per page and never inside a Threat Check verdict, a step's 
 
 "Ask Data Hygienics" (`/tools/ask`, `app/components/assistant/AskChat.jsx`, `app/api/assistant`) answers members' questions from the published library only, gated by `canAccessAssistant` (both membership plans, every grandfathered paid plan and the Documentation Pack). Silo: our published research only, cite the page, "We don't know yet" when it's silent, cybersecurity and digital hygiene only, no outside statistics or vendor pitches, never ask for passwords, codes or account numbers. Logic lives in `lib/assistant/` (relative imports only, so the harness runs in plain Node): `corpus.js` (documents and chunks), `retrieve.js` (BM25), `prompt.js` (frozen `SYSTEM_PROMPT`, cached), `pipeline.js` (shared request shape: `claude-sonnet-5-5`, effort low, `fallbacks: "default"`), `limits.js` (model, caps, prices), `usage.js`. Caps (question length, 40 messages a day, 600,000 tokens a month, about fifty questions) live in `limits.js`; usage is counted per member per month in `assistant_usage` (`supabase/migrations/20261027_assistant_usage.sql`), and a missing table fails closed with a 503. Compare models with `node scripts/assistant-eval.mjs` (`--dry` for retrieval only, `--only sonnet|haiku`); reports land in `output/assistant-eval/`.
 
-## Removed in the 2026-10 pivot (do not reintroduce)
+## The 2026-10 pivot and what the business plan brings back
 
-The Agency/MSP plan and its multi-client and branded-report features; the legal industry track; insurance carrier mapping (carrier readiness, proof pack, "insurance-ready" messaging); vendor security scorecards. Generic insurer context ("insurers often ask about this", the `cyber-insurance` control, IR plan insurance contacts) is fine.
+The October 2026 pivot removed the Agency/MSP plan with its multi-client and branded reports, the legal industry track, insurance carrier mapping (carrier readiness, the proof pack, "insurance-ready" messaging) and vendor security scorecards. On 2026-11-04 the owner decided the business plan governs, which changes the list:
+
+- **Returning:** insurance carrier mapping (the plan's carrier application pack and drift alerts) and neutral vendor security facts, under the plan's language rules: what was checked and when, never "insurance-ready" or "certified". The `/vendors*` and `/tools/vendor-scorecard*` redirects stay until the new pages exist.
+- **Returning with the 17-control baseline:** the legal industry track. `lib/questions/retired/legal.js` stays frozen for stored assessments until then; don't extend it.
+- **Still removed:** the per-client MSP plan and branded multi-client reports (paused to 2029, and only as a flat per-portfolio fee).
+- **Household:** the Clear Path, Threat Check and Home map stay free and get finished, not expanded. No new household paid offer in 2027. The household custody rule stays: no device lists, account maps or recovery notes on our side. Business evidence is held on purpose, under the plan's data-handling rules.
+
+Generic insurer context ("insurers often ask about this", the `cyber-insurance` control, IR plan insurance contacts) was always fine.
 
 **Auth emails**: the sign-in, sign-up and password emails are set in the Supabase dashboard. Branded versions live in `supabase/templates/` (see its README); editing them changes nothing until they are pasted into the dashboard.
 

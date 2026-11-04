@@ -26,6 +26,8 @@ export default function sitemap() {
     { url: baseUrl, lastModified: staticReview, changeFrequency: "weekly", priority: 1.0 },
     { url: `${baseUrl}/check`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/steps`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
+    // The Home map landing. /map/home is the tool itself (noindex), so it stays out.
+    { url: `${baseUrl}/map`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/household`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/business`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
     { url: `${baseUrl}/digital-sovereignty`, lastModified: staticReview, changeFrequency: "weekly", priority: 0.9 },
@@ -38,6 +40,7 @@ export default function sitemap() {
     { url: `${baseUrl}/how-it-works`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/tools`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/tools/cyber-audit`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${baseUrl}/email-check`, lastModified: reviewDate("2026-11"), changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/pricing`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/contact`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, lastModified: staticReview, changeFrequency: "yearly", priority: 0.3 },
