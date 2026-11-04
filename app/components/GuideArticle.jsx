@@ -1,23 +1,27 @@
-import { ListChecks, Clock, Gauge, ListOrdered, CircleCheck, Lightbulb, Info } from "lucide-react"
+import { ListChecks, Clock, Gauge, ListOrdered, CircleCheck, Lightbulb, Info, Users } from "lucide-react"
 import ArticleHeader from "./ArticleHeader"
 import { TldrBlock, Paragraphs, SectionHeading, FaqSection, MetaChip, asParagraphs } from "./ArticleParts"
 import AudienceBadge from "./AudienceBadge"
 import CitedText from "./CitedText"
 import SourceList from "./SourceList"
 import RelatedContent from "./RelatedContent"
+import TierChecker from "./TierChecker"
 import { knownCitations } from "./libraryHelpers"
-import { citationOrder } from "@/lib/content"
+import { citationOrder, stripCitations } from "@/lib/content"
 import { resolveRelated } from "@/lib/library"
 
 const DIFFICULTY_LABELS = { easy: "Easy", moderate: "Moderate" }
 
-// Renders a hygiene guide in CITATION_FIELD_ORDER: tldr, why, steps
-// (title, detail, verify), limits; then FAQs, related and sources.
+// Renders a hygiene guide in CITATION_FIELD_ORDER: tldr, why, the optional
+// tierChecker (a chooser over size bands), steps (title, detail, verify),
+// limits; then FAQs, related and sources.
 export default function GuideArticle({ entry }) {
   const { ids, number } = knownCitations(citationOrder(entry))
   const related = resolveRelated(entry)
   const steps = (entry.steps || []).filter((step) => step?.title || step?.detail)
   const limits = asParagraphs(entry.limits)
+  const tiers = entry.tierChecker
+  const bands = (tiers?.bands || []).filter((band) => band?.key && band?.label)
 
   return (
     <article>
@@ -62,6 +66,39 @@ export default function GuideArticle({ entry }) {
             Why it&apos;s worth doing
           </SectionHeading>
           <Paragraphs value={entry.why} number={number} />
+        </section>
+      ) : null}
+
+      {bands.length > 0 ? (
+        <section aria-labelledby="tiers-heading" className="mt-12">
+          <SectionHeading id="tiers-heading" icon={Users} description={tiers.intro ? <CitedText text={tiers.intro} number={number} /> : null}>
+            {tiers.title || "Which tier am I in"}
+          </SectionHeading>
+          <TierChecker
+            question={tiers.question}
+            options={bands.map((band) => ({ key: band.key, label: stripCitations(band.label) }))}
+            items={bands.map((band) => ({
+              key: band.key,
+              node: (
+                <div className="border border-[#E2E8F0] bg-white p-5 sm:p-6">
+                  <h3 className="text-lg font-display font-semibold text-[#0F172A] leading-snug">
+                    <CitedText text={band.label} number={number} />
+                  </h3>
+                  {band.tier ? <p className="readout-label text-[#1D4ED8] mt-1 mb-3">{band.tier}</p> : null}
+                  <Paragraphs
+                    value={band.requirement}
+                    number={number}
+                    className="text-[#334155] text-[15px] sm:text-base leading-relaxed mb-3 last:mb-0"
+                  />
+                </div>
+              ),
+            }))}
+          />
+          {asParagraphs(tiers.notes).length > 0 ? (
+            <div className="mt-4 border border-[#E2E8F0] bg-[#F8FAFC] p-5 sm:p-6">
+              <Paragraphs value={tiers.notes} number={number} className="text-[#334155] text-[15px] leading-relaxed mb-3 last:mb-0" />
+            </div>
+          ) : null}
         </section>
       ) : null}
 
