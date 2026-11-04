@@ -44,6 +44,7 @@ Next.js 16 App Router, React 19, JavaScript (no TypeScript), Tailwind CSS v4, fr
 - Threat Check (secondary line "Is this real?"): `/check` (the grid of verdict chips) and `/check/[slug]` (one verdict per message type, with a share card and a Path chip). The navbar door `NAV.door` points here on every page.
 - Clear Path: `/path/home` and `/path/business` (personal paths, noindex; `?start=<option>` pre-picks the first answer and shows a provisional first step before any question, `app/components/path/FirstStep.jsx`)
 - Step pages: `/steps` and `/steps/[id]`, one indexable public page per Path step across both audiences (`lib/steps.js`, `app/components/steps/StepArticle.jsx`). Step ids are public URLs now: never rename one.
+- Home map: `/map` (landing) and `/map/home` (the tool, noindex, free, local-first: `app/components/map/*`, `lib/map.js`, `lib/map/*`). Devices and the accounts that control them, findings pointing at Path steps, a readout of counts per outcome. The map lives in the browser, a saved file and paper; only counts per outcome, an item count and a check date sync to `home_map_results`. AI reads of a label photo or device-list screenshot (`app/api/map/read`, members only, shares Ask's caps) send the downscaled image with nothing else and store nothing. No network scanning, no terminal commands, no installable app: see `design/strategy/home-scanner-decision.md`.
 - Research library: `/threats`, `/threats/[slug]`, `/guides`, `/guides/[slug]`, `/digital-sovereignty/[slug]` (explainers), `/toolkit`, `/glossary`, `/controls`, `/controls/[slug]`
 - Business tools: `/tools`, `/tools/cyber-audit/*`, `/tools/policies/*`, `/tools/ir-plan/*`, `/pricing`
 - Company: `/about`, `/how-it-works` ("How we work"), `/contact`, `/privacy`, `/terms`
@@ -57,6 +58,7 @@ All research content is pure-data JS modules under `lib/content/` (import-free s
 - `lib/content/toolkit.js`, `glossary.js`, `sovereignty.js` (PRINCIPLES), `home.js` (WHAT_CHANGED)
 - `lib/content/manifesto.js`: the How we work page (`/how-it-works`), three numbered parts plus the method. Validated like the library (tier 1-2 markers, no uncited statistics, no detection claims).
 - `lib/content/sources/<group>.js`: source records `{ id, label, publisher, url, published, type, tier, accessed, notes }`
+- `lib/content/map/`: `categories.js` (device and account categories with up to three questions each; option values are stored keys), `catalog.js` (router and gateway models with support status, cited to maker end-of-life pages and CISA KEV; a person checks every date), `rules.js` (finding rules as data: condition, outcome, severity, Path `stepId`), `future.js` (dated, sourced lines on maker support laws). Sources in `lib/content/sources/devices.js`. Validated by the Home map section of the validator; `node scripts/map-check.mjs` is the logic harness.
 
 Aggregators own registration and expose getters: `lib/threats.js`, `lib/guides.js`, `lib/sovereignty.js`, `lib/verdicts.js`, `lib/toolkit.js`, `lib/glossary.js`, `lib/sources.js`, plus `lib/library.js` (latest, related resolution, hub content). **Adding an entry means creating the file and importing it in its aggregator.** Helpers live in `lib/content.js`.
 
@@ -77,7 +79,8 @@ The personal, ordered path for a home or business. Free, and local-first: answer
 - Steps may carry optional `after` (one present-tense sentence of what is true afterwards), `sayThis` (an if-then line to say aloud) and `cadence: "once" | "ongoing"`; the "Set once" or "Ongoing" label otherwise derives from `type`. Add fields, never rename keys.
 - Horizons (`lib/horizons.js`): `now`, `next`, `future` ("Long View", always five years out, never hard-coded). The glossary tags every term with one. Horizons are directions, never deadlines: no dates or countdowns on steps.
 - Progress is counts per outcome (Hard to break into, Hard to fool, Quick to recover, In your control). No composite score or grade; the Cyber Audit does grading.
-- Analytics (`lib/analytics.js`, Vercel Web Analytics): exactly six events, `chip_clicked`, `path_completed`, `step_done`, `path_saved`, and the membership funnel pair `join_viewed`, `join_started`. Do not add events without a reason written down.
+- The home map shows counts per outcome, never a score; findings link to step pages, never to vendors.
+- Analytics (`lib/analytics.js`, Vercel Web Analytics): exactly seven events, `chip_clicked`, `path_completed`, `step_done`, `path_saved`, the membership funnel pair `join_viewed`, `join_started`, and `map_checked` (reason recorded in `lib/analytics.js`). Do not add events without a reason written down.
 
 ## Voice and terminology
 

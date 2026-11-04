@@ -8,14 +8,22 @@
 // The conversation lives only in this component's state: nothing is saved,
 // and it clears when the page closes.
 //
+// Home map: when this browser holds a home map with items (lib/map/storage,
+// local only), a "Use my home map" toggle appears, off by default and never
+// remembered. When on, a short summary (lib/map/summary) travels with each
+// question as `context`; when off, no `context` field is sent at all.
+//
 // Answers render through a small safe renderer: paragraphs, numbered and
 // bulleted lists, **bold**, and markdown links to site paths or https URLs.
 // Everything else stays plain text. No HTML from the model reaches the DOM.
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { ArrowRight, LifeBuoy, Lock, Send, ShieldCheck } from "lucide-react"
+import { ArrowRight, Check, LifeBuoy, Lock, Map as MapIcon, Send, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
-import { DAILY_MESSAGE_CAP, MAX_QUESTION_CHARS, MONTHLY_TOKEN_CAP } from "@/lib/assistant/limits"
+import { DAILY_MESSAGE_CAP, MAX_CONTEXT_CHARS, MAX_QUESTION_CHARS, MONTHLY_TOKEN_CAP } from "@/lib/assistant/limits"
+import { loadLocal } from "@/lib/map/storage"
+import { assess } from "@/lib/map"
+import { summarize } from "@/lib/map/summary"
 import { MEMBERSHIP } from "@/lib/content/membership"
 import { EVENTS, track } from "@/lib/analytics"
 
@@ -26,6 +34,28 @@ const STARTERS = [
 ]
 
 const fmt = (n) => Number(n || 0).toLocaleString("en-US")
+
+// The stored home map, or null. Client-only and never throws.
+function loadHomeMap() {
+  try {
+    const record = loadLocal("home")
+    return Array.isArray(record?.items) && record.items.length ? record : null
+  } catch {
+    return null
+  }
+}
+
+// The summary that travels with a question, shaped the way the route
+// accepts it (no angle brackets, at most MAX_CONTEXT_CHARS), or "".
+function homeMapContext(record) {
+  if (!record) return ""
+  try {
+    const text = summarize(record, assess(record), { maxChars: MAX_CONTEXT_CHARS })
+    return typeof text === "string" ? text.replace(/[<>]/g, "").trim().slice(0, MAX_CONTEXT_CHARS) : ""
+  } catch {
+    return ""
+  }
+}
 
 async function authHeaders() {
   try {
@@ -261,6 +291,8 @@ export default function AskChat() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
+  const [homeMap, setHomeMap] = useState(null)
+  const [useHomeMap, setUseHomeMap] = useState(false)
   const endRef = useRef(null)
   const abortRef = useRef(null)
 
@@ -283,6 +315,10 @@ export default function AskChat() {
       cancelled = true
       abortRef.current?.abort()
     }
+  }, [])
+
+  useEffect(() => {
+    setHomeMap(loadHomeMap())
   }, [])
 
   useEffect(() => {
@@ -316,13 +352,20 @@ export default function AskChat() {
       setInput("")
       setSending(true)
 
+      // Built at send time from the latest stored map, so edits made in
+      // another tab since this page loaded are included.
+      const context = useHomeMap ? homeMapContext(loadHomeMap() || homeMap) : ""
+
       const controller = new AbortController()
       abortRef.current = controller
       try {
         const res = await fetch("/api/assistant", {
           method: "POST",
           headers: { "Content-Type": "application/json", ...(await authHeaders()) },
-          body: JSON.stringify({ messages: [...history, { role: "user", content: question }] }),
+          body: JSON.stringify({
+            messages: [...history, { role: "user", content: question }],
+            ...(context ? { context } : {}),
+          }),
           signal: controller.signal,
         })
 
@@ -390,7 +433,7 @@ export default function AskChat() {
         abortRef.current = null
       }
     },
-    [messages, sending, updateLast]
+    [messages, sending, updateLast, useHomeMap, homeMap]
   )
 
   const onSubmit = (e) => {
@@ -513,6 +556,32 @@ export default function AskChat() {
       </section>
 
       <form onSubmit={onSubmit} className="rounded-2xl border border-[#E2E8F0] bg-white p-3 sm:p-4">
+        {homeMap && (
+          <div className="mb-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              aria-pressed={useHomeMap}
+              aria-describedby="ask-map-note"
+              onClick={() => setUseHomeMap((on) => !on)}
+              className={`shrink-0 self-start inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F172A] ${
+                useHomeMap
+                  ? "border-[#0F766E] bg-[#F0FDFA] text-[#0F766E]"
+                  : "border-[#E2E8F0] bg-white text-[#0F766E] hover:border-[#0F766E] hover:bg-[#F0FDFA]"
+              }`}
+            >
+              {useHomeMap ? (
+                <Check className="w-4 h-4" aria-hidden="true" />
+              ) : (
+                <MapIcon className="w-4 h-4" aria-hidden="true" />
+              )}
+              Use my home map
+            </button>
+            <p id="ask-map-note" className="text-xs text-[#475569] leading-relaxed">
+              Sends a short summary (device types, brands and your answers; no names, serial numbers or addresses)
+              with this question.
+            </p>
+          </div>
+        )}
         <label htmlFor="ask-input" className="sr-only">
           Your question
         </label>

@@ -233,6 +233,19 @@ function HubHeader({ hub }) {
           </div>
         ) : null}
 
+        {hub.homeMap ? (
+          <p className="mt-5 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 text-sm">
+            <Link
+              href={hub.homeMap.href}
+              className="group inline-flex items-center gap-1.5 font-semibold text-night-ink underline underline-offset-4 decoration-night-line-2 hover:decoration-white rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0F8F83]"
+            >
+              {hub.homeMap.label}
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
+            </Link>
+            <span className="text-night-ink-2">{hub.homeMap.line}</span>
+          </p>
+        ) : null}
+
         {startHere.length > 0 ? (
           <div className="mt-14 sm:mt-16">
             <Readout as="h2" tone="night" label className="mb-5">

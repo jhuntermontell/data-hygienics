@@ -334,6 +334,15 @@ sup.cite a:focus-visible {
   .step-card {
     break-inside: avoid;
   }
+  /* The home map prints as the picture, the readout, the findings and the
+     item list (app/components/map). */
+  .home-picture {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .map-finding {
+    break-inside: avoid;
+  }
 }
 
 /* ── Verdict share card (app/components/check/ShareCard.jsx) ── */
