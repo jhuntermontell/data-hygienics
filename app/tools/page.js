@@ -1,7 +1,7 @@
 import Navbar from "@/app/components/Navbar"
 import Footer from "@/app/components/Footer"
 import Link from "next/link"
-import { Shield, FileText, BookOpen, ArrowRight, LifeBuoy, MessageCircle } from "lucide-react"
+import { Shield, FileText, BookOpen, ArrowRight, LifeBuoy, MessageCircle, MailCheck } from "lucide-react"
 import FoldRule from "@/app/components/brand/FoldRule"
 import Readout from "@/app/components/brand/Readout"
 
@@ -21,6 +21,16 @@ const activeTools = [
     consequence: "AI makes phishing emails cleaner and fake voices convincing. Knowing your gaps, including the AI ones, tells you where to start.",
     cta: "Start the free Quick Check",
     href: "/tools/cyber-audit",
+  },
+  {
+    icon: MailCheck,
+    name: "Email Spoofing Check",
+    badge: "Free",
+    badgeColor: "bg-[#ECFDF5] text-[#047857]",
+    description: "Type your email domain and read, in plain English, what your SPF, DKIM and DMARC records tell other mail servers about mail sent in your name, with what to do next. No account needed, and we don't store the domain you check.",
+    consequence: null,
+    cta: "Check your domain",
+    href: "/email-check",
   },
   {
     icon: FileText,
