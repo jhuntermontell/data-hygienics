@@ -1,6 +1,6 @@
 # Data Hygienics Verified: the 17-control baseline
 
-Written 2026-11-04. Status: draft for the owner's approval. Nothing in this document is built. It follows `design/strategy/business-plan-2026.md`, which governs, and it is the first of the Verified specs. Later specs cover the evidence review queue, the connectors, the carrier pack and the agency plan; this one defines what Verified checks.
+Written 2026-11-04. Status: approved by the owner on 2026-11-04, every recommendation in section 9 as written. Nothing in this document is built yet; section 8 is the build order. It follows `design/strategy/business-plan-2026.md`, which governs, and it is the first of the Verified specs. Later specs cover the evidence review queue, the connectors, the carrier pack and the agency plan; this one defines what Verified checks.
 
 The plan's sentence that this spec serves: "The core paid product is a checked evidence record across 17 controls. Each control on the public verify page shows how it was proven: checked by API, document reviewed, or owner attested."
 
@@ -279,9 +279,9 @@ Each step is one pull request and ships behind nothing the step before has not p
 
 The first ten customers are concierge: the founder runs the intake with them, which is where the questions and the rules get corrected before anyone else sees them.
 
-## 9. Decisions that are the owner's
+## 9. Decisions that were the owner's
 
-Each with a recommendation. The spec is written as if the recommendation holds.
+All eight decided on 2026-11-04 as recommended. The recommendations below are now the decisions.
 
 1. The minimum MFA tier to pass in 2027. Rec: Tier 1, with the tier shown, and Tier 2 as the announced minimum from a 2028 date.
 2. One record per account, with organizations deferred to the agency plan. Rec: yes.
