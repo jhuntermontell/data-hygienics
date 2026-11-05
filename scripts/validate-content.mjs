@@ -15,7 +15,10 @@
 // `cadence` fields, and step ids unique across both audiences. The home map
 // adds: categories, the router catalog (dates, sources, unique aliases),
 // finding rules (Home step ids, answer keys, no figures) and dated law lines,
-// plus smoke runs of lib/map.js and the sample CSV.
+// plus smoke runs of lib/map.js and the sample CSV. The Verified baseline
+// (lib/verified) adds: every control field, rules that resolve, proof
+// strongest first, library slugs, NIST and CIS references, banned words in
+// public copy, and control ids that never disappear without a retiredAt.
 
 import { fileURLToPath, pathToFileURL } from "node:url"
 import path from "node:path"
@@ -667,6 +670,152 @@ for (const e of CATALOG) {
   }
 }
 
+// ── Verified baseline (lib/verified) ─────────────────────────────────────
+// The seventeen controls as data: every field present and well-formed, each
+// rule names a predicate, proof methods strongest first, library slugs that
+// resolve, NIST CSF 2.0 and CIS v8 references in shape, no banned word in
+// public copy, and control ids that never disappear. VERIFIED_LEDGER is
+// append-only: every id ever shipped. An id may leave CONTROLS only by
+// moving to RETIRED with a `retiredAt` date. A smoke run of evaluate() on
+// empty facts must return seventeen open lines and no composite number.
+const VERIFIED_LEDGER = [
+  "mfa",
+  "admin_accounts",
+  "legacy_signin",
+  "email_auth",
+  "email_protection",
+  "endpoint_protection",
+  "patching",
+  "device_encryption",
+  "backups",
+  "access_lifecycle",
+  "credentials",
+  "training",
+  "incident_plan",
+  "written_program",
+  "payment_verification",
+  "connected_apps",
+  "external_exposure",
+]
+const verified = await load("lib/verified/baseline.js")
+const { RULES: VERIFIED_RULES } = await load("lib/verified/rules.js")
+const { evaluate: verifiedEvaluate } = await load("lib/verified/evaluate.js")
+{
+  const V_FIELDS = ["id", "name", "group", "promise", "question", "proof", "rule", "validity", "drift", "refs", "library", "insurer"]
+  const V_BANNED = /\b(certified|certification|compliant|compliance|secure|protected|safe|pass(es|ed|ing)?|grade|score)\b/i
+  const V_NIST = /^(GV|ID|PR|DE|RS|RC)\.[A-Z]{2}-\d{2}$/
+  const V_CIS = /^\d{1,2}\.\d{1,2}$/
+  const V_ID = /^[a-z][a-z0-9]*(_[a-z0-9]+)*$/
+  const TRAILING_PERIOD_V = /(?<!\.)\.\s*$/
+  const proofOrder = verified.PROOF_TYPES.map((p) => p.id)
+  const groupIds = new Set(verified.GROUPS.map((g) => g.id))
+  const conditions = new Set(["no_tenant", "under_five_devices", "under_five_people"])
+  const publicCopy = (where, field, value) => {
+    if (typeof value !== "string" || !value.trim()) return err(where, `${field} must be a non-empty string`)
+    if (V_BANNED.test(value)) err(where, `banned word in public ${field}: "${value.match(V_BANNED)[0]}"`)
+    if (/—/.test(value)) err(where, `em dash in ${field}`)
+    if (/\bMSPs?\b/.test(value)) err(where, `"MSP" in ${field}; say "IT provider"`)
+    for (const re of BANNED) if (re.test(value)) warn(where, `tone: ${re} in ${field}`)
+  }
+
+  if (verified.BASELINE_VERSION !== "2027.1" && !/^\d{4}\.\d+$/.test(verified.BASELINE_VERSION || "")) err("verified", "BASELINE_VERSION must look like YYYY.N")
+  if (verified.CONTROLS.length !== 17) err("verified", `${verified.CONTROLS.length} controls; the 2027.1 baseline has seventeen`)
+  for (const g of verified.GROUPS) {
+    if (!V_ID.test(g.id || "")) err(`verified group ${g.id}`, "id must be snake_case")
+    publicCopy(`verified group ${g.id}`, "name", g.name)
+  }
+  for (const s of verified.STATES) {
+    if (!["passed", "open", "expired", "drifted", "not_applicable"].includes(s.id)) err(`verified state ${s.id}`, "unknown state id")
+    if (s.label != null) publicCopy(`verified state ${s.id}`, "label", s.label)
+  }
+  if (verified.STATES.map((s) => s.id).join() !== "passed,open,expired,drifted,not_applicable") err("verified", "STATES must be passed, open, expired, drifted, not_applicable")
+  if (proofOrder.join() !== "api,dns,generated,document,attested") err("verified", "PROOF_TYPES must be api, dns, generated, document, attested (strongest first)")
+  for (const p of verified.PROOF_TYPES) publicCopy(`verified proof ${p.id}`, "label", p.label)
+
+  const seen = new Set()
+  const usedGroups = new Set()
+  for (const c of verified.CONTROLS) {
+    const where = `verified control ${c.id || "?"}`
+    for (const f of V_FIELDS) if (!(f in c)) err(where, `missing ${f}`)
+    if (seen.has(c.id)) err(where, "duplicate id")
+    seen.add(c.id)
+    if (!V_ID.test(c.id || "")) err(where, "id must be snake_case")
+    if (!VERIFIED_LEDGER.includes(c.id)) err(where, "id is not in VERIFIED_LEDGER (scripts/validate-content.mjs); add it there, it is append-only")
+    if (!groupIds.has(c.group)) err(where, `unknown group ${c.group}`)
+    usedGroups.add(c.group)
+    publicCopy(where, "name", c.name)
+    publicCopy(where, "promise", c.promise)
+    if (typeof c.question !== "string" || !c.question.trim().endsWith("?")) err(where, "question must be a question")
+    if (TRAILING_PERIOD_V.test(c.name || "")) warn(where, `name ends with a period: "${c.name}"`)
+    // proof: strongest first, known types and conditions
+    if (!Array.isArray(c.proof) || !c.proof.length) err(where, "proof must list at least one method")
+    else {
+      const idx = c.proof.map((p) => proofOrder.indexOf(p.type))
+      if (idx.some((i) => i < 0)) err(where, `unknown proof type in ${c.proof.map((p) => p.type).join(", ")}`)
+      if (idx.some((v, i) => i > 0 && v <= idx[i - 1])) err(where, "proof must be ordered strongest first, each type once")
+      for (const p of c.proof) {
+        if (typeof p.covers !== "string" || !p.covers) err(where, `proof ${p.type} needs covers`)
+        if (p.only != null && !conditions.has(p.only)) err(where, `proof ${p.type} has unknown condition ${p.only}`)
+      }
+    }
+    if (typeof VERIFIED_RULES[c.rule] !== "function") err(where, `rule ${c.rule} is not a predicate in lib/verified/rules.js`)
+    if (!(c.validity === null || (Number.isInteger(c.validity) && c.validity > 0))) err(where, "validity must be a whole number of days or null")
+    if (!(c.drift === null || ["tenant", "lookup"].includes(c.drift))) err(where, 'drift must be "tenant", "lookup" or null')
+    if (c.validity === null && !c.drift) err(where, "a continuous control needs a live check (drift) to keep it current")
+    // refs
+    const refs = c.refs || {}
+    if (!Array.isArray(refs.nist) || !refs.nist.length) err(where, "refs.nist needs at least one NIST CSF 2.0 subcategory")
+    for (const r of refs.nist || []) if (!V_NIST.test(r)) err(where, `refs.nist "${r}" is not a CSF 2.0 subcategory like PR.AA-03`)
+    if (!Array.isArray(refs.cis)) err(where, "refs.cis must be an array")
+    for (const r of refs.cis || []) if (!V_CIS.test(r)) err(where, `refs.cis "${r}" is not a CIS v8 safeguard like 6.3`)
+    for (const k of Object.keys(refs)) if (!["nist", "cis"].includes(k)) err(where, `refs.${k} is not nist or cis`)
+    // library
+    const lib = c.library || {}
+    if (!Array.isArray(lib.controls) || !Array.isArray(lib.guides)) err(where, "library needs controls and guides arrays")
+    if (!(lib.controls || []).length && !(lib.guides || []).length) err(where, "library links nothing")
+    for (const s of lib.controls || []) if (!slugIndex.controls.has(s)) err(where, `library control "${s}" is not in lib/controls.js`)
+    for (const s of lib.guides || []) {
+      const g = ALL_GUIDES.find((x) => x.slug === s)
+      if (!g) err(where, `library guide "${s}" is not in lib/guides.js`)
+      else if (g.status !== "published") warn(where, `library guide "${s}" is a draft`)
+    }
+    if (!Array.isArray(c.insurer)) err(where, "insurer must be an array")
+    else if (verified.BASELINE_VERSION === "2027.1" && c.insurer.length) err(where, "insurer stays empty in 2027.1 (reserved for the carrier pack)")
+    // tiers and not_applicable
+    if (c.id === "mfa") {
+      if (!Array.isArray(c.tiers) || c.tiers.map((t) => t.tier).join() !== "1,2,3") err(where, "tiers must be 1, 2 and 3")
+      for (const t of c.tiers || []) {
+        publicCopy(where, `tier ${t.tier} name`, t.name)
+        publicCopy(where, `tier ${t.tier} text`, t.text)
+      }
+    } else if ("tiers" in c) err(where, "only mfa carries tiers")
+    if ("notApplicableAllowed" in c && c.notApplicableAllowed !== true) err(where, "notApplicableAllowed is true or absent")
+    for (const k of Object.keys(c)) if (![...V_FIELDS, "tiers", "notApplicableAllowed"].includes(k)) err(where, `unexpected field ${k}`)
+  }
+  for (const g of groupIds) if (!usedGroups.has(g)) warn(`verified group ${g}`, "no control uses this group")
+
+  // Ids never disappear: each ledger id is live or retired with a date.
+  const retired = new Map((verified.RETIRED || []).map((r) => [r.id, r]))
+  for (const r of verified.RETIRED || []) {
+    if (!r.retiredAt || !DATE_DAY.test(r.retiredAt)) err(`verified retired ${r.id}`, "retiredAt must be YYYY-MM-DD")
+    if (seen.has(r.id)) err(`verified retired ${r.id}`, "a retired id cannot also be a live control")
+  }
+  for (const id of VERIFIED_LEDGER) if (!seen.has(id) && !retired.has(id)) err(`verified control ${id}`, "id disappeared; move it to RETIRED with a retiredAt date instead")
+
+  // Smoke: empty facts give seventeen open lines and no composite number.
+  let smoke = null
+  try {
+    smoke = verifiedEvaluate({ facts: {}, now: "2027-01-01" })
+  } catch (e) {
+    err("verified smoke", `evaluate() threw on empty facts: ${e.message}`)
+  }
+  if (smoke) {
+    if (smoke.controls.length !== verified.CONTROLS.length) err("verified smoke", "evaluate() must return one line per control")
+    for (const line of smoke.controls) if (line.state !== "open") err("verified smoke", `${line.id} is ${line.state} with no facts`)
+    if (/"(score|grade|percent|percentage|total)"/i.test(JSON.stringify(smoke))) err("verified smoke", "evaluate() must not return a composite number")
+  }
+}
+
 // ── Verdicts (/check) ────────────────────────────────────────────────────
 // Shared entry checks ran above (fields, citations, tier 1-2 sources, tone).
 // These are the verdict-only rules: the first screen is a procedure, so it
@@ -737,7 +886,7 @@ for (const [key, hub] of Object.entries(HUBS)) {
 }
 
 // ── Report ───────────────────────────────────────────────────────────────
-const counts = `${entries.length} entries (${ALL_VERDICTS.length} verdicts), ${ALL_TOOLS.length} tools, ${GLOSSARY.length} terms, ${Object.keys(SOURCES).length} sources, ${pathSteps} path steps, ${MAP_CATEGORIES.length} map categories, ${CATALOG.filter((e) => e.status === "published").length}/${CATALOG.length} catalog models published, ${MAP_RULES.length} map rules`
+const counts = `${entries.length} entries (${ALL_VERDICTS.length} verdicts), ${ALL_TOOLS.length} tools, ${GLOSSARY.length} terms, ${Object.keys(SOURCES).length} sources, ${pathSteps} path steps, ${MAP_CATEGORIES.length} map categories, ${CATALOG.filter((e) => e.status === "published").length}/${CATALOG.length} catalog models published, ${MAP_RULES.length} map rules, ${verified.CONTROLS.length} Verified controls`
 for (const w of warnings) console.log(`warn  ${w}`)
 for (const e of errors) console.log(`ERROR ${e}`)
 console.log(`\n${counts}: ${errors.length} errors, ${warnings.length} warnings`)
