@@ -41,6 +41,9 @@ export default function sitemap() {
     { url: `${baseUrl}/tools`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.7 },
     { url: `${baseUrl}/tools/cyber-audit`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.8 },
     { url: `${baseUrl}/email-check`, lastModified: reviewDate("2026-11"), changeFrequency: "monthly", priority: 0.8 },
+    // Our own Verified record (design/verified/baseline.md section 4): the
+    // first verify page. Customers' pages join here once their records exist.
+    { url: `${baseUrl}/verify/data-hygienics`, lastModified: reviewDate("2026-11"), changeFrequency: "weekly", priority: 0.7 },
     { url: `${baseUrl}/pricing`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/contact`, lastModified: staticReview, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, lastModified: staticReview, changeFrequency: "yearly", priority: 0.3 },
