@@ -426,7 +426,6 @@ function IndustryBrief({ entry, number }) {
         }
         datePublished={entry.datePublished}
         lastReviewed={entry.lastReviewed}
-        showFullByline
       />
 
       <TldrBlock text={entry.tldr} number={number} />

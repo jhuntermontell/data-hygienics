@@ -109,7 +109,7 @@ export default function ControlDetailClient({ control, tldr, faqs, reviewDisplay
         </motion.div>
 
         {/* Author byline */}
-        <AuthorByline showFull={true} lastReviewed={reviewDisplay || "April 2026"} />
+        <AuthorByline lastReviewed={reviewDisplay || "April 2026"} />
 
         {/* TL;DR */}
         <TLDR summary={tldr} />
