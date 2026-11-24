@@ -19,7 +19,6 @@ export default function ArticleHeader({
   chips,
   datePublished,
   lastReviewed,
-  showFullByline = false,
 }) {
   const eyebrowStyle =
     eyebrowVariant === "question"
@@ -58,7 +57,7 @@ export default function ArticleHeader({
           Published <time dateTime={datePublished}>{formatDate(datePublished)}</time>
         </p>
       ) : null}
-      <AuthorByline showFull={showFullByline} lastReviewed={formatMonth(lastReviewed)} />
+      <AuthorByline lastReviewed={formatMonth(lastReviewed)} />
     </header>
   )
 }
