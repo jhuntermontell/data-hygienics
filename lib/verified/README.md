@@ -8,6 +8,12 @@ The rules engine for Data Hygienics Verified, step 1 of the build order in `desi
 - `drift.js`: `detectDrift({ previous, current, insurerAnswers })` returns a plain-English event for each contradiction a live check finds, against the last passed facts or a "yes" the owner gave an insurer.
 - `dates.js`: day arithmetic in UTC.
 
+## Where the record lives (step 2)
+
+- `supabase/migrations/20261105_verified.sql`: the tables of spec section 5 (`verified_records`, `verified_controls`, `verified_evidence`, `verified_checks`, `verified_connections`, `insurer_answers`), their row-level security, and the view `verified_public`, the only relation a public page reads. Applied by hand in the Supabase dashboard.
+- `lib/verify/record.js`: reads the view for the verify page; `app/verify/[slug]/page.js` and `app/components/verify/VerifyRecord.jsx` render it. Labels come from `baseline.js`; the view carries ids.
+- `scripts/verified-seed-own.mjs`: writes our own record (`/verify/data-hygienics`) from `scripts/verified-own-facts.mjs` plus a live DNS lookup, through `evaluate()`. `--dry` evaluates without a database.
+
 ## Rules for this folder
 
 - Nothing here calls a network, a database or a model. Facts come in as plain objects; states go out as plain objects. Checks, uploads and the Hygienist's extraction live elsewhere and only produce facts.
